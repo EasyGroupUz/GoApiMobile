@@ -18,14 +18,14 @@ use Illuminate\Routing\Controller as BaseController;
  *      @OA\Contact(
  *          email="darius@matulionis.lt"
  *      ),
- *      * @OA\Server(
- *     description="SwaggerHUB API Mocking",
- *     url="https://virtserver.swaggerhub.com/swagger/Petstore/1.0.0"
- *     ),
  *     @OA\License(
  *         name="Apache 2.0",
  *         url="https://www.apache.org/licenses/LICENSE-2.0.html"
  *     )
+ * )
+ *  @OA\Server(
+ *     description="Pitak",
+ *     url="http://127.0.0.1:8000"
  * )
  */
 
