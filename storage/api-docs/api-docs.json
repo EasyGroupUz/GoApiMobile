@@ -15,6 +15,12 @@
             "url": "https://via.placeholder.com/190x90.png?text=L5-Swagger"
         }
     },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Pitak"
+        }
+    ],
     "paths": {
         "/api/login": {
             "post": {
@@ -31,11 +37,11 @@
                                 "properties": {
                                     "email": {
                                         "description": "write your email",
-                                        "type": "email"
+                                        "type": "string"
                                     },
                                     "password": {
                                         "description": "write your password",
-                                        "type": "password"
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -77,6 +83,16 @@
                         "bearer_token": []
                     }
                 ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearer_token": {
+                "type": "apiKey",
+                "description": "Sanctum security laravel",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     }
