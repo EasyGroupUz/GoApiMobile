@@ -8,7 +8,7 @@ use App\Models\Status;
 use App\Models\CarList;
 use App\Models\Country;
 use App\Models\City;
-use App\Models\Drivers;
+use App\Models\Driver;
 use App\Models\PersonalInfo;
 use Carbon\Carbon;
 
@@ -90,8 +90,10 @@ class OrderController extends Controller
     }
 
 
-    public function searchTaxi()
+    public function searchTaxi(Request $request)
     {
+        // return 'efesfse';
+
         $datetime="03-06-2023";
         $date=Carbon::parse($datetime)->addDays(-2)->format('Y-m-d');
         $dates=[];
@@ -101,31 +103,68 @@ class OrderController extends Controller
             $oncedate=Carbon::parse($date)->addDays($i)->format('Y-m-d');
             // dd($oncedate);
             $list=[];
-            $orders=Orders::where('start_date',$oncedate)->get();
-            // dd($orders);
-            foreach ($orders as $order) {
-                $personalInfo=PersonalInfo::where('id',Drivers::where('id',$order->driver_id)->first()->personal_info_id)->first();
-                // dd($personalInfo);
-                $options=[
-                    'adwadwadaw'=>true,
-                    'efsefsef'=>false,
-                    'fesfsefsef'=>true,                       
-                 ];
-                $data=[
-                    'start_date'=>$order->start_date ,
-                    'price'=>$order->price,
-                    'name'=>$personalInfo->first_name,
-                    'avatar'=>$personalInfo->avatar,
-                    'options'=>$options
-                ];
-                // dd($data);
-                array_push($list,$data);
+            if (Order::where('start_date',$oncedate)->exists()) {
+                $orders=Order::where('start_date',$oncedate)->get();
+                // dd($orders);
+                foreach ($orders as $order) {
+                    $personalInfo=PersonalInfo::where('id',Driver::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    // dd($personalInfo);
+                    $options=[
+                        'adwadwadaw'=>true,
+                        'efsefsef'=>false,
+                        'fesfsefsef'=>true,                       
+                     ];
+                    $data=[
+                        'start_date'=>$order->start_date ,
+                        'price'=>$order->price,
+                        'name'=>$personalInfo->first_name,
+                        'avatar'=>$personalInfo->avatar,
+                        'options'=>$options
+                    ];
+                    // dd($data);
+                    array_push($list,$data);
+                }
+                $aa[$oncedate] = $list;
             }
-            $aa[$oncedate] = $list;
-            // $dates[$oncedate]=0;        
+           
         }
        
-        dd($aa);
+        // dd($aa);
+        return response()->json(
+            $aa,
+            200
+        );
+
+    }
+
+    public function orderShow(Request $request){
+        
+        // $order_id=$request->order_id;
+         $order_id=2;
+         $order=Orders::where('id',$order_id)->first();
+        //  dd($order);
+         $driver=Driver::where('id',$order->driver_id)->first();
+         $car_list=CarList::where('id',$order->cars_list_id)->first();
+        //  dd($car_list);
+         $car=Cars::where('car_list_id',$car_list->id)->first();
+         $driver_information=[
+            'name'=>$driver->first_name,
+            'avatar'=>$driver->avatar
+         ];
+         $car_information=[
+            'name'=>$car_list->name,
+            'avater'=>$car->images
+
+             
+         ];
+         $list=[
+          'price'=>$order->price,
+          'price_type'=>$order->price_type,
+          'seats'=>$order->seats,
+          'driver_information'=>$driver_information,
+          'car_information'=>$car_information
+         ];
+         dd($list);
 
     }
 }
