@@ -12,7 +12,7 @@ class UserVerify extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'yy_users_verify';
+    protected $table = 'yy_user_verifies';
     /**
      * The attributes that are mass assignable.
      *
@@ -20,10 +20,15 @@ class UserVerify extends Authenticatable
      */
     protected $fillable = [
         'phone_number',
+        'user_id',
         'verify_code',
         'verify_date',
         'status_id',
     ];
+
+    public function user(){
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
 
 
 }

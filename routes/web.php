@@ -31,8 +31,8 @@ use App\Http\Controllers\CouponContoller;
 
 
 Auth::routes();
-
-Route::group(['middleware'=>['auth', 'language']], function(){
+Route::redirect('/', '/api/documentation');
+Route::group(['middleware'=>['language']], function(){
     Route::get('/', function () {
         return view('index');
     })->name('dashboard');

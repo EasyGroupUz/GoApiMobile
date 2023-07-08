@@ -15,6 +15,22 @@ class IsAuthController
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request);
+        if(isset($request->phone_number) && isset($request->Bearer_token)){
+            $model = UserVerify::where('phone_number', $request->phone_number)->first();
+            if(isset($model->id)){
+                if($model->verify_code == $request->verify_code){
+                    return $next($request);
+                }else{
+                    $message = 'Token error. re-enter the token';
+                }
+            }else{
+                $message = 'Enter your phone to authentificate';
+            }
+        }
+        $response = [
+            'Status'=>false,
+            'Message'=>$message
+        ];
+        return response()->json($response);
     }
 }

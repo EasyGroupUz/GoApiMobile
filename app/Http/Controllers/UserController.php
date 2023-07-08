@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Users;
 use App\Models\Role;
 use App\Models\Company;
 use App\Models\PersonalInfo;
@@ -21,7 +21,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $staffs = User::all();
+        $staffs = Users::all();
         return view('user.index', ['staffs'=>$staffs]);
     }
 
@@ -58,7 +58,7 @@ class UserController extends Controller
         $personal_info->gender = $data['gender'];
         $personal_info->birth_date = $data['birth_date'];
         $personal_info->save();
-        $model = new User();
+        $model = new Users();
         $model->email =  $data['email'];
         if(isset($request->password)){
             $model->password = Hash::make($data['password']);
@@ -80,7 +80,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        $model = User::find($id);
+        $model = Users::find($id);
         return view('user.show', ['model'=>$model]);
     }
 
@@ -91,7 +91,7 @@ class UserController extends Controller
     {
         $roles = Role::all();
         $companies = Company::all();
-        $staff = User::find($id);
+        $staff = Users::find($id);
         return view('user.edit', ['roles'=>$roles, 'companies'=>$companies, 'staff'=>$staff]);
     }
 
@@ -101,7 +101,7 @@ class UserController extends Controller
     public function update(UserRequest $request, string $id)
     {
         $data = $request->validated();
-        $model = User::find($id);
+        $model = Users::find($id);
         $personal_info = $model->personalInfo;
         $personal_info->first_name = $data['first_name'];
         $personal_info->last_name = $data['last_name'];
@@ -145,7 +145,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $model = User::find($id);
+        $model = Users::find($id);
         $sms_avatar = storage_path('app/public/user/'.$model->personalInfo->avatar);
         if(file_exists($sms_avatar)){
             unlink($sms_avatar);

@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderDetailsController;
 
 
 /*
@@ -19,23 +18,15 @@ use App\Http\Controllers\OrderDetailsController;
 */
 
 
-
-Route::post('/login', [AuthController::class, 'Login']);
+//
+Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
+Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
-    Route::group(['prefix' => 'client'], function () {
-        Route::group(['prefix' => 'order'], function () {
-            Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
-            Route::get('/show', [OrderController::class, 'orderShow']);
-        });
-        Route::group(['prefix' => 'orderDetail'], function () {
-            Route::post('/store', [OrderDetailsController::class, 'store']);
-            // Route::get('/show', [OrderController::class, 'orderShow']);
-        });
-    });
-    
+    Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
     Route::post('/logout', [AuthController::class, 'Logout']);
+    Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
+    Route::group(['prefix' => 'order'], function () {
+        Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
+        Route::get('/show', [OrderController::class, 'orderShow']);
+    });
 });
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });

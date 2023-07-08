@@ -27,7 +27,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Login with your email",
+                "summary": "Login with your phone",
                 "operationId": "Login",
                 "requestBody": {
                     "description": "Input data format",
@@ -35,13 +35,9 @@
                         "application/x-www-form-urlencoded": {
                             "schema": {
                                 "properties": {
-                                    "email": {
-                                        "description": "write your email",
-                                        "type": "string"
-                                    },
-                                    "password": {
-                                        "description": "write your password",
-                                        "type": "string"
+                                    "phone": {
+                                        "description": "write your phone",
+                                        "type": "integer"
                                     }
                                 },
                                 "type": "object"
@@ -54,6 +50,79 @@
                         "description": "Invalid input"
                     }
                 }
+            }
+        },
+        "/api/verify": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Confirm with your phone and with your verify code",
+                "operationId": "loginToken",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "phone_number": {
+                                        "description": "write your phone",
+                                        "type": "integer"
+                                    },
+                                    "verify_code": {
+                                        "description": "write your verify code",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/set-name-surname": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Set name surname",
+                "operationId": "Set_name_surname",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "firstname": {
+                                        "description": "write your firstname",
+                                        "type": "string"
+                                    },
+                                    "lastname": {
+                                        "description": "write your lastname",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
             }
         },
         "/api/logout": {
@@ -76,6 +145,44 @@
                 "responses": {
                     "405": {
                         "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/verify-get": {
+            "get": {
+                "tags": [
+                    "Phone"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "loginToken_get",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
                     }
                 },
                 "security": [
