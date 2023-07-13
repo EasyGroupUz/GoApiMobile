@@ -29,4 +29,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
         Route::get('/show', [OrderController::class, 'orderShow']);
     });
+    
 });
