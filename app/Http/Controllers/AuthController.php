@@ -170,19 +170,19 @@ class AuthController extends Controller
      */
     public function loginToken(Request $request){
         $fields = $request->validate([
-            'phone_number'=>'required|string',
-            'verify_code'=>'required|string'
+             'phone_number'=>'required',
+            'verify_code'=>'required'
         ]);
-        $model = UserVerify::where('phone_number', $fields['phone_number'])->first();
+        $model = UserVerify::where('phone_number',(int)$fields['phone_number'])->first();
         if(isset($model->id)){
             if($model->verify_code == $fields['verify_code']){
                 if(!isset($model->user->id)){
                     $new_user = new User();
                     $new_user->save();
                     $model->user_id = $new_user->id;
+                    $model->save();
                     $model->user->email = $model->phone_number;
                     $model->user->password = Hash::make($model->verify_code);
-                    $model->save();
                 }
                 $token = $model->user->createToken('myapptoken')->plainTextToken;
                 $model->user->token = $token;
