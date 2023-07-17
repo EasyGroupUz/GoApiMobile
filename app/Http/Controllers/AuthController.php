@@ -180,9 +180,9 @@ class AuthController extends Controller
                     $new_user = new User();
                     $new_user->save();
                     $model->user_id = $new_user->id;
+                    $model->save();
                     $model->user->email = $model->phone_number;
                     $model->user->password = Hash::make($model->verify_code);
-                    $model->save();
                 }
                 $token = $model->user->createToken('myapptoken')->plainTextToken;
                 $model->user->token = $token;
