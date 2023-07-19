@@ -295,7 +295,7 @@ class OrderController extends Controller
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
@@ -311,24 +311,4 @@ class OrderController extends Controller
             'list' => $arr
         ];
     }
-
-//     "id": 1,
-//     "start_date":"2023-04-03 00:00:00",
-//     "price": 120000,
-//     "from": "Navoiy",
-//     "to": "Tashkent",
-//     "seats_count": "4",
-//     "booking_count": 2,
-//     "driver_information":{
-//         "full_name":"Muxtorov A.A.",
-//         "phone_number":"9989765432",
-//         "img":"https://pitak/storage/driver/driver12.jpg",
-//         "rating":5
-//     },
-//     "options":{
-//         "luggage":false,
-//         "child_seat":true,
-//         "animal_seat":false,
-//         "smoke":0
-//     }
 }
