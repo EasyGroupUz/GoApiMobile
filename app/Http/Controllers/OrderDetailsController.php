@@ -32,7 +32,7 @@ class OrderDetailsController extends Controller
         
 
         $coupon= OrderDetails::create([
-            'user_id'
+//            'user_id'
             'from_id'=>$request->from_id,
             'to_id'=>$request->to_id,
             'seats_type'=>$request->seats_type,
