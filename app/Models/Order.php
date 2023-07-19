@@ -16,7 +16,7 @@ class Order extends Model
     protected $fillable = [
         'status_id',
         'driver_id',
-        'cars_list_id',
+        'car_id',
         'company_id',
         'from_id',
         'to_id',
@@ -39,7 +39,7 @@ class Order extends Model
 
     public function driver(): BelongsTo
     {
-        return $this->belongsTo(Driver::class);
+        return $this->belongsTo(User::class, 'driver_id', 'id');
     }
 
     // public function carList(): BelongsTo
@@ -47,9 +47,9 @@ class Order extends Model
     //     return $this->belongsTo(CarList::class);
     // }
 
-    public function carList()
+    public function car()
     {
-        return $this->hasOne(CarList::class, 'id', 'cars_list_id');
+        return $this->hasOne(Cars::class, 'id', 'car_id');
     }
 
     public function from(): BelongsTo
@@ -70,6 +70,11 @@ class Order extends Model
     public function commentScores()
     {
         return $this->hasMany(CommentScore::class, 'order_id', 'id');
+    }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'id');
     }
 
     // public function personalInfo(): BelongsTo

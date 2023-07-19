@@ -27,10 +27,19 @@ class User extends Authenticatable
         'company_id',
         'personal_info_id'
     ];
-    public function personalInfo(){
+
+    public function personalInfo()
+    {
         return $this->hasOne(PersonalInfo::class, 'id', 'personal_info_id');
     }
-    public function company(){
+    
+    public function company()
+    {
         return $this->hasOne(Company::class, 'id', 'company_id');
+    }
+
+    public function commentScores()
+    {
+        return $this->hasMany(CommentScore::class, 'driver_id', 'id')->where('type', 1);
     }
 }

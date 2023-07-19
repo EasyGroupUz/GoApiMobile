@@ -28,19 +28,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'Logout']);
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
 
-    Route::group(['prefix' => 'client'], function () {
-        Route::group(['prefix' => 'order'], function () {
-            Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
-            Route::get('/show', [OrderController::class, 'orderShow']);
-        });
+    // Route::group(['prefix' => 'client'], function () {
         Route::group(['prefix' => 'orderDetail'], function () {
             Route::post('/store', [OrderDetailsController::class, 'store']);
             // Route::get('/show', [OrderController::class, 'orderShow']);
         });
-    });
-
-    // Route::group(['prefix' => 'order'], function () {
-    //     Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
-    //     Route::get('/show', [OrderController::class, 'orderShow']);
     // });
+
+    Route::group(['prefix' => 'order'], function () {
+        Route::get('/history', [OrderController::class, 'history']);
+        Route::get('/index', [OrderController::class, 'index']);
+        Route::get('/show', [OrderController::class, 'show']);
+        Route::post('/create', [OrderController::class, 'create']);
+        Route::get('/expired', [OrderController::class, 'expired']);
+    });
 });

@@ -40,6 +40,11 @@ class OrderDetail extends Model
         return $this->belongsTo(Order::class);
     }
 
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'client_id', 'id');
+    }
+
     public function from(): BelongsTo
     {
         return $this->belongsTo(City::class);
