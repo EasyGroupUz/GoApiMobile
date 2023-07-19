@@ -32,7 +32,8 @@ class OrderDetail extends Model
         'company_id',
         'seats_type',
         'seats_count',
-        'price',
+        'from_id',
+        'start_date'
     ];
 
     public function order(): BelongsTo

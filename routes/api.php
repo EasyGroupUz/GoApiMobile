@@ -22,6 +22,7 @@ use App\Http\Controllers\OrderDetailsController;
 
 
 //
+
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -29,23 +30,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'Logout']);
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
 
-    Route::group(['prefix' => 'client'], function () {
         Route::group(['prefix' => 'order'], function () {
             Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
             Route::get('/show', [OrderController::class, 'orderShow']);
         });
+       
         Route::group(['prefix' => 'orderDetail'], function () {
             Route::post('/store', [OrderDetailsController::class, 'store']);
             // Route::get('/show', [OrderController::class, 'orderShow']);
         });
-    });
 
     Route::group(['prefix' => 'users'], function () {
         Route::get('/show', [UsersController::class, 'show']);
         Route::post('/update', [UsersController::class, 'update']);
         Route::post('/delete', [UsersController::class, 'delete']);
     });
-
 
     // Route::group(['prefix' => 'order'], function () {
     //     Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);

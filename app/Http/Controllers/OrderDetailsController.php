@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\OrderDetail;
 use Illuminate\Http\Request;
+use App\Constants;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+
 
 class OrderDetailsController extends Controller
 {
@@ -28,20 +33,51 @@ class OrderDetailsController extends Controller
      */
     public function store(Request $request)
     {
-        dd(auth()->user());
+        $request = $request->validate([
+           'from_id'=>'required',
+           'to_id'=>'required',
+           'seats_type'=>'required',
+           'seats_count'=>'required',
+           'date'=>'required'
+       ]);
+        //    dd($request);
+
+        $order_details= OrderDetail::create([
+            'client_id'=>auth()->id(),
+            'status_id'=>Constants::ACTIVE,
+            'from_id'=>$request['from_id'],
+            'to_id'=>$request['to_id'],
+            'seats_type'=>$request['seats_type'],
+            'seats_count'=>$request['seats_count'],
+            'start_date'=>date('Y-m-d', strtotime($request['date']))
+        ]);
         
 
-        $coupon= OrderDetails::create([
-//            'user_id'
-            'from_id'=>$request->from_id,
-            'to_id'=>$request->to_id,
-            'seats_type'=>$request->seats_type,
-            'seats_count'=>$request->seats_count,
-            'seats_type'=>$request->seats_type,
+        $timezone = 'Asia/Tashkent';
+        $date = Carbon::now($timezone)->format('Y-m-d H:i:s');
+        $came_date=date('Y-m-d', strtotime($request['date']));
+        $came_date_time=date('Y-m-d H:i:s', strtotime($request['date']));
+        $startDate=Carbon::parse($came_date)->subDays(3)->format('Y-m-d');
+        $endDate=Carbon::parse($came_date)->addDays(3)->format('Y-m-d');
 
-        ]);
+        if ( $came_date_time >= $date) {
+            $orders = DB::table('yy_orders')
+            ->where('start_date', '>=', $date)
+            ->select(DB::raw('DATE(start_date) as start_date'))
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->orderBy('start_date', 'asc')
+            ->distinct()
+            ->take(5)
+            ->get();
 
-        // return '';
+            // dd($orders);
+
+            return response()->json(
+                $orders
+            );
+
+        }
+
        
 
     }
