@@ -84,4 +84,5 @@ class CarListController extends Controller
         $model->delete();
         return redirect()->route('carList.index')->with('status', translate('Successfully deleted'));
     }
+
 }

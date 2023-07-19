@@ -381,7 +381,7 @@
         <!-- ========== Left Sidebar Start ========== -->
         <div class="left-side-menu">
 
-            <div class="h-100" data-simplebar>
+            <div class="h-100">
 
                 <!-- User box -->
                 <div class="user-box text-center">

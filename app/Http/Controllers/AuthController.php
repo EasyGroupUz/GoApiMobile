@@ -133,10 +133,6 @@ class AuthController extends Controller
    }
 
 
-//    public function pageToken($id){
-//        $user_verify = UserVerify::find($id);
-//        return view('otp.token', ['user_verify'=>$user_verify]);
-//    }
     /**
      * @OA\Post(
      *     path="/api/verify",
@@ -173,11 +169,18 @@ class AuthController extends Controller
              'phone_number'=>'required',
             'verify_code'=>'required'
         ]);
+        $random = rand(1000000, 9999999);
         $model = UserVerify::where('phone_number',(int)$fields['phone_number'])->first();
         if(isset($model->id)){
             if($model->verify_code == $fields['verify_code']){
                 if(!isset($model->user->id)){
                     $new_user = new User();
+                    $old_user = User::order_by('created_at', 'desc')->first();
+                    if(isset($old_user) && isset($old_user->personal_account)){
+                        $new_user->personal_account = $old_user->personal_account+1;
+                    }else{
+                        $new_user->personal_account = 1000000;
+                    }
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();

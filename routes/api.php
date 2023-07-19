@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\OrderDetailsController;
 
 
@@ -44,6 +45,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         //     Route::post('/driver-car', [OrderDetailsController::class, 'store']);
         //     // Route::get('/show', [OrderController::class, 'orderShow']);
         // });
+
+    Route::group(['prefix' => 'users'], function () {
+        Route::get('/show', [UsersController::class, 'show']);
+        Route::post('/update', [UsersController::class, 'update']);
+        Route::post('/delete', [UsersController::class, 'delete']);
+    });
 
     // Route::group(['prefix' => 'order'], function () {
     //     Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
