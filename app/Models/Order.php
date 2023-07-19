@@ -24,7 +24,8 @@ class Order extends Model
         'price_type',
         'title',
         'start_date',
-        'seats'
+        'seats',
+        'booking_place'
     ];
 
     public function status(): BelongsTo

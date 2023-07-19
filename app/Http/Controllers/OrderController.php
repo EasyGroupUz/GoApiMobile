@@ -10,7 +10,11 @@ use App\Models\Country;
 use App\Models\City;
 use App\Models\Driver;
 use App\Models\PersonalInfo;
+use App\Models\User;
 use Carbon\Carbon;
+use App\Constants;
+use Illuminate\Support\Facades\DB;
+
 
 
 use App\Http\Requests\OrderRequest;
@@ -92,48 +96,56 @@ class OrderController extends Controller
 
     public function searchTaxi(Request $request)
     {
-        // return 'efesfse';
+        // dd($request->all());
+        // $request = $request->validate([
+        //     'from_id'=>'required',
+        //     'to_id'=>'required',
+        //     'date'=>'required'
+        // ]);
 
-        $datetime="03-06-2023";
-        $date=Carbon::parse($datetime)->addDays(-2)->format('Y-m-d');
-        $dates=[];
-        $aa=[];
 
-        for ($i=1; $i <= 5; $i++) {
-            $oncedate=Carbon::parse($date)->addDays($i)->format('Y-m-d');
-            // dd($oncedate);
-            $list=[];
-            if (Order::where('start_date',$oncedate)->exists()) {
-                $orders=Order::where('start_date',$oncedate)->get();
+            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
+            // dd($tomorrow);
+            $list=[]; 
+                $orders = DB::table('yy_orders')
+                ->where('status_id', Constants::ORDERED)
+                ->where('from_id', $request->from_id)
+                ->where('from_id', $request->to_id)
+                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+                ->where('start_date','>',$date)
+                ->where('start_date','<',$tomorrow)
+                // ->orderBy('start_date', 'asc')
+                ->get();
                 // dd($orders);
+                $total_trips=Order::where('driver_id',auth()->id())
+                    ->where('status_id', Constants::COMPLETED)
+                    ->count();
+                    // dd($total_trips);
+
                 foreach ($orders as $order) {
-                    $personalInfo=PersonalInfo::where('id',Driver::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    // dd();
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
                     // dd($personalInfo);
-                    $options=[
-                        'adwadwadaw'=>true,
-                        'efsefsef'=>false,
-                        'fesfsefsef'=>true,                       
-                     ];
                     $data=[
                         'start_date'=>$order->start_date ,
-                        'price'=>$order->price,
-                        'name'=>$personalInfo->first_name,
                         'avatar'=>$personalInfo->avatar,
-                        'options'=>$options
+                        'rating'=>4,
+                        'price'=>$order->price,
+                        'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                        'total_trips'=>$total_trips,
+                        'count_pleace'=>$order->booking_place,
                     ];
                     // dd($data);
                     array_push($list,$data);
-                }
-                $aa[$oncedate] = $list;
-            }
-           
-        }
-       
+                }       
         // dd($aa);
-        return response()->json(
-            $aa,
-            200
-        );
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $list,
+
+        ], 200);
 
     }
 
@@ -164,7 +176,7 @@ class OrderController extends Controller
           'driver_information'=>$driver_information,
           'car_information'=>$car_information
          ];
-         dd($list);
+        //  dd($list);
 
     }
 }
