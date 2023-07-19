@@ -191,6 +191,129 @@
                     }
                 ]
             }
+        },
+        "/api/users/show": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "show",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/users/update": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "operationId": "update",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "first_name": {
+                                        "description": "write your firstname",
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "description": "write your lastname",
+                                        "type": "string"
+                                    },
+                                    "middle_name": {
+                                        "description": "write your middlename",
+                                        "type": "string"
+                                    },
+                                    "birth_date": {
+                                        "description": "write your birth date format data(1999-01-21)",
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "gender": {
+                                        "description": "write your gender",
+                                        "type": "integer"
+                                    },
+                                    "phone_number": {
+                                        "description": "write your phone number",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/users/delete": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "delete",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
         }
     },
     "components": {
