@@ -192,6 +192,104 @@
                 ]
             }
         },
+        "/api/car/list": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "information",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/car/create": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "",
+                "operationId": "create",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "class_id": {
+                                        "description": "write your class(select option)",
+                                        "type": "integer"
+                                    },
+                                    "model_id": {
+                                        "description": "write your model(select option)",
+                                        "type": "integer"
+                                    },
+                                    "color_id": {
+                                        "description": "write your color(select option)",
+                                        "type": "integer"
+                                    },
+                                    "production_date": {
+                                        "description": "write your production date",
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "state_number": {
+                                        "description": "write your state number",
+                                        "type": "string"
+                                    },
+                                    "wheel_side": {
+                                        "description": "write your wheel side(select option)",
+                                        "type": "integer"
+                                    },
+                                    "count_place": {
+                                        "description": "write your number of seats in your car(select option)",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/users/show": {
             "get": {
                 "tags": [

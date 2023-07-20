@@ -3,155 +3,168 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Users;
-use App\Models\Role;
-use App\Models\Company;
-use App\Models\PersonalInfo;
-use App\Http\Requests\UserRequest;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\UserVerify;
+
 class UserController extends Controller
 {
-    public function settings(){
-        return view('settings.index');
-    }
-
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/users/show",
+     *     tags={"Users"},
+     *     summary="Finds Pets by status",
+     *     description="Multiple status values can be provided with comma separated string",
+     *     operationId="show",
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Status values that needed to be considered for filter",
+     *         required=true,
+     *         explode=true,
+     *         @OA\Schema(
+     *             default="available",
+     *             type="string",
+     *             enum={"available", "pending", "sold"},
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid status value"
+     *     ),
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      */
-    public function index()
-    {
-        $staffs = Users::all();
-        return view('user.index', ['staffs'=>$staffs]);
-    }
+    public function show(){
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $roles = Role::all();
-        $companies = Company::all();
-        return view('user.create', ['roles'=>$roles, 'companies'=>$companies]);
+        $model = Auth::user();
+        $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':[''];
+        $last_name = $model->personalInfo->last_name?$model->personalInfo->last_name.'. ':[''];
+        $middle_name = $model->personalInfo->middle_name?$model->personalInfo->middle_name.'.':[''];
+        $list = [
+          'img'=>$model->personalInfo->avatar,
+          'full_name'=>$first_name.''.strtoupper($last_name[0]).''.strtoupper($middle_name[0]),
+          'birth_date'=>$model->personalInfo->birth_date,
+          'gender'=>$model->personalInfo->gender,
+          'phone_number'=>$model->personalInfo->phone_number,
+//          'rating'=>$model->personalInfo,
+        ];
+        $response = [
+            'status'=>true,
+            'message'=>'success',
+            'list'=>$list
+        ];
+        return response()->json($response);
     }
-
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/users/update",
+     *     tags={"Users"},
+     *     summary="Update user",
+     *     operationId="update",
+     *     @OA\Response(
+     *         response=405,
+     *         description="Invalid input"
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Input data format",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="first_name",
+     *                     description="write your firstname",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="last_name",
+     *                     description="write your lastname",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="middle_name",
+     *                     description="write your middlename",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="birth_date",
+     *                     description="write your birth date format data(1999-01-21)" ,
+     *                     type="date",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="gender",
+     *                     description="write your gender",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="phone_number",
+     *                     description="write your phone number",
+     *                     type="string",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      */
-    public function store(UserRequest $request)
-    {
-        $data = $request->validated();
-        $personal_info = new PersonalInfo();
-        $personal_info->first_name = $data['first_name'];
-        $personal_info->last_name = $data['last_name'];
-        $personal_info->middle_name = $data['middle_name'];
-        $personal_info->phone_number = $data['phone_number'];
-        $letters = range('a', 'z');
-        $random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-        $random = implode("", $random_array);
-        $file = $request->file('avatar');
-        if(isset($file)) {
-            $image_name = $random . '' . date('Y-m-dh-i-s') . '.' . $file->extension();
-            $file->storeAs('public/user/', $image_name);
-            $personal_info->avatar = $image_name;
-        }
-        $personal_info->gender = $data['gender'];
-        $personal_info->birth_date = $data['birth_date'];
-        $personal_info->save();
-        $model = new Users();
-        $model->email =  $data['email'];
-        if(isset($request->password)){
-            $model->password = Hash::make($data['password']);
-        }
-        $model->password = Hash::make($data['password']);
-        if($request->role_id =! "0"){
-            $model->role_id = (int)$data['role_id'];
-        }
-        if($request->company_id =! "0"){
-            $model->company_id = (int)$data['company_id'];
-        }
-        $model->personal_info_id = $personal_info->id;
-        $model->save();
-        return redirect()->route('user.index')->with('status', translate('Successfully created'));
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $model = Users::find($id);
-        return view('user.show', ['model'=>$model]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $roles = Role::all();
-        $companies = Company::all();
-        $staff = Users::find($id);
-        return view('user.edit', ['roles'=>$roles, 'companies'=>$companies, 'staff'=>$staff]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UserRequest $request, string $id)
-    {
-        $data = $request->validated();
-        $model = Users::find($id);
+    public function update(Request $request){
+        $model = Auth::user();
         $personal_info = $model->personalInfo;
-        $personal_info->first_name = $data['first_name'];
-        $personal_info->last_name = $data['last_name'];
-        $personal_info->middle_name = $data['middle_name'];
-        $personal_info->phone_number = $data['phone_number'];
-        $letters = range('a', 'z');
-        $random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-        $random = implode("", $random_array);
-        $file = $request->file('avatar');
-        if(isset($file)){
-            $sms_avatar = storage_path('app/public/user/'.$personal_info->avatar);
-            if(file_exists($sms_avatar)){
-                unlink($sms_avatar);
-            }
-            $image_name = $random.''.date('Y-m-dh-i-s').'.'.$file->extension();
-            $file->storeAs('public/user/', $image_name);
-            $personal_info->avatar = $image_name;
-        }
-        $personal_info->gender = $data['gender'];
-        $personal_info->birth_date = $data['birth_date'];
+        $personal_info->first_name = $request->first_name;
+        $personal_info->last_name = $request->last_name;
+        $personal_info->middle_name = $request->middle_name;
+        $personal_info->birth_date = $request->birth_date;
+        $personal_info->gender = $request->gender;
+        $personal_info->phone_number = $request->phone_number;
         $personal_info->save();
-        $model->email = $data['email'];
-        if(isset($data['new_password'])){
-            if($data['new_password'] == $data['password_confirmation']){
-                $model->password = Hash::make($data['new_password']);
-            }
-        }
-        if($data['role_id'] =! "0"){
-            $model->role_id = (int)$data['role_id'];
-        }
-        if($data['company_id'] =! "0"){
-            $model->company_id = (int)$data['company_id'];
-        }
-        $model->personal_info_id = $personal_info->id;
-        $model->save();
-        return redirect()->route('user.index')->with('status', translate('Successfully updated'));
+        $response = [
+            'status'=>true,
+            'message'=>'success'
+        ];
+        return response()->json($response);
     }
-
     /**
-     * Remove the specified resource from storage.
+     * @OA\Post(
+     *     path="/api/users/delete",
+     *     tags={"Users"},
+     *     summary="Delete user",
+     *     operationId="delete",
+     *     @OA\Response(
+     *         response=405,
+     *         description="Invalid input"
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Input data format",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 type="object"
+     *             )
+     *         )
+     *     ),
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      */
-    public function destroy(string $id)
-    {
-        $model = Users::find($id);
-        $sms_avatar = storage_path('app/public/user/'.$model->personalInfo->avatar);
-        if(file_exists($sms_avatar)){
-            unlink($sms_avatar);
+    public function delete(){
+        $model = Auth::user();
+        if(isset($model->personalInfo)){
+            $model->personalInfo->delete();
         }
-        $model->personalInfo->delete();
+        $user_verify = UserVerify::where('user_id', $model->id)->first();
+        if(isset($user_verify->id)){
+            $user_verify->delete();
+        }
         $model->delete();
-        return redirect()->route('user.index')->with('status', translate('Successfully deleted'));
+        $response = [
+            'status'=>true,
+            'message'=>'success'
+        ];
+        return response()->json($response);
     }
 }
