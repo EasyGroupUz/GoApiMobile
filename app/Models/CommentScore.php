@@ -17,7 +17,7 @@ class CommentScore extends Model
         'client_id',
         'driver_id',
         'order_id',
-        'type',
+        'type', // 1 - for driver, 0 - for client
         'date',
         'text',
         'score'

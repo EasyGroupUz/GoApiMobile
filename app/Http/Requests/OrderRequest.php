@@ -22,15 +22,17 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status_id' => 'nullable|integer',
-            'cars_list_id' => 'nullable|integer',
-            'from_id' => 'nullable|integer',
-            'to_id' => 'nullable|integer',
+            'from_id' => 'required|integer',
+            'to_id' => 'required|integer',
+            'start_date' => 'required|date_format:Y-m-d H:i:s',
+            'car_id' => 'required|integer',
+            'seats' => 'required|integer',
+            'back_date' => 'nullable|date_format:Y-m-d H:i:s',
+            'options' => 'nullable|max:1000',
+            // 'options' => 'nullable|json',
             'price' => 'nullable|numeric',
             'price_type' => 'nullable|integer',
-            'titla' => 'nullable|string',
-            'start_date' => 'nullable|date',
-            'seats' => 'nullable|array',
+            'tarif_id' => 'nullable|integer',
         ];
     }
 }
