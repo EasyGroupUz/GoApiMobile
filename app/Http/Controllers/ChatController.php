@@ -19,6 +19,7 @@ use Auth;
 
 class ChatController extends Controller implements MessageComponentInterface 
 {
+    
     protected $clients;
 
     public function __construct() {

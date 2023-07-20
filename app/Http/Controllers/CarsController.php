@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\Auth;
 class CarsController extends Controller
 {
 
-
-
     public function myTaxi(Request $request)
     {
         $cars = DB::table('yy_drivers as dt1')
@@ -39,8 +37,7 @@ class CarsController extends Controller
 
     }
 
-
-
+    
     /**
      * @OA\Get(
      *     path="/api/car/list",
@@ -164,11 +161,9 @@ class CarsController extends Controller
         $cars->class_list_id = $request->class_id;
         $cars->production_date = $request->production_date;
         $cars->wheel_side = $request->wheel_side;
+        $cars->save();
         $cars->carList->default_seats = $request->count_place;
         $cars->carList->save();
-        $cars->save();
-
-
         $response = [
             'status'=>true,
             'message'=>'Success',

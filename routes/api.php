@@ -36,19 +36,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
-        
+    
     Route::group(['prefix' => 'car'], function () {
         Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
         Route::post('/create', [CarsController::class, 'create']);
     });
 
-    Route::group(['prefix' => 'users'], function () {
+    Route::group(['prefix' => 'user'], function () {
         Route::get('/show', [UserController::class, 'show']);
         Route::post('/update', [UserController::class, 'update']);
         Route::post('/delete', [UserController::class, 'delete']);
     });
-
 
     Route::group(['prefix' => 'order'], function () {
         Route::get('/history', [OrderController::class, 'history']);
