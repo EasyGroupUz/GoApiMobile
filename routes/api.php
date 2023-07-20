@@ -32,10 +32,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
 
     Route::group(['prefix' => 'order'], function () {
-        Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
+        Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::get('/show', [OrderController::class, 'orderShow']);
-    });
+        // Route::get('/show', [OrderController::class, 'orderShow']);
 
+    });
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
         // Route::get('/show', [OrderController::class, 'orderShow']);

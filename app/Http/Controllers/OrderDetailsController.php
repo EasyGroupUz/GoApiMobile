@@ -54,14 +54,23 @@ class OrderDetailsController extends Controller
         
 
         $timezone = 'Asia/Tashkent';
-        $date = Carbon::now($timezone)->format('Y-m-d H:i:s');
+        $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
+        $date = Carbon::now($timezone)->format('Y-m-d');
+        $three_day_after=Carbon::parse($date)->addDays(3)->format('Y-m-d');
+
         $came_date=date('Y-m-d', strtotime($request['date']));
         $came_date_time=date('Y-m-d H:i:s', strtotime($request['date']));
         $startDate=Carbon::parse($came_date)->subDays(3)->format('Y-m-d');
         $endDate=Carbon::parse($came_date)->addDays(3)->format('Y-m-d');
 
-        if ( $came_date_time >= $date) {
+        if ($came_date < $three_day_after) {
+            $startDate=$date;
+            $endDate=Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
+        }
+        
+        if ( $came_date >= $date) {
             $orders = DB::table('yy_orders')
+            ->where('status_id', Constants::ORDERED)
             ->where('start_date', '>=', $date)
             ->select(DB::raw('DATE(start_date) as start_date'))
             ->whereBetween('start_date', [$startDate, $endDate])
@@ -70,13 +79,29 @@ class OrderDetailsController extends Controller
             ->take(5)
             ->get();
 
-            // dd($orders);
+            $list=[];
+            foreach ($orders as $key => $value) {
+                // dd($value->start_date);
+                $list[$key]=$value->start_date;
+            }
+            // dd($list);
+            return response()->json([
+                'status' => true,
+                'message' => 'success',
+                'list' => $list,
 
-            return response()->json(
-                $orders
-            );
-
+            ], 200);
+           
         }
+        else {
+            return response()->json([
+                'status' => false,
+                'message' => 'error',
+                // 'orders' => $orders,
+
+            ], 200);
+        }
+
 
        
 
