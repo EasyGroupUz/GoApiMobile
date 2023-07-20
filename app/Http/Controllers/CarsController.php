@@ -5,16 +5,39 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cars;
 use App\Models\CarList;
-use App\Models\Drivers;
+use App\Models\Driver;
 use App\Models\Status;
 use App\Models\ColorList;
 use App\Models\ClassList;
 use App\Http\Requests\CarsRequest;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Auth;
 
 class CarsController extends Controller
 {
 
+    public function myTaxi(Request $request)
+    {
+        $cars = DB::table('yy_drivers as dt1')
+            ->leftJoin('yy_cars as dt2', 'dt2.driver_id', '=', 'dt1.id')
+            ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
+            ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
+            ->where('dt1.user_id', auth()->id())
+            ->select('dt2.id', 'dt2.images','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color')
+            ->get();
+        // dd($cars);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $cars,
+
+        ], 200);
+
+    }
+
+    
     /**
      * @OA\Get(
      *     path="/api/car/list",
@@ -43,6 +66,7 @@ class CarsController extends Controller
      *     }
      * )
      */
+
     public function information(){
         $class_list = ClassList::select('id', 'name')->get()->toArray();
         $color_list = ColorList::select('id', 'name')->get()->toArray();
