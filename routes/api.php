@@ -41,7 +41,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
-    Route::group(['prefix' => 'users'], function () {
+    Route::group(['prefix' => 'user'], function () {
         Route::get('/show', [UserController::class, 'show']);
         Route::post('/update', [UserController::class, 'update']);
         Route::post('/delete', [UserController::class, 'delete']);
