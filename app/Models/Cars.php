@@ -21,7 +21,9 @@ class Cars extends Model
         'reg_certificate_image',
         'images',
         'color_list_id',
-        'class_list_id'
+        'class_list_id',
+        'production_date',
+        'wheel_side'
     ];
 
     public function car(): BelongsTo

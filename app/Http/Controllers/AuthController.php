@@ -169,13 +169,12 @@ class AuthController extends Controller
              'phone_number'=>'required',
             'verify_code'=>'required'
         ]);
-        $random = rand(1000000, 9999999);
         $model = UserVerify::where('phone_number',(int)$fields['phone_number'])->first();
         if(isset($model->id)){
             if($model->verify_code == $fields['verify_code']){
                 if(!isset($model->user->id)){
                     $new_user = new User();
-                    $old_user = User::order_by('created_at', 'desc')->first();
+                    $old_user = User::orderBy('created_at', 'DESC')->first();
                     if(isset($old_user) && isset($old_user->personal_account)){
                         $new_user->personal_account = $old_user->personal_account+1;
                     }else{
@@ -184,14 +183,23 @@ class AuthController extends Controller
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();
+                    $new_user->email = $model->phone_number;
+                    $new_user->password = Hash::make($model->verify_code);
+                    $token = $new_user->createToken('myapptoken')->plainTextToken;
+                    $new_user->token = $token;
+                    $new_user->save();
+                    $message = 'Success';
+                    $status = true;
+                }else{
                     $model->user->email = $model->phone_number;
                     $model->user->password = Hash::make($model->verify_code);
+                    $token = $model->user->createToken('myapptoken')->plainTextToken;
+                    $model->user->token = $token;
+                    $model->user->save();
+                    $message = 'Success';
+                    $status = true;
                 }
-                $token = $model->user->createToken('myapptoken')->plainTextToken;
-                $model->user->token = $token;
-                $model->user->save();
-                $message = 'Success';
-                $status = true;
+
             }else{
                 $message = 'Failed your token didn\'t match';
                 $status = false;
@@ -258,7 +266,6 @@ class AuthController extends Controller
             'id'=>$auth_user->id,
             'first_name'=>$auth_user->personalInfo->first_name,
             'last_name'=>$auth_user->personalInfo->last_name,
-            'email'=>$auth_user->token,
             'created_at'=>$auth_user->created_at,
         ];
         $response = [

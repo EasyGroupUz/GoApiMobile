@@ -12,6 +12,7 @@ use App\Models\ClassList;
 use App\Http\Requests\CarsRequest;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Auth;
 
 class CarsController extends Controller
 {
@@ -41,161 +42,138 @@ class CarsController extends Controller
 
 
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/car/list",
+     *     tags={"Users"},
+     *     summary="Finds Pets by status",
+     *     description="Multiple status values can be provided with comma separated string",
+     *     operationId="information",
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Status values that needed to be considered for filter",
+     *         required=true,
+     *         explode=true,
+     *         @OA\Schema(
+     *             default="available",
+     *             type="string",
+     *             enum={"available", "pending", "sold"},
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid status value"
+     *     ),
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      */
-    // public function index()
-    // {
-    //     $cars = Cars::all();
-    //     return view('cars.index', ['cars'=>$cars]);
-    // }
+
+    public function information(){
+        $class_list = ClassList::select('id', 'name')->get()->toArray();
+        $color_list = ColorList::select('id', 'name')->get()->toArray();
+        $car_lists = CarList::all();
+        foreach ($car_lists as $car_list){
+            $carList[] = [
+                'id'=>$car_list->id,
+                'model'=>$car_list->name??'',
+                'list' => [
+                    'id' => $car_list->type?$car_list->type->id:'',
+                    'name' => $car_list->type?$car_list->type->name:'',
+                ],
+            ];
+        }
+        $response = [
+            'status'=>true,
+            'message'=>'success',
+            "class_list"=>$class_list,
+            "color_list"=>$color_list,
+            "car_list"=>$carList
+        ];
+        return response()->json($response);
+    }
 
     /**
-     * Show the form for creating a new resource.
+     * @OA\Post(
+     *     path="/api/car/create",
+     *     tags={"Users"},
+     *     summary="",
+     *     operationId="create",
+     *     @OA\Response(
+     *         response=405,
+     *         description="Invalid input"
+     *     ),
+     *     @OA\RequestBody(
+     *         description="Input data format",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="class_id",
+     *                     description="write your class(select option)",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="model_id",
+     *                     description="write your model(select option)",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="color_id",
+     *                     description="write your color(select option)",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="production_date",
+     *                     description="write your production date",
+     *                     type="date",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="state_number",
+     *                     description="write your state number",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="wheel_side",
+     *                     description="write your wheel side(select option)",
+     *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="count_place",
+     *                     description="write your number of seats in your car(select option)",
+     *                     type="integer",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      */
-    // public function create()
-    // {
-    //     $carLists = CarList::all();
-    //     $drivers = Drivers::all();
-    //     $statuses = Status::all();
-    //     $colorLists = ColorList::all();
-    //     $classLists = ClassList::all();
-    //     return view('cars.create', ['carLists'=>$carLists, 'drivers'=>$drivers, 'statuses'=>$statuses, 'colorLists'=>$colorLists, 'classLists'=>$classLists]);
-    // }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(CarsRequest $request)
-    // {
-    //     $model = new Cars();
-    //     $model->car_list_id = $request->car_list_id;
-    //     $model->driver_id = $request->driver_id;
-    //     $model->status_id = $request->status_id;
-    //     $model->color_list_id = $request->color_list_id;
-    //     $model->class_list_id = $request->class_list_id;
-    //     $model->reg_certificate = $request->reg_certificate;
-    //     $letters = range('a', 'z');
-    //     $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-    //     $certificate_random = implode("", $certificate_random_array);
-    //     $certificate_img = $request->file('reg_certificate_image');
-    //     if(isset($certificate_img)) {
-    //         $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-    //         $certificate_img->storeAs('public/certificate/', $image_name);
-    //         $model->reg_certificate_image = $image_name;
-    //     }
-
-    //     $images = $request->file('images');
-    //     if(isset($images)){
-    //         foreach ($images as $image){
-    //             $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-    //             $images_random = implode("", $images_random_array);
-    //             $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
-    //             $image->storeAs('public/cars/', $image_name);
-    //             $images_array[] = $image_name;
-    //         }
-    //         $model->images = json_encode($images_array);
-    //     }
-    //     $model->save();
-    //     return redirect()->route('cars.index')->with('status', translate('Successfully created'));
-    // }
-
-    /**
-     * Display the specified resource.
-     */
-    // public function show(string $id)
-    // {
-    //     $model = Cars::find($id);
-    //     return view('cars.show', ['model'=>$model]);
-    // }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(string $id)
-    // {
-    //     $model = Cars::find($id);
-    //     $carLists = CarList::all();
-    //     $drivers = Drivers::all();
-    //     $statuses = Status::all();
-    //     $colorLists = ColorList::all();
-    //     $classLists = ClassList::all();
-    //     return view('cars.edit', ['carLists'=>$carLists, 'model'=>$model, 'drivers'=>$drivers, 'statuses'=>$statuses, 'colorLists'=>$colorLists, 'classLists'=>$classLists]);
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(CarsRequest $request, string $id)
-    // {
-    //     $model = Cars::find($id);
-    //     $model->car_list_id = $request->car_list_id;
-    //     $model->driver_id = $request->driver_id;
-    //     $model->status_id = $request->status_id;
-    //     $model->color_list_id = $request->color_list_id;
-    //     $model->class_list_id = $request->class_list_id;
-    //     $model->reg_certificate = $request->reg_certificate;
-    //     $letters = range('a', 'z');
-    //     $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-    //     $certificate_random = implode("", $certificate_random_array);
-    //     $certificate_img = $request->file('reg_certificate_image');
-    //     if(isset($certificate_img)) {
-    //         $sms_avatar = storage_path('app/public/certificate/'.$model->reg_certificate_image);
-    //         if(file_exists($sms_avatar)){
-    //             unlink($sms_avatar);
-    //         }
-    //         $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-    //         $certificate_img->storeAs('public/certificate/', $image_name);
-    //         $model->reg_certificate_image = $image_name;
-    //     }
-
-    //     $images = $request->file('images');
-    //     if(isset($images)){
-    //         $model_images = json_decode($model->images);
-    //         foreach ($model_images as $model_image){
-    //             $sms_image = storage_path('app/public/cars/'.$model_image);
-    //             if(file_exists($sms_image)){
-    //                 unlink($sms_image);
-    //             }
-    //         }
-    //         foreach ($images as $image){
-    //             $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-    //             $images_random = implode("", $images_random_array);
-    //             $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
-    //             $image->storeAs('public/cars/', $image_name);
-    //             $images_array[] = $image_name;
-    //         }
-    //         $model->images = json_encode($images_array);
-    //     }
-    //     $model->save();
-    //     return redirect()->route('cars.index')->with('status', translate('Successfully updated'));
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    // public function destroy(string $id)
-    // {
-    //     $model= Cars::find($id);
-    //     if(isset($model->reg_certificate_image)){
-    //         $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
-    //         if(file_exists($sms_avatar)){
-    //             unlink($sms_avatar);
-    //         }
-    //     }
-    //     if(isset($model->images)){
-    //         $images = json_decode($model->images);
-    //         foreach ($images as $image){
-    //             $sms_image = storage_path('app/public/cars/'.$image);
-    //             if(file_exists($sms_image)){
-    //                 unlink($sms_image);
-    //             }
-    //         }
-    //     }
-    //     $model->delete();
-    //     return redirect()->route('cars.index')->with('status', translate('Successfully deleted'));
-    // }
+    public function create(Request $request) {
+        $user = Auth::user();
+        $cars = new Cars();
+        $cars->car_list_id = $request->model_id;
+        $cars->driver_id = $user->id;
+        $cars->reg_certificate = $request->state_number;
+        $cars->color_list_id = $request->color_id;
+        $cars->class_list_id = $request->class_id;
+        $cars->production_date = $request->production_date;
+        $cars->wheel_side = $request->wheel_side;
+        $cars->carList->default_seats = $request->count_place;
+        $cars->carList->save();
+        $cars->save();
 
 
-
+        $response = [
+            'status'=>true,
+            'message'=>'Success',
+        ];
+        return response()->json($response, 201);
+    }
 
 }
