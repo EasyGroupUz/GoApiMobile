@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\OrderDetailsController;
+use App\Http\Controllers\CarsController;
 
 
 
@@ -41,10 +42,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::post('/store', [OrderDetailsController::class, 'store']);
             // Route::get('/show', [OrderController::class, 'orderShow']);
         });
-        // Route::group(['prefix' => 'car'], function () {
-        //     Route::post('/driver-car', [OrderDetailsController::class, 'store']);
-        //     // Route::get('/show', [OrderController::class, 'orderShow']);
-        // });
+        
+        Route::group(['prefix' => 'car'], function () {
+            Route::get('/driver-car',[CarsController::class, 'myTaxi']);
+            // Route::get('/show', [OrderController::class, 'orderShow']);
+        });
 
     Route::group(['prefix' => 'users'], function () {
         Route::get('/show', [UsersController::class, 'show']);
