@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\OrderDetail;
 use Carbon\Carbon;
 
 
@@ -310,5 +311,76 @@ class OrderController extends Controller
             'message' => 'success',
             'list' => $arr
         ];
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function booking(Request $request)
+    {
+        // $token = $request->header()['token'];
+        $order_id = $request['order_id'];
+        $order_detail_id = $request['order_detail_id'];
+
+        $order = Order::find($order_id);
+        $orderDetail = OrderDetail::find($order_detail_id);
+
+        $status = true;
+        $message = 'Success';
+        if (!$order) {
+            $status = false;
+            $message = 'Order not found';
+        }
+
+        if (!$orderDetail) {
+            $status = false;
+            $message = 'Order Detail not found';
+        }
+
+        if ($status) {
+            $orderDetail->order_id = $order->id;
+            $saveOrderDetail = $orderDetail->save();
+
+            if ($saveOrderDetail) {
+                $status = true;
+                $message = 'success';
+            }
+        }
+
+        return [
+            "status" => $status,
+            "message" => $message
+        ];
+
+        // $driver = User::where('token', $token)->first();
+
+        // if (!isset($driver)) {
+        //     return [
+        //         "status" => false,
+        //         "message" => "Token not found"
+        //     ];
+        // }
+        // $driver_id = $driver->id;
+        // $data['driver_id'] = $driver_id;
+
+        // $order = new Order();
+        // $order->create($data);
+        
+        // if ($data['back_date']) {
+        //     $from_id = $data['to_id'];
+        //     $to_id = $data['from_id'];
+
+        //     $data['start_date'] = $data['back_date'];
+        //     $data['from_id'] = $from_id;
+        //     $data['to_id'] = $to_id;
+
+        //     $order = new Order();
+        //     $order->create($data);
+        // }
+
+        // return [
+        //     "status" => true,
+        //     "message" => "success"
+        // ];
     }
 }
