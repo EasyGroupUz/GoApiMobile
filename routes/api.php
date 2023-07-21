@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\CarsController;
+use App\Http\Controllers\CommentScoreController;
 
 
 
@@ -56,5 +57,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/expired', [OrderController::class, 'expired']);
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
 
+    });
+
+    Route::group(['prefix' => 'commentScore'], function () {
+        Route::get('/my-comments',[CommentScoreController::class, 'myComments']);
     });
 });

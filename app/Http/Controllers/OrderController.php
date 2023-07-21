@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\PersonalInfo;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Constants;
 
 
 use App\Http\Requests\OrderRequest;
@@ -52,6 +55,62 @@ class OrderController extends Controller
             'message' => "success",
             'model' => $arr
         ];
+    }
+
+    public function searchTaxi(Request $request)
+    {
+        // dd($request->all());
+        // $request = $request->validate([
+        //     'from_id'=>'required',
+        //     'to_id'=>'required',
+        //     'date'=>'required'
+        // ]);
+
+
+            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
+            // dd($tomorrow);
+            $list=[]; 
+                $orders = DB::table('yy_orders')
+                ->where('status_id', Constants::ORDERED)
+                ->where('from_id', $request->from_id)
+                ->where('to_id', $request->to_id)
+                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+                ->where('start_date','>',$date)
+                ->where('start_date','<',$tomorrow)
+                // ->orderBy('start_date', 'asc')
+                ->get();
+                // dd($orders);
+                $total_trips=Order::where('driver_id',auth()->id())
+                    ->where('status_id', Constants::COMPLETED)
+                    ->count();
+                    // dd($total_trips);
+
+                foreach ($orders as $order) {
+                    // dd($order);
+                    // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    // dd($personalInfo);
+                    $data=[
+                        'start_date'=>$order->start_date ,
+                        'avatar'=>$personalInfo->avatar,
+                        'rating'=>4,
+                        'price'=>$order->price,
+                        'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                        'total_trips'=>$total_trips,
+                        'count_pleace'=>$order->booking_place,
+                    ];
+                    // dd($data);
+                    array_push($list,$data);
+                }       
+        // dd($aa);
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $list,
+
+        ], 200);
+
     }
 
     public function show(Request $request)

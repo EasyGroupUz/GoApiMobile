@@ -10,8 +10,9 @@ class CommentScoreController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function myComments()
     {
+        // dd(aut()->user());
         //
     }
 
