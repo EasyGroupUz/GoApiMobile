@@ -37,24 +37,30 @@ class UserController extends Controller
      * )
      */
     public function show(){
-
         $model = Auth::user();
-        $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':[''];
-        $last_name = $model->personalInfo->last_name?$model->personalInfo->last_name.'. ':[''];
-        $middle_name = $model->personalInfo->middle_name?$model->personalInfo->middle_name.'.':[''];
-        $list = [
-          'img'=>$model->personalInfo->avatar,
-          'full_name'=>$first_name.''.strtoupper($last_name[0]).''.strtoupper($middle_name[0]),
-          'birth_date'=>$model->personalInfo->birth_date,
-          'gender'=>$model->personalInfo->gender,
-          'phone_number'=>$model->personalInfo->phone_number,
-//          'rating'=>$model->personalInfo,
-        ];
-        $response = [
-            'status'=>true,
-            'message'=>'success',
-            'list'=>$list
-        ];
+        if(isset($model->personalInfo)){
+            $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
+            $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
+            $middle_name = $model->personalInfo->middle_name?strtoupper($model->personalInfo->middle_name[0].'.'):'';
+            $list = [
+                'img'=>$model->personalInfo->avatar,
+                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                'birth_date'=>$model->personalInfo->birth_date,
+                'gender'=>$model->personalInfo->gender,
+                'phone_number'=>$model->personalInfo->phone_number,
+            ];
+            $response = [
+                'status'=>true,
+                'message'=>'success',
+                'list'=>$list
+            ];
+        }else{
+            $response = [
+                'status'=>false,
+                'message'=>'No personal info',
+                'list'=>[]
+            ];
+        }
         return response()->json($response);
     }
     /**
@@ -99,8 +105,8 @@ class UserController extends Controller
      *                     type="integer",
      *                 ),
      *                 @OA\Property(
-     *                     property="phone_number",
-     *                     description="write your phone number",
+     *                     property="email",
+     *                     description="write your email",
      *                     type="string",
      *                 ),
      *             )
@@ -119,7 +125,7 @@ class UserController extends Controller
         $personal_info->middle_name = $request->middle_name;
         $personal_info->birth_date = $request->birth_date;
         $personal_info->gender = $request->gender;
-        $personal_info->phone_number = $request->phone_number;
+        $personal_info->email = $request->email;
         $personal_info->save();
         $response = [
             'status'=>true,

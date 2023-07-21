@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\CarsController;
+use App\Http\Controllers\CommentScoreController;
 
 
 
@@ -29,52 +30,25 @@ Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken'
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
     Route::post('/logout', [AuthController::class, 'Logout']);
-    Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
-
-    // Route::group(['prefix' => 'client'], function () {
-        Route::group(['prefix' => 'order'], function () {
-            Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
-            Route::get('/show', [OrderController::class, 'orderShow']);
-            // Route::get('/show', [OrderController::class, 'orderShow']);
-
-        });
-       
-        Route::group(['prefix' => 'orderDetail'], function () {
-            Route::post('/store', [OrderDetailsController::class, 'store']);
-            // Route::get('/show', [OrderController::class, 'orderShow']);
-        });
-        // Route::group(['prefix' => 'car'], function () {
-        //     Route::post('/driver-car', [OrderDetailsController::class, 'store']);
-        //     // Route::get('/show', [OrderController::class, 'orderShow']);
-        // });
-
-    Route::group(['prefix' => 'order'], function () {
-        Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
-        Route::get('/show', [OrderController::class, 'orderShow']);
-        // Route::get('/show', [OrderController::class, 'orderShow']);
-
-    });
+    Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);       
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
+        Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
-    });
-
-    Route::group(['prefix' => 'users'], function () {
-        Route::get('/show', [UserController::class, 'show']);
-        Route::post('/update', [UserController::class, 'update']);
-        Route::post('/delete', [UserController::class, 'delete']);
     });
     
     Route::group(['prefix' => 'car'], function () {
+        Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
         Route::post('/create', [CarsController::class, 'create']);
     });
 
-    // Route::group(['prefix' => 'order'], function () {
-    //     Route::get('/search/taxi', [OrderController::class, 'searchTaxi']);
-    //     Route::get('/show', [OrderController::class, 'orderShow']);
-    // });
+    Route::group(['prefix' => 'user'], function () {
+        Route::get('/show', [UserController::class, 'show']);
+        Route::post('/update', [UserController::class, 'update']);
+        Route::post('/delete', [UserController::class, 'delete']);
+    });
 
     Route::group(['prefix' => 'order'], function () {
         Route::get('/history', [OrderController::class, 'history']);
@@ -82,5 +56,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/show', [OrderController::class, 'show']);
         Route::post('/create', [OrderController::class, 'create']);
         Route::get('/expired', [OrderController::class, 'expired']);
+        Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
+
+    });
+
+    Route::group(['prefix' => 'comment'], function () {
+        Route::post('/create',[CommentScoreController::class, 'commentCreate']);
+        Route::get('/my-comments',[CommentScoreController::class, 'myComments']);
     });
 });

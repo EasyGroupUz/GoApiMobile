@@ -100,11 +100,11 @@
                             "schema": {
                                 "properties": {
                                     "firstname": {
-                                        "description": "write your firstname",
+                                        "description": "write your first_name",
                                         "type": "string"
                                     },
                                     "lastname": {
-                                        "description": "write your lastname",
+                                        "description": "write your last_name",
                                         "type": "string"
                                     }
                                 },
@@ -267,9 +267,56 @@
                                     "wheel_side": {
                                         "description": "write your wheel side(select option)",
                                         "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/comment/create": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Write your comment",
+                "operationId": "commentCreate",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "client_id": {
+                                        "description": "write your client id(select option)",
+                                        "type": "integer"
                                     },
-                                    "count_place": {
-                                        "description": "write your number of seats in your car(select option)",
+                                    "driver_id": {
+                                        "description": "write your driver id(select option)",
+                                        "type": "integer"
+                                    },
+                                    "order_id": {
+                                        "description": "write your order id(select option)",
+                                        "type": "integer"
+                                    },
+                                    "text": {
+                                        "description": "write your text message",
+                                        "type": "string"
+                                    },
+                                    "score": {
+                                        "description": "write your score",
                                         "type": "integer"
                                     }
                                 },
@@ -281,6 +328,44 @@
                 "responses": {
                     "405": {
                         "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/comment/my-comments": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "myComments",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
                     }
                 },
                 "security": [
@@ -362,8 +447,8 @@
                                         "description": "write your gender",
                                         "type": "integer"
                                     },
-                                    "phone_number": {
-                                        "description": "write your phone number",
+                                    "email": {
+                                        "description": "write your email",
                                         "type": "string"
                                     }
                                 },

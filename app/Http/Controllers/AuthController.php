@@ -17,6 +17,9 @@ use Illuminate\Validation\Validator;
 
 class AuthController extends Controller
 {
+    public function __construct(){
+        date_default_timezone_set("Asia/Tashkent");
+    }
     /**
      * @OA\Post(
      *     path="/api/login",
@@ -44,8 +47,6 @@ class AuthController extends Controller
      * )
      */
     public function Login(Request $request){
-
-        date_default_timezone_set("Asia/Tashkent");
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
@@ -67,71 +68,9 @@ class AuthController extends Controller
             'Verify_code'=>$random
         ];
         Log::info(['token'=>$random]);
+//        https://notify.eskiz.uz/api/contact
         return response()->json($response);
     }
-//    /**
-//     * @OA\Post(
-//     *     path="/api/login",
-//     *     tags={"Auth"},
-//     *     summary="Login with your email",
-//     *     operationId="Login",
-//     *     @OA\Response(
-//     *         response=405,
-//     *         description="Invalid input"
-//     *     ),
-//     *     @OA\RequestBody(
-//     *         description="Input data format",
-//     *         @OA\MediaType(
-//     *             mediaType="application/x-www-form-urlencoded",
-//     *             @OA\Schema(
-//     *                 type="object",
-//     *                 @OA\Property(
-//     *                     property="email",
-//     *                     description="write your email",
-//     *                     type="string",
-//     *                 ),
-//     *                 @OA\Property(
-//     *                     property="password",
-//     *                     description="write your password",
-//     *                     type="string"
-//     *                 )
-//     *             )
-//     *         )
-//     *     )
-//     * )
-//     */
-   public function Logins(Request $request){
-       $fields = $request->validate([
-          'email'=>'required|string',
-          'password'=>'required|string'
-       ]);
-       $user = User::where('email', $fields['email'])->first();
-       if(!$user||!Hash::check($fields['password'], $user->password)){
-           return response(['message'=>'bad creds', 401]);
-       }
-       $token = $user->createToken('myapptoken')->plainTextToken;
-       $user->token = $token;
-       $user->save();
-       $data = [
-         'id'=>$user->id,
-         'role'=>$user->role->name,
-         'company'=>$user->company->name,
-         'first_name'=>$user->personalInfo->first_name,
-         'last_name'=>$user->personalInfo->last_name,
-         'middle_name'=>$user->personalInfo->middle_name,
-         'email'=>$user->email,
-         'created_at'=>$user->created_at,
-       ];
-       $response = [
-           'status'=>true,
-           'message'=>'Success',
-           'token'=>$token,
-           'token_expired_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-           'user'=>$data
-       ];
-       return response($response, 201);
-   }
-
 
     /**
      * @OA\Post(
@@ -180,6 +119,10 @@ class AuthController extends Controller
                     }else{
                         $new_user->personal_account = 1000000;
                     }
+                    $personal_info = new PersonalInfo();
+                    $personal_info->phone_number = (int)$fields['phone_number'];
+                    $personal_info->save();
+                    $new_user->personal_info_id = $personal_info->id;
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();
@@ -192,6 +135,17 @@ class AuthController extends Controller
                     $status = true;
                 }else{
                     $model->user->email = $model->phone_number;
+                    if(!isset($model->user->personalInfo)){
+                        if(isset($model->user->personalInfo->phone_number)){
+                            $personal_info = $model->user->personalInfo;
+                            $personal_info->phone_number = (int)$fields['phone_number'];
+                        }else{
+                            $personal_info = new PersonalInfo();
+                            $personal_info->phone_number = (int)$fields['phone_number'];
+                        }
+                        $personal_info->save();
+                        $model->user->personal_info_id = $personal_info->id;
+                    }
                     $model->user->password = Hash::make($model->verify_code);
                     $token = $model->user->createToken('myapptoken')->plainTextToken;
                     $model->user->token = $token;
@@ -199,7 +153,6 @@ class AuthController extends Controller
                     $message = 'Success';
                     $status = true;
                 }
-
             }else{
                 $message = 'Failed your token didn\'t match';
                 $status = false;
@@ -237,12 +190,12 @@ class AuthController extends Controller
      *                 type="object",
      *                 @OA\Property(
      *                     property="firstname",
-     *                     description="write your firstname",
+     *                     description="write your first_name",
      *                     type="string",
      *                 ),
      *                 @OA\Property(
      *                     property="lastname",
-     *                     description="write your lastname",
+     *                     description="write your last_name",
      *                     type="string",
      *                 )
      *             )
@@ -256,22 +209,22 @@ class AuthController extends Controller
 
     public function Set_name_surname(Request $request) {
         $auth_user = Auth::user();
-        $personal_info = new PersonalInfo();
-        $personal_info->first_name = $request->firstname;
-        $personal_info->last_name = $request->lastname;
+        if(!isset($auth_user->personalInfo)){
+            $personal_info = new PersonalInfo();
+            $personal_info->first_name = $request->first_name;
+            $personal_info->last_name = $request->last_name;
+        }else{
+            $personal_info = $auth_user->personalInfo;
+            $personal_info->first_name = $request->first_name;
+            $personal_info->last_name = $request->last_name;
+        }
         $personal_info->save();
         $auth_user->personal_info_id = $personal_info->id;
         $auth_user->save();
-        $data = [
-            'id'=>$auth_user->id,
-            'first_name'=>$auth_user->personalInfo->first_name,
-            'last_name'=>$auth_user->personalInfo->last_name,
-            'created_at'=>$auth_user->created_at,
-        ];
+
         $response = [
             'status'=>true,
             'message'=>'Success',
-            'user'=>$data
         ];
         return response()->json($response, 201);
     }
