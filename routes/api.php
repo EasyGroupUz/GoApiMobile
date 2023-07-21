@@ -34,6 +34,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
+        Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
     
