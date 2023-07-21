@@ -68,6 +68,7 @@ class AuthController extends Controller
             'Verify_code'=>$random
         ];
         Log::info(['token'=>$random]);
+//        https://notify.eskiz.uz/api/contact
         return response()->json($response);
     }
 

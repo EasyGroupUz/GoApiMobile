@@ -84,9 +84,9 @@ class CarsController extends Controller
         $response = [
             'status'=>true,
             'message'=>'success',
-            "class_list"=>$class_list,
-            "color_list"=>$color_list,
-            "car_list"=>$carList
+            "class_list"=>$class_list??[],
+            "color_list"=>$color_list??[],
+            "car_list"=>$carList??[]
         ];
         return response()->json($response);
     }
@@ -157,6 +157,30 @@ class CarsController extends Controller
         $cars->production_date = $request->production_date;
         $cars->wheel_side = $request->wheel_side;
         $is_driver = Driver::where('user_id', $user->id)->first();
+        $car_list = CarList::find($request->model_id);
+        if(!isset($car_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Car list is not exist')
+            ];
+            return response()->json($response);
+        }
+        $color_list = ColorList::find($request->color_id);
+        if(!isset($color_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Color is not exist')
+            ];
+            return response()->json($response);
+        }
+        $color_list = ClassList::find($request->class_id);
+        if(!isset($color_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Class list is not exist')
+            ];
+            return response()->json($response);
+        }
         if(!isset($is_driver)){
             $driver = new Driver();
             $driver->user_id = $user->id;
