@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\CarsController;
 use App\Http\Controllers\CommentScoreController;
-
+use App\Http\Controllers\ComplainController;
 
 
 /*
@@ -57,11 +57,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/create', [OrderController::class, 'create']);
         Route::get('/expired', [OrderController::class, 'expired']);
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
+        Route::post('/booking', [OrderController::class, 'booking']);
 
     });
 
     Route::group(['prefix' => 'comment'], function () {
         Route::post('/create',[CommentScoreController::class, 'commentCreate']);
         Route::get('/my-comments',[CommentScoreController::class, 'myComments']);
+    });
+    
+    Route::group(['prefix' => 'complain'], function () {
+        Route::post('/create', [ComplainController::class, 'create']);
     });
 });
