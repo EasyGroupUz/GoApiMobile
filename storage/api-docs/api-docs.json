@@ -100,11 +100,11 @@
                             "schema": {
                                 "properties": {
                                     "firstname": {
-                                        "description": "write your firstname",
+                                        "description": "write your first_name",
                                         "type": "string"
                                     },
                                     "lastname": {
-                                        "description": "write your lastname",
+                                        "description": "write your last_name",
                                         "type": "string"
                                     }
                                 },
@@ -267,10 +267,6 @@
                                     "wheel_side": {
                                         "description": "write your wheel side(select option)",
                                         "type": "integer"
-                                    },
-                                    "count_place": {
-                                        "description": "write your number of seats in your car(select option)",
-                                        "type": "integer"
                                     }
                                 },
                                 "type": "object"
@@ -362,8 +358,8 @@
                                         "description": "write your gender",
                                         "type": "integer"
                                     },
-                                    "phone_number": {
-                                        "description": "write your phone number",
+                                    "email": {
+                                        "description": "write your email",
                                         "type": "string"
                                     }
                                 },

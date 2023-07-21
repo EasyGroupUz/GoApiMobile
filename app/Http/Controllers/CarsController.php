@@ -37,7 +37,7 @@ class CarsController extends Controller
 
     }
 
-    
+
     /**
      * @OA\Get(
      *     path="/api/car/list",
@@ -136,11 +136,6 @@ class CarsController extends Controller
      *                     property="wheel_side",
      *                     description="write your wheel side(select option)",
      *                     type="integer",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="count_place",
-     *                     description="write your number of seats in your car(select option)",
-     *                     type="integer",
      *                 )
      *             )
      *         )
@@ -154,21 +149,28 @@ class CarsController extends Controller
     public function create(Request $request) {
         $user = Auth::user();
         $cars = new Cars();
+        $cars->status_id = 1;
         $cars->car_list_id = $request->model_id;
-        $cars->driver_id = $user->id;
         $cars->reg_certificate = $request->state_number;
         $cars->color_list_id = $request->color_id;
         $cars->class_list_id = $request->class_id;
         $cars->production_date = $request->production_date;
         $cars->wheel_side = $request->wheel_side;
+        $is_driver = Driver::where('user_id', $user->id)->first();
+        if(!isset($is_driver)){
+            $driver = new Driver();
+            $driver->user_id = $user->id;
+            $driver->status_id = 1;
+            $driver->save();
+        }else{
+            $driver = $is_driver;
+        }
+        $cars->driver_id = $driver->id;
         $cars->save();
-        $cars->carList->default_seats = $request->count_place;
-        $cars->carList->save();
         $response = [
             'status'=>true,
             'message'=>'Success',
         ];
         return response()->json($response, 201);
     }
-
 }
