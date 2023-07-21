@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrderDetail;
+use App\Models\PersonalInfo;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Constants;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +108,53 @@ class OrderDetailsController extends Controller
        
 
     }
+
+    public function searchClients(Request $request)
+    {
+        // $request = $request->validate([
+        //     'from_id'=>'required',
+        //     'to_id'=>'required',
+        //     'date'=>'required'
+        // ]);
+        // dd($request->all());
+
+
+            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $list=[]; 
+                $order_details = DB::table('yy_order_details')
+                ->where('order_id', null)
+                ->where('from_id', $request->from_id)
+                ->where('to_id', $request->to_id)
+                ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+                ->where('start_date','=',$date)
+                ->get();
+                $total_trips = DB::table('yy_order_details as dt1')
+                ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
+                ->where('dt1.client_id', auth()->id())
+                ->where('dt2.status_id', Constants::COMPLETED)
+                ->count();
+
+                foreach ($order_details as $order_detail) {
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
+                    $data=[
+                        'start_date'=>$order_detail->start_date ,
+                        'avatar'=>$personalInfo->avatar,
+                        'rating'=>4,
+                        'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                        'total_trips'=>$total_trips,
+                        'count_pleace'=>$order_detail->seats_count,
+                    ];
+                    array_push($list,$data);
+                }       
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => $list,
+
+        ], 200);
+
+    }
+
 
     /**
      * Display the specified resource.
