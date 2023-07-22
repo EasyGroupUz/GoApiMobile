@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\PersonalInfo;
 use App\Models\User;
+use GuzzleHttp\Client;
 use http\Env\Response;
 use App\Models\UserVerify;
 use Illuminate\Contracts\Support\Renderable;
@@ -17,9 +18,6 @@ use Illuminate\Validation\Validator;
 
 class AuthController extends Controller
 {
-    public function __construct(){
-        date_default_timezone_set("Asia/Tashkent");
-    }
     /**
      * @OA\Post(
      *     path="/api/login",
@@ -47,6 +45,7 @@ class AuthController extends Controller
      * )
      */
     public function Login(Request $request){
+
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
@@ -68,7 +67,7 @@ class AuthController extends Controller
             'Verify_code'=>$random
         ];
         Log::info(['token'=>$random]);
-//        https://notify.eskiz.uz/api/contact
+
         return response()->json($response);
     }
 
@@ -292,6 +291,7 @@ class AuthController extends Controller
      * )
      */
     public function loginToken_get(){
+
         return response()->json('good');
     }
 }

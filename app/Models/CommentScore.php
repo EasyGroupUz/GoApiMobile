@@ -24,9 +24,9 @@ class CommentScore extends Model
         'score'
     ];
 
-    public function driver(): BelongsTo
+    public function driver()
     {
-        return $this->belongsTo(Driver::class);
+        return $this->hasOne(Driver::class, 'user_id', 'driver_id');
     }
 
     public function order(): BelongsTo
