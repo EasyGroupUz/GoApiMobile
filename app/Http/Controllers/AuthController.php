@@ -10,9 +10,11 @@ use http\Env\Response;
 use App\Models\UserVerify;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 
@@ -45,7 +47,6 @@ class AuthController extends Controller
      * )
      */
     public function Login(Request $request){
-
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
@@ -61,13 +62,49 @@ class AuthController extends Controller
         }
         $user_verify->verify_code = $random;
         $user_verify->save();
+        $status = true;
+        $client = new Client();
+        $headers = [
+            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQyODAsInJvbGUiOm51bGwsImRhdGEiOnsiaWQiOjQyODAsIm5hbWUiOiJPT08gXCJET0NMSU5FXCIiLCJlbWFpbCI6ImVhc3lzb2x1dGlvbmdyb3VwdXpAZ21haWwuY29tIiwicm9sZSI6bnVsbCwiYXBpX3Rva2VuIjpudWxsLCJzdGF0dXMiOiJhY3RpdmUiLCJzbXNfYXBpX2xvZ2luIjoiZXNraXoyIiwic21zX2FwaV9wYXNzd29yZCI6ImUkJGsheiIsInV6X3ByaWNlIjo1MCwidWNlbGxfcHJpY2UiOjExNSwidGVzdF91Y2VsbF9wcmljZSI6bnVsbCwiYmFsYW5jZSI6Mjk5NzM1LCJpc192aXAiOjAsImhvc3QiOiJzZXJ2ZXIxIiwiY3JlYXRlZF9hdCI6IjIwMjMtMDYtMjBUMDU6MTk6MDEuMDAwMDAwWiIsInVwZGF0ZWRfYXQiOiIyMDIzLTA3LTIyVDExOjA3OjAzLjAwMDAwMFoiLCJ3aGl0ZWxpc3QiOm51bGwsImhhc19wZXJmZWN0dW0iOjB9LCJpYXQiOjE2OTAwMjgyMTMsImV4cCI6MTY5MjYyMDIxM30.LgY5QHeBo94C2in-CjtedilfvllGXzNw5bpCrZW5zKQ',
+        ];
+        $options = [
+            'headers' => [
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQyODAsInJvbGUiOm51bGwsImRhdGEiOnsiaWQiOjQyODAsIm5hbWUiOiJPT08gXCJET0NMSU5FXCIiLCJlbWFpbCI6ImVhc3lzb2x1dGlvbmdyb3VwdXpAZ21haWwuY29tIiwicm9sZSI6bnVsbCwiYXBpX3Rva2VuIjpudWxsLCJzdGF0dXMiOiJhY3RpdmUiLCJzbXNfYXBpX2xvZ2luIjoiZXNraXoyIiwic21zX2FwaV9wYXNzd29yZCI6ImUkJGsheiIsInV6X3ByaWNlIjo1MCwidWNlbGxfcHJpY2UiOjExNSwidGVzdF91Y2VsbF9wcmljZSI6bnVsbCwiYmFsYW5jZSI6Mjk5NzM1LCJpc192aXAiOjAsImhvc3QiOiJzZXJ2ZXIxIiwiY3JlYXRlZF9hdCI6IjIwMjMtMDYtMjBUMDU6MTk6MDEuMDAwMDAwWiIsInVwZGF0ZWRfYXQiOiIyMDIzLTA3LTIyVDExOjA3OjAzLjAwMDAwMFoiLCJ3aGl0ZWxpc3QiOm51bGwsImhhc19wZXJmZWN0dW0iOjB9LCJpYXQiOjE2OTAwMjgyMTMsImV4cCI6MTY5MjYyMDIxM30.LgY5QHeBo94C2in-CjtedilfvllGXzNw5bpCrZW5zKQ',
+            ],
+            'multipart' => [
+                [
+                    'name' => 'mobile_phone',
+                    'contents' => $request->phone
+                ],
+                [
+                    'name' => 'message',
+                    'contents' => "GoEasy - Sizni bir martalik tasdiqlash kodingiz: $random"
+                ],
+                [
+                  'name' => 'from',
+                  'contents' => '4546'
+                ],
+            ]
+        ];
+        $request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
+//        $request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/template');
+        $res = $client->sendAsync($request, $options)->wait();
+        $result = $res->getBody();
+
+        $result = json_decode($result);
+        if(isset($result)){
+            $status = true;
+            $message = "Success";
+        }else{
+            $status = false;
+            $message = translate("Fail message not sent. Try again");
+        }
         $response = [
-            'Status'=>true,
+            'Status'=>$status,
             'Message'=>$message,
             'Verify_code'=>$random
         ];
-        Log::info(['token'=>$random]);
-
         return response()->json($response);
     }
 
@@ -260,38 +297,5 @@ class AuthController extends Controller
         ];
         return response($response);
     }
-
-
-    /**
-     * @OA\Get(
-     *     path="/api/verify-get",
-     *     tags={"Phone"},
-     *     summary="Finds Pets by status",
-     *     description="Multiple status values can be provided with comma separated string",
-     *     operationId="loginToken_get",
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="Status values that needed to be considered for filter",
-     *         required=true,
-     *         explode=true,
-     *         @OA\Schema(
-     *             default="available",
-     *             type="string",
-     *             enum={"available", "pending", "sold"},
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid status value"
-     *     ),
-     *     security={
-     *         {"bearer_token": {}}
-     *     }
-     * )
-     */
-    public function loginToken_get(){
-
-        return response()->json('good');
-    }
+    
 }

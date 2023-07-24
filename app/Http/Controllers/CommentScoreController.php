@@ -103,7 +103,7 @@ class CommentScoreController extends Controller
      *     tags={"Users"},
      *     summary="Finds Pets by status",
      *     description="Multiple status values can be provided with comma separated string",
-     *     operationId="myComments",
+     *     operationId="getComments",
      *     @OA\Parameter(
      *         name="status",
      *         in="query",

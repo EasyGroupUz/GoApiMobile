@@ -337,14 +337,14 @@
                 ]
             }
         },
-        "/api/comment/my-comments": {
+        "/api/comment/get-comments?driver_id=21": {
             "get": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Finds Pets by status",
                 "description": "Multiple status values can be provided with comma separated string",
-                "operationId": "myComments",
+                "operationId": "getComments",
                 "parameters": [
                     {
                         "name": "status",
