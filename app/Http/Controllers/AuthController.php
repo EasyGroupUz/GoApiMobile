@@ -8,6 +8,7 @@ use App\Models\User;
 use GuzzleHttp\Client;
 use http\Env\Response;
 use App\Models\UserVerify;
+use App\Models\EskizToken;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
@@ -50,6 +51,8 @@ class AuthController extends Controller
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
+        $client = new Client();
+        $eskiz_token = EskizToken::first();
         $user_verify = UserVerify::where('phone_number', (int)$fields['phone'])->first();
         $random = rand(100000, 999999);
         if(!isset($user_verify->id)){
@@ -60,17 +63,42 @@ class AuthController extends Controller
         }else{
             $message = 'Success';
         }
-        $user_verify->verify_code = $random;
-        $user_verify->save();
         $status = true;
-        $client = new Client();
-        $headers = [
-            'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQyODAsInJvbGUiOm51bGwsImRhdGEiOnsiaWQiOjQyODAsIm5hbWUiOiJPT08gXCJET0NMSU5FXCIiLCJlbWFpbCI6ImVhc3lzb2x1dGlvbmdyb3VwdXpAZ21haWwuY29tIiwicm9sZSI6bnVsbCwiYXBpX3Rva2VuIjpudWxsLCJzdGF0dXMiOiJhY3RpdmUiLCJzbXNfYXBpX2xvZ2luIjoiZXNraXoyIiwic21zX2FwaV9wYXNzd29yZCI6ImUkJGsheiIsInV6X3ByaWNlIjo1MCwidWNlbGxfcHJpY2UiOjExNSwidGVzdF91Y2VsbF9wcmljZSI6bnVsbCwiYmFsYW5jZSI6Mjk5NzM1LCJpc192aXAiOjAsImhvc3QiOiJzZXJ2ZXIxIiwiY3JlYXRlZF9hdCI6IjIwMjMtMDYtMjBUMDU6MTk6MDEuMDAwMDAwWiIsInVwZGF0ZWRfYXQiOiIyMDIzLTA3LTIyVDExOjA3OjAzLjAwMDAwMFoiLCJ3aGl0ZWxpc3QiOm51bGwsImhhc19wZXJmZWN0dW0iOjB9LCJpYXQiOjE2OTAwMjgyMTMsImV4cCI6MTY5MjYyMDIxM30.LgY5QHeBo94C2in-CjtedilfvllGXzNw5bpCrZW5zKQ',
+        $token_options = [
+            'multipart' => [
+                [
+                    'name' => 'email',
+                    'contents' => 'easysolutiongroupuz@gmail.com'
+                ],
+                [
+                    'name' => 'password',
+                    'contents' => '4TYvyjOof4CmOUk5CisHHUzzQ5Mcn1mirx0VBuQV'
+                ]
+            ]
         ];
+        if(!isset($eskiz_token->expire_date)){
+            $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/auth/login');
+            $res = $client->sendAsync($guzzle_request, $token_options)->wait();
+            $res_array = json_decode($res->getBody());
+            $eskizToken = new EskizToken();
+            $eskizToken->token = $res_array->data->token;
+            $eskizToken->expire_date = strtotime('+29 days 23 hours');
+            $eskizToken->save();
+        }elseif(strtotime('now') > (int)$eskiz_token->expire_date){
+            $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/auth/login');
+            $res = $client->sendAsync($guzzle_request, $token_options)->wait();
+            $res_array = json_decode($res->getBody());
+            $eskizToken = EskizToken::first();
+            $eskizToken->token = $res_array->data->token;
+            $eskizToken->expire_date = strtotime('+29 days 23 hours');
+            $eskizToken->save();
+        }
+        $eskiz_token = '';
+        $eskiz_token = EskizToken::first();
         $options = [
             'headers' => [
                 'Accept'        => 'application/json',
-                'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQyODAsInJvbGUiOm51bGwsImRhdGEiOnsiaWQiOjQyODAsIm5hbWUiOiJPT08gXCJET0NMSU5FXCIiLCJlbWFpbCI6ImVhc3lzb2x1dGlvbmdyb3VwdXpAZ21haWwuY29tIiwicm9sZSI6bnVsbCwiYXBpX3Rva2VuIjpudWxsLCJzdGF0dXMiOiJhY3RpdmUiLCJzbXNfYXBpX2xvZ2luIjoiZXNraXoyIiwic21zX2FwaV9wYXNzd29yZCI6ImUkJGsheiIsInV6X3ByaWNlIjo1MCwidWNlbGxfcHJpY2UiOjExNSwidGVzdF91Y2VsbF9wcmljZSI6bnVsbCwiYmFsYW5jZSI6Mjk5NzM1LCJpc192aXAiOjAsImhvc3QiOiJzZXJ2ZXIxIiwiY3JlYXRlZF9hdCI6IjIwMjMtMDYtMjBUMDU6MTk6MDEuMDAwMDAwWiIsInVwZGF0ZWRfYXQiOiIyMDIzLTA3LTIyVDExOjA3OjAzLjAwMDAwMFoiLCJ3aGl0ZWxpc3QiOm51bGwsImhhc19wZXJmZWN0dW0iOjB9LCJpYXQiOjE2OTAwMjgyMTMsImV4cCI6MTY5MjYyMDIxM30.LgY5QHeBo94C2in-CjtedilfvllGXzNw5bpCrZW5zKQ',
+                'Authorization' => "Bearer $eskiz_token->token",
             ],
             'multipart' => [
                 [
@@ -82,16 +110,14 @@ class AuthController extends Controller
                     'contents' => "GoEasy - Sizni bir martalik tasdiqlash kodingiz: $random"
                 ],
                 [
-                  'name' => 'from',
-                  'contents' => '4546'
+                    'name' => 'from',
+                    'contents' => '4546'
                 ],
             ]
         ];
-        $request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
-//        $request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/template');
-        $res = $client->sendAsync($request, $options)->wait();
+        $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
+        $res = $client->sendAsync($guzzle_request, $options)->wait();
         $result = $res->getBody();
-
         $result = json_decode($result);
         if(isset($result)){
             $status = true;
@@ -100,6 +126,8 @@ class AuthController extends Controller
             $status = false;
             $message = translate("Fail message not sent. Try again");
         }
+        $user_verify->verify_code = $random;
+        $user_verify->save();
         $response = [
             'Status'=>$status,
             'Message'=>$message,
@@ -297,5 +325,5 @@ class AuthController extends Controller
         ];
         return response($response);
     }
-    
+
 }

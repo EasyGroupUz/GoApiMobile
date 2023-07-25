@@ -154,44 +154,6 @@
                 ]
             }
         },
-        "/api/verify-get": {
-            "get": {
-                "tags": [
-                    "Phone"
-                ],
-                "summary": "Finds Pets by status",
-                "description": "Multiple status values can be provided with comma separated string",
-                "operationId": "loginToken_get",
-                "parameters": [
-                    {
-                        "name": "status",
-                        "in": "query",
-                        "description": "Status values that needed to be considered for filter",
-                        "required": true,
-                        "explode": true,
-                        "schema": {
-                            "type": "string",
-                            "default": "available",
-                            "enum": [
-                                "available",
-                                "pending",
-                                "sold"
-                            ]
-                        }
-                    }
-                ],
-                "responses": {
-                    "400": {
-                        "description": "Invalid status value"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/car/list": {
             "get": {
                 "tags": [
