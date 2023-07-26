@@ -51,11 +51,11 @@ class OrderController extends Controller
             }
         }
 
-        return [
+        return response()->json([
+            'data' => $arr,
             'status' => true,
-            'message' => "success",
-            'model' => $arr
-        ];
+            'message' => "success"
+        ], 200);
     }
 
     public function searchTaxi(Request $request)
@@ -106,12 +106,11 @@ class OrderController extends Controller
                 }       
         // dd($aa);
         return response()->json([
+            'data' => $list,
             'status' => true,
             'message' => 'success',
-            'data' => $list,
 
         ], 200);
-
     }
 
     public function show(Request $request)
@@ -221,11 +220,11 @@ class OrderController extends Controller
             $arr['options'] = json_decode($order->options) ?? [];
         }
 
-        return [
+        return response()->json([
+            'data' => $arr,
             'status' => true,
-            'message' => "success",
-            'model' => $arr
-        ];
+            'message' => "success"
+        ], 200);
     }
 
     public function create(OrderRequest $request)
@@ -258,10 +257,10 @@ class OrderController extends Controller
             $order->create($data);
         }
 
-        return [
+        return response()->json([
             "status" => true,
             "message" => "success"
-        ];
+        ], 200);
     }
 
     public function history(Request $request)
@@ -303,11 +302,11 @@ class OrderController extends Controller
             }
         }
 
-        return [
+        return response()->json([
+            'data' => $arr,
             'status' => true,
-            'message' => "success",
-            'model' => $arr
-        ];
+            'message' => "success"
+        ], 200);
     }
 
     public function expired()
@@ -353,12 +352,11 @@ class OrderController extends Controller
             }
         }
 
-        return [
+        return response()->json([
+            'data' => $arr,
             'status' => true,
-            'message' => 'success',
-            'list' => $arr
-        ];
-
+            'message' => 'success'
+        ], 200);
     }
 
     /**
@@ -395,40 +393,9 @@ class OrderController extends Controller
             }
         }
 
-        return [
+        return response()->json([
             "status" => $status,
             "message" => $message
-        ];
-
-        // $driver = User::where('token', $token)->first();
-
-        // if (!isset($driver)) {
-        //     return [
-        //         "status" => false,
-        //         "message" => "Token not found"
-        //     ];
-        // }
-        // $driver_id = $driver->id;
-        // $data['driver_id'] = $driver_id;
-
-        // $order = new Order();
-        // $order->create($data);
-        
-        // if ($data['back_date']) {
-        //     $from_id = $data['to_id'];
-        //     $to_id = $data['from_id'];
-
-        //     $data['start_date'] = $data['back_date'];
-        //     $data['from_id'] = $from_id;
-        //     $data['to_id'] = $to_id;
-
-        //     $order = new Order();
-        //     $order->create($data);
-        // }
-
-        // return [
-        //     "status" => true,
-        //     "message" => "success"
-        // ];
+        ], 200);
     }
 }
