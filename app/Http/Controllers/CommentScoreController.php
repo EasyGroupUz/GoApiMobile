@@ -176,11 +176,13 @@ class CommentScoreController extends Controller
             $message = 'No comment';
         }
         $response = [
+            'data'=>[
+                'personal_info'=>$personal_info,
+                'ratings_list'=>$ratings_list,
+                'comments_list'=>$comments_list,
+            ],
             'status'=>$status,
             'message'=>$message,
-            'personal_info'=>$personal_info,
-            'ratings_list'=>$ratings_list,
-            'comments_list'=>$comments_list,
         ];
         return response()->json($response);
     }

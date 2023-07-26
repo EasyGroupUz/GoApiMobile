@@ -129,9 +129,11 @@ class AuthController extends Controller
         $user_verify->verify_code = $random;
         $user_verify->save();
         $response = [
-            'Status'=>$status,
-            'Message'=>$message,
-            'Verify_code'=>$random
+            "data"=>[
+                'Verify_code'=>$random,
+            ],
+            'status'=>$status,
+            'message'=>$message,
         ];
         return response()->json($response);
     }
@@ -228,9 +230,11 @@ class AuthController extends Controller
             $token = 'no token';
         }
         $response = [
-            'Status'=>$status,
-            'Message'=>$message,
-            'token' => $token
+            'data'=>[
+                'token' => $token,
+            ],
+            'status'=>$status,
+            'message'=>$message
         ];
         return response()->json($response);
     }

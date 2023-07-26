@@ -27,9 +27,9 @@ class CarsController extends Controller
             ->get();
 
         return response()->json([
+            'data' => $cars,
             'status' => true,
             'message' => 'success',
-            'data' => $cars,
 
         ], 200);
 
@@ -80,11 +80,13 @@ class CarsController extends Controller
             ];
         }
         $response = [
+            'data'=>[
+                "class_list"=>$class_list??[],
+                "color_list"=>$color_list??[],
+                "car_list"=>$carList??[]
+            ],
             'status'=>true,
             'message'=>'success',
-            "class_list"=>$class_list??[],
-            "color_list"=>$color_list??[],
-            "car_list"=>$carList??[]
         ];
         return response()->json($response);
     }
