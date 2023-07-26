@@ -99,11 +99,11 @@ class CommentScoreController extends Controller
     }
     /**
      * @OA\Get(
-     *     path="/api/comment/my-comments",
+     *     path="/api/comment/get-comments?driver_id=21",
      *     tags={"Users"},
      *     summary="Finds Pets by status",
      *     description="Multiple status values can be provided with comma separated string",
-     *     operationId="myComments",
+     *     operationId="getComments",
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
@@ -125,16 +125,65 @@ class CommentScoreController extends Controller
      *     }
      * )
      */
-    public function myComments()
+    public function getComments(Request $request)
     {
-
-        $comments = CommentScore::all();
-        foreach ($comments as $comment){
-
-            return response()->json($comment->client);
+        $personal_info = '';
+        $ratings_list = [];
+        $comments_list = [];
+        $comment = CommentScore::where('driver_id', $request->driver_id)->first();
+        if(isset($comment)){
+            $getComments = CommentScore::where('driver_id', $request->driver_id)->get();
+            $comments = CommentScore::where('driver_id', $request->driver_id)->get()->groupBy('score');
+            $average_score = 0;
+            foreach ($comments as $comm){
+                foreach ($comm as $com){
+                    $average_score = $average_score + $com->score;
+                    if(isset($com->score) || $com->score != 0){
+                        $percent = 100*($com->score/5);
+                    }else{
+                        $percent = 0;
+                    }
+                    $ratings_list[] = [
+                        "rating" => $com->score,
+                        "percent" => $percent,
+                        "comment_count" => count($comm)
+                    ];
+                }
+            }
+            $first_name = $comment->driver->personalInfo?$comment->driver->personalInfo->first_name.' ':'';
+            $last_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->last_name[0].'. '):'';
+            $middle_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->middle_name[0].'.'):'';
+            $personal_info = [
+                'img'=>$comment->driver->personalInfo?$comment->driver->personalInfo->avatar:'',
+                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                'rating'=>$average_score/count($comments),
+                'comment_count'=>count($comments)
+            ];
+            foreach ($getComments as $getComment){
+                $date = explode(" ", $getComment->date);
+                $comments_list[] = [
+                    "img" => $getComment->driver->personalInfo?$getComment->driver->personalInfo->avatar:'',
+                    "full_name" => $first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                    "date" => $date[0],
+                    "rating" => $getComment->score,
+                    "comment" => $getComment->text
+                ];
+            }
+            $status = true;
+            $message = 'Success';
+        }else{
+            $status = false;
+            $message = 'No comment';
         }
-        return response()->json('good');
+        $response = [
+            'data'=>[
+                'personal_info'=>$personal_info,
+                'ratings_list'=>$ratings_list,
+                'comments_list'=>$comments_list,
+            ],
+            'status'=>$status,
+            'message'=>$message,
+        ];
+        return response()->json($response);
     }
-
-
 }

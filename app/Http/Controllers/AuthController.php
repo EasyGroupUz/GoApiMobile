@@ -5,21 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\PersonalInfo;
 use App\Models\User;
+use GuzzleHttp\Client;
 use http\Env\Response;
 use App\Models\UserVerify;
+use App\Models\EskizToken;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 
 class AuthController extends Controller
 {
-    public function __construct(){
-        date_default_timezone_set("Asia/Tashkent");
-    }
     /**
      * @OA\Post(
      *     path="/api/login",
@@ -50,6 +51,8 @@ class AuthController extends Controller
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
+        $client = new Client();
+        $eskiz_token = EskizToken::first();
         $user_verify = UserVerify::where('phone_number', (int)$fields['phone'])->first();
         $random = rand(100000, 999999);
         if(!isset($user_verify->id)){
@@ -60,15 +63,78 @@ class AuthController extends Controller
         }else{
             $message = 'Success';
         }
+        $status = true;
+        $token_options = [
+            'multipart' => [
+                [
+                    'name' => 'email',
+                    'contents' => 'easysolutiongroupuz@gmail.com'
+                ],
+                [
+                    'name' => 'password',
+                    'contents' => '4TYvyjOof4CmOUk5CisHHUzzQ5Mcn1mirx0VBuQV'
+                ]
+            ]
+        ];
+        if(!isset($eskiz_token->expire_date)){
+            $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/auth/login');
+            $res = $client->sendAsync($guzzle_request, $token_options)->wait();
+            $res_array = json_decode($res->getBody());
+            $eskizToken = new EskizToken();
+            $eskizToken->token = $res_array->data->token;
+            $eskizToken->expire_date = strtotime('+29 days 23 hours');
+            $eskizToken->save();
+        }elseif(strtotime('now') > (int)$eskiz_token->expire_date){
+            $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/auth/login');
+            $res = $client->sendAsync($guzzle_request, $token_options)->wait();
+            $res_array = json_decode($res->getBody());
+            $eskizToken = EskizToken::first();
+            $eskizToken->token = $res_array->data->token;
+            $eskizToken->expire_date = strtotime('+29 days 23 hours');
+            $eskizToken->save();
+        }
+        $eskiz_token = '';
+        $eskiz_token = EskizToken::first();
+        $options = [
+            'headers' => [
+                'Accept'        => 'application/json',
+                'Authorization' => "Bearer $eskiz_token->token",
+            ],
+            'multipart' => [
+                [
+                    'name' => 'mobile_phone',
+                    'contents' => $request->phone
+                ],
+                [
+                    'name' => 'message',
+                    'contents' => "GoEasy - Sizni bir martalik tasdiqlash kodingiz: $random"
+                ],
+                [
+                    'name' => 'from',
+                    'contents' => '4546'
+                ],
+            ]
+        ];
+        $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
+        $res = $client->sendAsync($guzzle_request, $options)->wait();
+        $result = $res->getBody();
+        $result = json_decode($result);
+        if(isset($result)){
+            $status = true;
+            $message = "Success";
+        }else{
+            $status = false;
+            $message = translate("Fail message not sent. Try again");
+        }
         $user_verify->verify_code = $random;
         $user_verify->save();
         $response = [
-            'Status'=>true,
-            'Message'=>$message,
-            'Verify_code'=>$random
+            "data"=>[
+                'Verify_code'=>$random,
+            ],
+            'status'=>$status,
+            'message'=>$message,
         ];
-        Log::info(['token'=>$random]);
-//        https://notify.eskiz.uz/api/contact
         return response()->json($response);
     }
 
@@ -164,9 +230,11 @@ class AuthController extends Controller
             $token = 'no token';
         }
         $response = [
-            'Status'=>$status,
-            'Message'=>$message,
-            'token' => $token
+            'data'=>[
+                'token' => $token,
+            ],
+            'status'=>$status,
+            'message'=>$message
         ];
         return response()->json($response);
     }
@@ -262,36 +330,4 @@ class AuthController extends Controller
         return response($response);
     }
 
-
-    /**
-     * @OA\Get(
-     *     path="/api/verify-get",
-     *     tags={"Phone"},
-     *     summary="Finds Pets by status",
-     *     description="Multiple status values can be provided with comma separated string",
-     *     operationId="loginToken_get",
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="Status values that needed to be considered for filter",
-     *         required=true,
-     *         explode=true,
-     *         @OA\Schema(
-     *             default="available",
-     *             type="string",
-     *             enum={"available", "pending", "sold"},
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid status value"
-     *     ),
-     *     security={
-     *         {"bearer_token": {}}
-     *     }
-     * )
-     */
-    public function loginToken_get(){
-        return response()->json('good');
-    }
 }

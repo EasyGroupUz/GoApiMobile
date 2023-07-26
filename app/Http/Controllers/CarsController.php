@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CarsController extends Controller
 {
-
     public function myTaxi(Request $request)
     {
         $cars = DB::table('yy_drivers as dt1')
@@ -26,12 +25,11 @@ class CarsController extends Controller
             ->where('dt1.user_id', auth()->id())
             ->select('dt2.id', 'dt2.images','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color')
             ->get();
-        // dd($cars);
 
         return response()->json([
+            'data' => $cars,
             'status' => true,
             'message' => 'success',
-            'data' => $cars,
 
         ], 200);
 
@@ -82,11 +80,13 @@ class CarsController extends Controller
             ];
         }
         $response = [
+            'data'=>[
+                "class_list"=>$class_list??[],
+                "color_list"=>$color_list??[],
+                "car_list"=>$carList??[]
+            ],
             'status'=>true,
             'message'=>'success',
-            "class_list"=>$class_list??[],
-            "color_list"=>$color_list??[],
-            "car_list"=>$carList??[]
         ];
         return response()->json($response);
     }

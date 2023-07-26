@@ -50,15 +50,15 @@ class UserController extends Controller
                 'phone_number'=>$model->personalInfo->phone_number,
             ];
             $response = [
+                'data'=>$list,
                 'status'=>true,
-                'message'=>'success',
-                'list'=>$list
+                'message'=>'success'
             ];
         }else{
             $response = [
+                'data'=>[],
                 'status'=>false,
-                'message'=>'No personal info',
-                'list'=>[]
+                'message'=>'No personal info'
             ];
         }
         return response()->json($response);
