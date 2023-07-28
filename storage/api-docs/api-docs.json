@@ -72,6 +72,14 @@
                                     "verify_code": {
                                         "description": "write your verify code",
                                         "type": "integer"
+                                    },
+                                    "device_type": {
+                                        "description": "write your verify code",
+                                        "type": "string"
+                                    },
+                                    "device_id": {
+                                        "description": "write your verify code",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"

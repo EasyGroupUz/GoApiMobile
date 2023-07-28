@@ -163,6 +163,16 @@ class AuthController extends Controller
      *                     property="verify_code",
      *                     description="write your verify code",
      *                     type="integer",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="device_type",
+     *                     description="write your device type",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="device_id",
+     *                     description="write your device id",
+     *                     type="string",
      *                 )
      *             )
      *         )
@@ -172,7 +182,9 @@ class AuthController extends Controller
     public function loginToken(Request $request){
         $fields = $request->validate([
              'phone_number'=>'required',
-            'verify_code'=>'required'
+             'verify_code'=>'required',
+             'device_type'=>'nullable',
+             'device_id'=>'nullable',
         ]);
         $model = UserVerify::where('phone_number',(int)$fields['phone_number'])->first();
         if(isset($model->id)){
@@ -196,6 +208,8 @@ class AuthController extends Controller
                     $new_user->password = Hash::make($model->verify_code);
                     $token = $new_user->createToken('myapptoken')->plainTextToken;
                     $new_user->token = $token;
+                    $new_user->device_type = $fields['device_type'];
+                    $new_user->device_id = $fields['device_id'];
                     $new_user->save();
                     $message = 'Success';
                     $status = true;
@@ -215,6 +229,13 @@ class AuthController extends Controller
                     $model->user->password = Hash::make($model->verify_code);
                     $token = $model->user->createToken('myapptoken')->plainTextToken;
                     $model->user->token = $token;
+
+                    if($model->user->device_type == null || $model->user->device_type == ''){
+                        $model->user->device_type = $fields['device_type'];
+                    }
+                    if($model->user->device_id == null || $model->user->device_id == ''){
+                        $model->user->device_id = $fields['device_id'];
+                    }
                     $model->user->save();
                     $message = 'Success';
                     $status = true;
