@@ -26,7 +26,10 @@ class User extends Authenticatable
         'about_me',
         'company_id',
         'personal_info_id',
-        'created_at'
+        'rating',
+        'device_type',
+        'device_id',
+        'created_at',
     ];
 
     public function personalInfo()
