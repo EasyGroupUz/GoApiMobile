@@ -88,10 +88,9 @@ class OrderDetailsController extends Controller
             }
             // dd($list);
             return response()->json([
+                'data' => $list,
                 'status' => true,
                 'message' => 'success',
-                'list' => $list,
-
             ], 200);
            
         }
@@ -116,7 +115,6 @@ class OrderDetailsController extends Controller
         //     'to_id'=>'required',
         //     'date'=>'required'
         // ]);
-        // dd($request->all());
 
 
             $date=Carbon::parse($request->date)->format('Y-m-d');
@@ -147,9 +145,9 @@ class OrderDetailsController extends Controller
                     array_push($list,$data);
                 }       
         return response()->json([
+            'data' => $list,
             'status' => true,
             'message' => 'success',
-            'data' => $list,
 
         ], 200);
 
