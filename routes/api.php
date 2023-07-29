@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\CarsController;
 use App\Http\Controllers\CommentScoreController;
 use App\Http\Controllers\ComplainController;
+use App\Http\Controllers\MediaHistoryController;
 
 
 /*
@@ -68,5 +69,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     
     Route::group(['prefix' => 'complain'], function () {
         Route::post('/create', [ComplainController::class, 'create']);
+    });
+    Route::group(['prefix' => 'media'], function () {
+        Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
+        Route::get('/history/user', [MediaHistoryController::class, 'getHistoryUser']);
+        Route::post('/history/user', [MediaHistoryController::class, 'postHistoryUser']);
     });
 });

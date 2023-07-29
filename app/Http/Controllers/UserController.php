@@ -42,12 +42,21 @@ class UserController extends Controller
             $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
             $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
             $middle_name = $model->personalInfo->middle_name?strtoupper($model->personalInfo->middle_name[0].'.'):'';
+            
+           
+            if(isset($model->personalInfo->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$model->personalInfo->avatar);
+                if(file_exists($avatar)){
+                    $model->personalInfo->avatar = asset('storage/avatar/'.$model->personalInfo->avatar);
+                }
+            }
             $list = [
                 'img'=>$model->personalInfo->avatar,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
                 'gender'=>$model->personalInfo->gender,
                 'phone_number'=>$model->personalInfo->phone_number,
+                'rating'=>$model->rating,
             ];
             $response = [
                 'data'=>$list,
@@ -109,6 +118,11 @@ class UserController extends Controller
      *                     description="write your email",
      *                     type="string",
      *                 ),
+     *                 @OA\Property(
+     *                     property="avatar",
+     *                     description="Enter your photo",
+     *                     type="file",
+     *                 ),
      *             )
      *         )
      *     ),
@@ -126,6 +140,19 @@ class UserController extends Controller
         $personal_info->birth_date = $request->birth_date;
         $personal_info->gender = $request->gender;
         $personal_info->email = $request->email;
+        $letters = range('a', 'z');
+        $user_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+        $user_random = implode("", $user_random_array);
+        $user_img = $request->file('avatar');
+        if(isset($user_img)) {
+            $avatar = storage_path('app/public/avatar/'.$personal_info->avatar);
+            if(file_exists($avatar)){
+                unlink($avatar);
+            }
+            $image_name = $user_random . '' . date('Y-m-dh-i-s') . '.' . $user_img->extension();
+            $user_img->storeAs('public/avatar/', $image_name);
+            $personal_info->avatar = $image_name;
+        }
         $personal_info->save();
         $response = [
             'status'=>true,

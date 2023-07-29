@@ -201,6 +201,7 @@ class AuthController extends Controller
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
+                    $new_user->rating = 4.5;
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();
@@ -208,8 +209,8 @@ class AuthController extends Controller
                     $new_user->password = Hash::make($model->verify_code);
                     $token = $new_user->createToken('myapptoken')->plainTextToken;
                     $new_user->token = $token;
-                    $new_user->device_type = $fields['device_type'];
-                    $new_user->device_id = $fields['device_id'];
+                    $new_user->device_type = json_encode([$fields['device_type']]);
+                    $new_user->device_id = json_encode([$fields['device_id']]);
                     $new_user->save();
                     $message = 'Success';
                     $status = true;
@@ -229,12 +230,26 @@ class AuthController extends Controller
                     $model->user->password = Hash::make($model->verify_code);
                     $token = $model->user->createToken('myapptoken')->plainTextToken;
                     $model->user->token = $token;
-
-                    if($model->user->device_type == null || $model->user->device_type == ''){
-                        $model->user->device_type = $fields['device_type'];
+                    if($fields['device_id'] != null && $fields['device_id'] != '' && !in_array($fields['device_id'], json_decode($model->user->device_id))){
+                        if($model->user->device_type == null || $model->user->device_type == ''){
+                            if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                $model->user->device_type = json_encode([$fields['device_type']]);
+                            }
+                        }else{
+                            $device_type = json_decode($model->user->device_type);
+                            if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                $model->user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
+                            }
+                        }
+                        if($model->user->device_id == null || $model->user->device_id == ''){
+                            $model->user->device_id = json_encode([$fields['device_id']]);
+                        }else{
+                            $device_id = json_decode($model->user->device_id);
+                            $model->user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
+                        }
                     }
-                    if($model->user->device_id == null || $model->user->device_id == ''){
-                        $model->user->device_id = $fields['device_id'];
+                    if($model->user->rating == null || $model->user->rating == ''){
+                        $model->user->rating = 4.5;
                     }
                     $model->user->save();
                     $message = 'Success';
