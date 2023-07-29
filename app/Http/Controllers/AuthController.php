@@ -201,7 +201,7 @@ class AuthController extends Controller
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
-                    $new_user->rating = 4.5;
+                    $new_user->rating = 4;
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();
@@ -230,7 +230,7 @@ class AuthController extends Controller
                     $model->user->password = Hash::make($model->verify_code);
                     $token = $model->user->createToken('myapptoken')->plainTextToken;
                     $model->user->token = $token;
-                    if($fields['device_id'] != null && $fields['device_id'] != '' && !in_array($fields['device_id'], json_decode($model->user->device_id))){
+                    if($fields['device_id'] != null && $fields['device_id'] != '' && isset($model->user->device_id) && !in_array($fields['device_id'], json_decode($model->user->device_id))){
                         if($model->user->device_type == null || $model->user->device_type == ''){
                             if($fields['device_type'] != null && $fields['device_type'] != ''){
                                 $model->user->device_type = json_encode([$fields['device_type']]);
@@ -249,7 +249,7 @@ class AuthController extends Controller
                         }
                     }
                     if($model->user->rating == null || $model->user->rating == ''){
-                        $model->user->rating = 4.5;
+                        $model->user->rating = 4;
                     }
                     $model->user->save();
                     $message = 'Success';
