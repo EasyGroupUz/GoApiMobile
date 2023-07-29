@@ -72,6 +72,14 @@
                                     "verify_code": {
                                         "description": "write your verify code",
                                         "type": "integer"
+                                    },
+                                    "device_type": {
+                                        "description": "write your device type",
+                                        "type": "string"
+                                    },
+                                    "device_id": {
+                                        "description": "write your device id",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -328,6 +336,119 @@
                 "responses": {
                     "400": {
                         "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/media/history": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get all media",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "mediaHistory",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/media/history/user": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "get media history user",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "getHistoryUser",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "give user id and media history id",
+                "operationId": "postHistoryUser",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "user_id": {
+                                        "description": "write user_id",
+                                        "type": "integer"
+                                    },
+                                    "media_history_id": {
+                                        "description": "write your media_history_id",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
                     }
                 },
                 "security": [
