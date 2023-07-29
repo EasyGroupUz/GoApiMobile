@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderDetailsController;
 use App\Http\Controllers\CarsController;
 use App\Http\Controllers\CommentScoreController;
 use App\Http\Controllers\ComplainController;
+use App\Http\Controllers\CountryController;
 
 
 /*
@@ -42,6 +43,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
         Route::post('/create', [CarsController::class, 'create']);
+        Route::post('/card-list', [CarsController::class, 'cardList']);
     });
 
     Route::group(['prefix' => 'user'], function () {
@@ -59,6 +61,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
 
+    });
+
+    Route::group(['prefix' => 'country'], function () {
+        Route::get('/index', [CountryController::class, 'index']);
     });
 
     Route::group(['prefix' => 'comment'], function () {
