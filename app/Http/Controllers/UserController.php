@@ -38,6 +38,17 @@ class UserController extends Controller
      */
     public function show(){
         $model = Auth::user();
+        if(isset($model)){
+            $device_types = json_decode($model->device_type);
+            $device_id = json_decode($model->device_id);
+            $i = -1;
+            foreach ($device_types as $device_type){
+                $i++;
+                $device = [
+                    ['type'=>$device_type??'', 'id'=>$device_id[$i]??''],
+                ];
+            }
+        }
         if(isset($model->personalInfo)){
             $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
             $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
@@ -51,6 +62,7 @@ class UserController extends Controller
                 }
             }
             $list = [
+                'device'=>$device,
                 'img'=>$model->personalInfo->avatar,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
@@ -65,7 +77,9 @@ class UserController extends Controller
             ];
         }else{
             $response = [
-                'data'=>[],
+                'data'=>[
+                    'device'=>$device
+                ],
                 'status'=>false,
                 'message'=>'No personal info'
             ];
@@ -144,7 +158,7 @@ class UserController extends Controller
         $user_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
         $user_random = implode("", $user_random_array);
         $user_img = $request->file('avatar');
-        if(isset($user_img)) {
+        if(isset($user_img)){
             $avatar = storage_path('app/public/avatar/'.$personal_info->avatar);
             if(file_exists($avatar)){
                 unlink($avatar);
