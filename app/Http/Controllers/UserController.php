@@ -156,9 +156,11 @@ class UserController extends Controller
         $user_random = implode("", $user_random_array);
         $user_img = $request->file('avatar');
         if(isset($user_img)){
-            $avatar = storage_path('app/public/avatar/'.$personal_info->avatar);
-            if(file_exists($avatar)){
-                unlink($avatar);
+            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
+                if(file_exists($avatar)){
+                    unlink($avatar);
+                }
             }
             $image_name = $user_random . '' . date('Y-m-dh-i-s') . '.' . $user_img->extension();
             $user_img->storeAs('public/avatar/', $image_name);
