@@ -44,16 +44,13 @@ class UserController extends Controller
             $i = -1;
             foreach ($device_types as $device_type){
                 $i++;
-                $device = [
-                    ['type'=>$device_type??'', 'id'=>$device_id[$i]??''],
-                ];
+                $device[] = ['type'=>$device_type??'', 'id'=>$device_id[$i]??''];
             }
         }
         if(isset($model->personalInfo)){
             $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
             $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
             $middle_name = $model->personalInfo->middle_name?strtoupper($model->personalInfo->middle_name[0].'.'):'';
-            
            
             if(isset($model->personalInfo->avatar)){
                 $avatar = storage_path('app/public/avatar/'.$model->personalInfo->avatar);
