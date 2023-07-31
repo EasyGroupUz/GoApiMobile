@@ -38,7 +38,7 @@ class UserController extends Controller
      */
     public function show(){
         $model = Auth::user();
-        if(isset($model)){
+        if(isset($model->device_type) && isset($model->device_id)){
             $device_types = json_decode($model->device_type);
             $device_id = json_decode($model->device_id);
             $i = -1;
