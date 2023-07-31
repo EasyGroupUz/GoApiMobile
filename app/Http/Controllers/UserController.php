@@ -75,7 +75,7 @@ class UserController extends Controller
         }else{
             $response = [
                 'data'=>[
-                    'device'=>$device
+                    'device'=>$device??[]
                 ],
                 'status'=>false,
                 'message'=>'No personal info'
