@@ -11,6 +11,7 @@ use App\Http\Controllers\CommentScoreController;
 use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
+use App\Http\Controllers\OfferController;
 
 
 /*
@@ -51,6 +52,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/show', [UserController::class, 'show']);
         Route::post('/update', [UserController::class, 'update']);
         Route::post('/delete', [UserController::class, 'delete']);
+    });
+
+    Route::group(['prefix' => 'offer'], function () {
+        Route::get('/get', [OfferController::class, 'getOffer']);
+        Route::post('/store', [OfferController::class, 'postOffer']);
     });
 
     Route::group(['prefix' => 'order'], function () {

@@ -9,79 +9,46 @@ use Illuminate\Http\Request;
 
 class OfferController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $offers = Offer::all();
 
-        return view('offer.index', compact('offers'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        $offer = Offer::findOrFail($id);
-
-        return view('offer.show', compact('offer'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        $model = Offer::findOrFail($id);
-        $driver = Driver::all();
-        $client = Client::all();
-
-        return view('offer.edit', [
-            'model' => $model, 
-            'driver' => $driver,
-            'client' => $client
+    public function postOffer(Request $request){
+        $field = $request->validate([
+            'driver_id'=>'required|integer',
+            'client_id'=>'required|integer',
+            'order_id'=>'required|integer',
+            'order_detail_id'=>'required|integer',
+            'price'=>'required|integer',
+            'comment'=>'required|string',
         ]);
+        $offer = new Offer();
+        $offer->driver_id = $field['driver_id'];
+        $offer->client_id = $field['client_id'];
+        $offer->order_id = $field['order_id'];
+        $offer->order_detail_id = $field['order_detail_id'];
+        $offer->price = $field['price'];
+        $offer->status = 1;
+        $offer->comment = $field['comment'];
+        $offer->save();
+        $response = [
+          'status'=>true,
+          'message'=>'Success'
+        ];
+        return response()->json($response);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        // $data = $request->validated();
-
-        $client = Offer::findOrFail($id);
-        $client->update($request->all());
-        $client->save();
-
-        return redirect(route('offer.index'));
+    public function getOffer(){
+        $offer = Offer::select('driver_id', 'client_id', 'order_id',
+            'order_detail_id', 'price', 'status', 'comment')->get();
+        $response = [
+            'data'=>$offer,
+            'status'=>true,
+            'message'=>'Success'
+        ];
+        return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         Offer::destroy($id);
-
         return redirect(route('offer.index'));
     }
 }
