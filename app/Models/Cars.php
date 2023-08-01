@@ -23,7 +23,7 @@ class Cars extends Model
         'color_list_id',
         'class_list_id',
         'production_date',
-        'wheel_side'
+        'wheel_side'  // 0 - left  1 - right
     ];
 
     public function car(): BelongsTo

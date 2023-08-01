@@ -61,6 +61,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/expired', [OrderController::class, 'expired']);
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
+        Route::get('/options', [OrderController::class, 'getOptions']);
 
     });
 

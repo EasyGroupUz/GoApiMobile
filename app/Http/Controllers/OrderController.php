@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Options;
 use App\Models\OrderDetail;
 use App\Models\PersonalInfo;
 use Carbon\Carbon;
@@ -397,5 +398,26 @@ class OrderController extends Controller
             "status" => $status,
             "message" => $message
         ], 200);
+    }
+
+    public function getOptions(){
+        $options = Options::select('id', 'name', 'icon')->get();
+        $status = false;
+        $message = 'no data';
+        foreach($options as $option){
+            $data[] = [
+                'id'=>$option->id,
+                'name'=>$option->name,
+                'icon'=>"http://admin.easygo.uz/storage/option/$option->icon",
+            ];
+            $status = true;
+            $message = 'success';
+        }
+        $response = [
+          'data'=>$data,
+          'status'=>$status,
+          'message'=>$message,
+        ];
+        return response()->json($response);
     }
 }
