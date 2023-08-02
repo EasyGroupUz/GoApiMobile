@@ -23,16 +23,38 @@ class CarsController extends Controller
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.user_id', auth()->id())
-            ->select('dt2.id', 'dt2.images','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color')
-            ->get();
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt1.created_at', 'dt1.updated_at')
+            ->get()->toArray();
+        $car_array = [];
+        foreach ($cars as $car){
+            $images_array = json_decode($car->images);
+            if(gettype($images_array) == 'string'){
+                $str_images = str_replace('[', '', $images_array);
+                $str_images_1 = str_replace(']', '', $str_images);
+                $images_array = str_replace("\"", '', $str_images_1);
+                $images_array = explode(',', $images_array);
+            }
+            foreach($images_array as $images){
+                $images_[] = asset("storage/cars/$images");
+            }
+            $car_array[] = [
+                'id'=>$car->id,
+                'images'=>$images_,
+                'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
+                'production_date'=>$car->production_date,
+                'car_name'=>$car->car_name,
+                'color'=>$car->color,
+                'created_at'=>$car->created_at,
+                'updated_at'=>$car->updated_at,
+            ];
+        }
 
         return response()->json([
-            'data' => $cars,
+            'data' => $car_array,
             'status' => true,
             'message' => 'success',
 
         ], 200);
-
     }
 
 
@@ -146,7 +168,7 @@ class CarsController extends Controller
      * )
      */
 
-    public function create(Request $request) {
+    public function store(Request $request) {
         $user = Auth::user();
         $cars = new Cars();
         $cars->status_id = 1;
@@ -156,6 +178,28 @@ class CarsController extends Controller
         $cars->class_list_id = $request->class_id;
         $cars->production_date = $request->production_date;
         $cars->wheel_side = $request->wheel_side;
+        $letters = range('a', 'z');
+        if(isset($request->reg_certificate_image)){
+            $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+            $certificate_random = implode("", $certificate_random_array);
+            $certificate_img = $request->file('reg_certificate_image');
+            if(isset($certificate_img)) {
+                $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
+                $certificate_img->storeAs('public/certificate/', $image_name);
+                $cars->reg_certificate_image = $image_name;
+            }
+        }
+        $images = $request->file('images');
+        if(isset($images)){
+            foreach ($images as $image){
+                $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+                $images_random = implode("", $images_random_array);
+                $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
+                $image->storeAs('public/cars/', $image_name);
+                $images_array[] = $image_name;
+            }
+            $cars->images = json_encode($images_array);
+        }
         $is_driver = Driver::where('user_id', $user->id)->first();
         $car_list = CarList::find($request->model_id);
         if(!isset($car_list)){

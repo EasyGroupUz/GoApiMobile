@@ -44,7 +44,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'car'], function () {
         Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
-        Route::post('/create', [CarsController::class, 'create']);
+        Route::post('/store', [CarsController::class, 'store']);
         Route::post('/card-list', [CarsController::class, 'cardList']);
     });
 

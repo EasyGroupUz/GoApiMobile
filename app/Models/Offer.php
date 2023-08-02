@@ -23,14 +23,19 @@ class Offer extends Model
         'comment',
     ];
 
-    public function driver()
-    {
-        return $this->hasOne(Driver::class, 'user_id', 'driver_id');
-    }
+//    public function driver()
+//    {
+//        return $this->hasOne(Driver::class, 'user_id', 'driver_id');
+//    }
 
     public function client()
     {
         return $this->belongsTo(User::class, 'id', 'client_id');
+    }
+    
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'id', 'driver_id');
     }
 
     public function order(): BelongsTo
