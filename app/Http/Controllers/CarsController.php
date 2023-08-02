@@ -9,6 +9,7 @@ use App\Models\Driver;
 use App\Models\Status;
 use App\Models\ColorList;
 use App\Models\ClassList;
+use App\Models\CarTypes;
 use App\Http\Requests\CarsRequest;
 use Illuminate\Support\Facades\DB;
 
