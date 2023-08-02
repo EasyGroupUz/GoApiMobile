@@ -91,25 +91,30 @@ class CarsController extends Controller
     public function information(){
         $class_list = ClassList::select('id', 'name')->get()->toArray();
         $color_list = ColorList::select('id', 'name')->get()->toArray();
-        $car_lists = CarList::select('id', 'name')->get()->toArray();
-        $car_types = CarTypes::select('id', 'name')->get()->toArray();
-        //        $car_lists = CarList::all();
-//        foreach ($car_lists as $car_list){
-//            $carList[] = [
-//                'id'=>$car_list->id,
-//                'model'=>$car_list->name??'',
-//                'list' => [
-//                    'id' => $car_list->type?$car_list->type->id:'',
-//                    'name' => $car_list->type?$car_list->type->name:'',
-//                ],
-//            ];
-//        }
+        $car_types = CarTypes::select('id', 'name')->get();
+        foreach ($car_types as $car_type){
+            $model = $car_type->name;
+            foreach($car_type->carList as $car_list){
+                $list[] = [
+                    "id" => $car_list->id,
+                    "status_id" => $car_list->status_id,
+                    "car_type_id" => $car_list->car_type_id,
+                    "name" => $car_list->name,
+                    "default_seats" => $car_list->default_seats,
+                ];
+            }
+            $carList[] = [
+                'id'=>$car_type->id,
+                'model'=>$model??'',
+                'list' => $list,
+            ];
+            $list = [];
+        }
         $response = [
             'data'=>[
                 "class_list"=>$class_list??[],
                 "color_list"=>$color_list??[],
-                "car_list"=>$car_lists??[],
-                "car_types"=>$car_types??[]
+                "car_list"=>$carList??[],
             ],
             'status'=>true,
             'message'=>'success',

@@ -12,11 +12,16 @@ class CarTypes extends Model
     protected $table = 'yy_car_types';
 
     protected $fillable = [
+        'id',
         'name',
-        'status'
+        'status_id'
     ];
     
     public function status(){
         return $this->hasOne(Status::class, 'id', 'status_id');
+    }
+
+    public function carList(){
+        return $this->hasMany(CarList::class, 'car_type_id', 'id');
     }
 }
