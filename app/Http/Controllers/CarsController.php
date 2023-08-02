@@ -90,22 +90,25 @@ class CarsController extends Controller
     public function information(){
         $class_list = ClassList::select('id', 'name')->get()->toArray();
         $color_list = ColorList::select('id', 'name')->get()->toArray();
-        $car_lists = CarList::all();
-        foreach ($car_lists as $car_list){
-            $carList[] = [
-                'id'=>$car_list->id,
-                'model'=>$car_list->name??'',
-                'list' => [
-                    'id' => $car_list->type?$car_list->type->id:'',
-                    'name' => $car_list->type?$car_list->type->name:'',
-                ],
-            ];
-        }
+        $car_lists = CarList::select('id', 'name')->get()->toArray();
+        $car_types = CarTypes::select('id', 'name')->get()->toArray();
+        //        $car_lists = CarList::all();
+//        foreach ($car_lists as $car_list){
+//            $carList[] = [
+//                'id'=>$car_list->id,
+//                'model'=>$car_list->name??'',
+//                'list' => [
+//                    'id' => $car_list->type?$car_list->type->id:'',
+//                    'name' => $car_list->type?$car_list->type->name:'',
+//                ],
+//            ];
+//        }
         $response = [
             'data'=>[
                 "class_list"=>$class_list??[],
                 "color_list"=>$color_list??[],
-                "car_list"=>$carList??[]
+                "car_list"=>$car_lists??[],
+                "car_types"=>$car_types??[]
             ],
             'status'=>true,
             'message'=>'success',
