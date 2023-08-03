@@ -35,12 +35,14 @@ class CarsController extends Controller
                 $images_array = str_replace("\"", '', $str_images_1);
                 $images_array = explode(',', $images_array);
             }
-            foreach($images_array as $images){
-                $images_[] = asset("storage/cars/$images");
+            if(isset($images_array) && count($images_array)>0){
+                foreach($images_array as $images){
+                    $images_[] = asset("storage/cars/$images");
+                }
             }
             $car_array[] = [
                 'id'=>$car->id,
-                'images'=>$images_,
+                'images'=>$images_??[],
                 'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
                 'production_date'=>$car->production_date,
                 'car_name'=>$car->car_name,
@@ -48,6 +50,7 @@ class CarsController extends Controller
                 'created_at'=>$car->created_at,
                 'updated_at'=>$car->updated_at,
             ];
+            $images_ = [];
         }
 
         return response()->json([
@@ -200,6 +203,93 @@ class CarsController extends Controller
         }
         $images = $request->file('images');
         if(isset($images)){
+            foreach ($images as $image){
+                $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+                $images_random = implode("", $images_random_array);
+                $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
+                $image->storeAs('public/cars/', $image_name);
+                $images_array[] = $image_name;
+            }
+            $cars->images = json_encode($images_array);
+        }
+        $is_driver = Driver::where('user_id', $user->id)->first();
+        $car_list = CarList::find($request->model_id);
+        if(!isset($car_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Car list is not exist')
+            ];
+            return response()->json($response);
+        }
+        $color_list = ColorList::find($request->color_id);
+        if(!isset($color_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Color is not exist')
+            ];
+            return response()->json($response);
+        }
+        $color_list = ClassList::find($request->class_id);
+        if(!isset($color_list)){
+            $response = [
+                'status'=>false,
+                'message'=> translate('Class list is not exist')
+            ];
+            return response()->json($response);
+        }
+        if(!isset($is_driver)){
+            $driver = new Driver();
+            $driver->user_id = $user->id;
+            $driver->status_id = 1;
+            $driver->save();
+        }else{
+            $driver = $is_driver;
+        }
+        $cars->driver_id = $driver->id;
+        $cars->save();
+        $response = [
+            'status'=>true,
+            'message'=>'Success',
+        ];
+        return response()->json($response, 201);
+    }
+
+
+    public function update(Request $request, $id) {
+        $user = Auth::user();
+        $cars = Cars::find($id);
+        $cars->status_id = 1;
+        $cars->car_list_id = $request->model_id;
+        $cars->reg_certificate = $request->state_number;
+        $cars->color_list_id = $request->color_id;
+        $cars->class_list_id = $request->class_id;
+        $cars->production_date = $request->production_date;
+        $cars->wheel_side = $request->wheel_side;
+        $letters = range('a', 'z');
+        if(isset($request->reg_certificate_image)){
+            $sms_avatar = storage_path('app/public/certificate/'.$cars->reg_certificate_image);
+            if(file_exists($sms_avatar)){
+                unlink($sms_avatar);
+            }
+            $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+            $certificate_random = implode("", $certificate_random_array);
+            $certificate_img = $request->file('reg_certificate_image');
+            if(isset($certificate_img)) {
+                $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
+                $certificate_img->storeAs('public/certificate/', $image_name);
+                $cars->reg_certificate_image = $image_name;
+            }
+        }
+        $images = $request->file('images');
+
+        if(isset($images)){
+            $model_images = json_decode($cars->images);
+            foreach ($model_images as $model_image){
+                $sms_image = storage_path('app/public/cars/'.$model_image);
+                if(file_exists($sms_image)){
+                    unlink($sms_image);
+                }
+            }
             foreach ($images as $image){
                 $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
                 $images_random = implode("", $images_random_array);
