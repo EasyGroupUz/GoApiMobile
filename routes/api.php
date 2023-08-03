@@ -12,6 +12,7 @@ use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\NotificationController;
 
 
 /*
@@ -73,6 +74,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'country'], function () {
         Route::get('/index', [CountryController::class, 'index']);
+    });
+    
+    Route::group(['prefix' => 'notification'], function () {
+        Route::get('/index', [NotificationController::class, 'index']);
     });
 
     Route::group(['prefix' => 'comment'], function () {

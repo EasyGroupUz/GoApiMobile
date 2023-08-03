@@ -144,7 +144,7 @@ class OrderController extends Controller
                     $c = 0;
                     foreach ($arrDriverComments as $key => $value) {
                         $arrComments[$c]['text'] = $value->text;
-                        $arrComments[$c]['date'] = date('d-m-Y H:i', strtotime($value->date));
+                        $arrComments[$c]['date'] = date('d.m.Y H:i', strtotime($value->date));
                         $arrComments[$c]['score'] = $value->score;
 
                         $c++;
@@ -156,6 +156,8 @@ class OrderController extends Controller
                 $arrDriverInformation['phone_number'] = $d_phone_number;
                 $arrDriverInformation['img'] = $d_img;
                 $arrDriverInformation['rating'] = $driver_info->rating;
+                $arrDriverInformation['type'] = $driver_info->type ?? 0;
+                $arrDriverInformation['count_comments'] = count($arrComments);
                 $arrDriverInformation['comments'] = $arrComments;
             }
 
@@ -166,6 +168,7 @@ class OrderController extends Controller
                 $arrCarInfo['id'] = $arr_orde_car->id;
                 $arrCarInfo['name'] = $arr_orde_car->car->name ?? '';
                 $arrCarInfo['color'] = ($arr_orde_car->color) ? ['name' => $arr_orde_car->color->name, 'code' => $arr_orde_car->color->code] : [];
+                $arrCarInfo['production_date'] = date('d.m.Y', strtotime($arr_orde_car->production_date));
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
                 $arrCarInfo['reg_certificate_img'] = $arr_orde_car->reg_certificate_image;
@@ -211,7 +214,7 @@ class OrderController extends Controller
             }
 
             $arr['id'] = $order->id;
-            $arr['start_date'] = $order->start_date;
+            $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['from'] = ($order->from) ? $order->from->name : '';
             $arr['to'] = ($order->to) ? $order->to->name : '';
             $arr['seats_count'] = $order->seats;
