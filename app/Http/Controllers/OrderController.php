@@ -216,7 +216,11 @@ class OrderController extends Controller
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['from'] = ($order->from) ? $order->from->name : '';
+            $arr['from_lng'] = 69.287645;
+            $arr['from_lat'] = 41.339596;
             $arr['to'] = ($order->to) ? $order->to->name : '';
+            $arr['to_lng'] = 69.287645;
+            $arr['to_lat'] = 41.339596;
             $arr['seats_count'] = $order->seats;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = $arrCarInfo;
@@ -256,6 +260,10 @@ class OrderController extends Controller
             $data['start_date'] = $data['back_date'];
             $data['from_id'] = $from_id;
             $data['to_id'] = $to_id;
+
+            echo "<pre>";
+            print_r($data);
+            die();
 
             $order = new Order();
             $order->create($data);
