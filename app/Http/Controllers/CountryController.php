@@ -7,7 +7,8 @@ use App\Models\City;
 
 class CountryController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $model = City::select('id', 'name', 'type', 'parent_id')->where('type', 'region')->get();
 
         $arr = [];
@@ -18,6 +19,8 @@ class CountryController extends Controller
                 $arrCity[] = [
                     'id' => $valueCity->id,
                     'name' => $valueCity->name,
+                    'lng' => 41.339596,
+                    'lat' => 69.287645
                 ];
             }
             $arr[] = [
