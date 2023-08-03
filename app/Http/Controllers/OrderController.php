@@ -69,7 +69,7 @@ class OrderController extends Controller
         // ]);
 
 
-            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $date=Carbon::parse($request->start_date)->format('Y-m-d');
             $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             // dd($tomorrow);
             $list=[]; 
@@ -78,7 +78,7 @@ class OrderController extends Controller
                 ->where('from_id', $request->from_id)
                 ->where('to_id', $request->to_id)
                 ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>',$date)
+                ->where('start_date','>=',$date)
                 ->where('start_date','<',$tomorrow)
                 // ->orderBy('start_date', 'asc')
                 ->get();

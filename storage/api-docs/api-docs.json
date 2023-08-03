@@ -533,6 +533,10 @@
                                     "email": {
                                         "description": "write your email",
                                         "type": "string"
+                                    },
+                                    "avatar": {
+                                        "description": "Enter your photo",
+                                        "type": "file"
                                     }
                                 },
                                 "type": "object"

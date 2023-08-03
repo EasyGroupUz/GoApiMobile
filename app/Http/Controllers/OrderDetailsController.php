@@ -44,7 +44,7 @@ class OrderDetailsController extends Controller
        ]);
         //    dd($request);
 
-        $order_details= OrderDetail::create([
+        $order_detail= OrderDetail::create([
             'client_id'=>auth()->id(),
             'status_id'=>Constants::ACTIVE,
             'from_id'=>$request['from_id'],
@@ -58,9 +58,11 @@ class OrderDetailsController extends Controller
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
         $date = Carbon::now($timezone)->format('Y-m-d');
+        // $date=Carbon::parse($request->date)->format('Y-m-d');
         $three_day_after=Carbon::parse($date)->addDays(3)->format('Y-m-d');
-
+        
         $came_date=date('Y-m-d', strtotime($request['date']));
+        $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
         $came_date_time=date('Y-m-d H:i:s', strtotime($request['date']));
         $startDate=Carbon::parse($came_date)->subDays(3)->format('Y-m-d');
         $endDate=Carbon::parse($came_date)->addDays(3)->format('Y-m-d');
@@ -70,29 +72,110 @@ class OrderDetailsController extends Controller
             $endDate=Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
         }
         
-        if ( $came_date >= $date) {
-            $orders = DB::table('yy_orders')
+        $orders = DB::table('yy_orders')
             ->where('status_id', Constants::ORDERED)
-            ->where('start_date', '>=', $date)
-            ->select(DB::raw('DATE(start_date) as start_date'))
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->orderBy('start_date', 'asc')
-            ->distinct()
-            ->take(5)
-            ->get();
+            ->where('from_id', $request['from_id'])
+            ->where('to_id', $request['to_id']);
+            // ->get();
+            // dd($orders);
 
-            $list=[];
-            foreach ($orders as $key => $value) {
-                // dd($value->start_date);
-                $list[$key]=$value->start_date;
+        if ( $came_date >= $date) {
+            // dd($date);
+            // $name=DB::table('yy_cities')->where('id', $order_detail->from_id)->first()->name;
+            // dd($order_detail->from_id);
+            $order_detail = [
+                'seats_count'=>$order_detail->seats_count,
+                'start_date'=>$order_detail->start_date,
+                'from_id'=>$order_detail->from_id,
+                'to_id'=>$order_detail->to_id,
+                'from_name'=>DB::table('yy_cities')->where('id', $order_detail->from_id)->first()->name,
+                'to_name'=>DB::table('yy_cities')->where('id', $order_detail->to_id)->first()->name,
+                'long'=>null,
+                'lat'=>null
+            ];
+            // dd($order_detail);
+            // $order_information = DB::table('yy_orders')
+            // ->where('status_id', Constants::ORDERED)
+            // ->where('from_id', $request['from_id'])
+            // ->where('to_id', $request['to_id'])
+            // ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+            // ->where('start_date','>=',$came_date)
+            // ->where('start_date','<',$tomorrow)
+            // ->where('status_id', Constants::ORDERED)
+            // ->get();
+            // dd($order_information);
+            if ($order_information = DB::table('yy_orders')
+                ->where('status_id', Constants::ORDERED)
+                ->where('from_id', $request['from_id'])
+                ->where('to_id', $request['to_id'])
+                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+                ->where('start_date','>=',$came_date)
+                ->where('start_date','<',$tomorrow)
+                ->where('status_id', Constants::ORDERED)
+                ->get() == []) {
+                    // dd($order_information);
+
+                    $list=[]; 
+                    // $order_information = $orders
+                    //     ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+                    //     ->where('start_date','>',$date)
+                    //     ->where('start_date','<',$tomorrow)
+                    //     ->get();
+                    // dd($orders);
+                    $total_trips=DB::table('yy_orders')->where('driver_id',auth()->id())
+                        ->where('status_id', Constants::COMPLETED)
+                        ->count();
+                        // dd($total_trips);
+        
+                    foreach ($order_information as $order) {
+                        // dd($order);
+                        // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
+                        $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                        // dd($personalInfo);
+                        $data=[
+                            'start_date'=>$order->start_date ,
+                            'avatar'=>$personalInfo->avatar,
+                            'rating'=>4,
+                            'price'=>$order->price,
+                            'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                            'total_trips'=>$total_trips,
+                            'count_pleace'=>$order->booking_place,
+                        ];
+                        // dd($data);
+                        array_push($list,$data);
+                    }
+                                    
+            } else {
+                // dd('came');
+                $order_dates = DB::table('yy_orders')
+                ->where('status_id', Constants::ORDERED)
+                ->where('from_id', $request['from_id'])
+                ->where('to_id', $request['to_id'])
+                ->where('start_date', '>=', $date)
+                ->select(DB::raw('DATE(start_date) as start_date'))
+                ->whereBetween('start_date', [$startDate, $endDate])
+                ->orderBy('start_date', 'asc')
+                ->distinct()
+                ->take(5)
+                ->get();
+                // dd($order_dates);
+
+                $list=[];
+                foreach ($order_dates as $key => $value) {
+                    // dd($value->start_date);
+                    $list[$key]=$value->start_date;
+                }
+                // dd($list);
+               
+
             }
-            // dd($list);
+
             return response()->json([
                 'data' => $list,
+                'order_detail'=>$order_detail,
                 'status' => true,
                 'message' => 'success',
             ], 200);
-           
         }
         else {
             return response()->json([
@@ -100,12 +183,8 @@ class OrderDetailsController extends Controller
                 'message' => 'error',
                 // 'orders' => $orders,
 
-            ], 200);
+            ], 500);
         }
-
-
-       
-
     }
 
     public function searchClients(Request $request)
@@ -117,14 +196,16 @@ class OrderDetailsController extends Controller
         // ]);
 
 
-            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $came_date=Carbon::parse($request->start_date)->format('Y-m-d');
+            $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
             $list=[]; 
                 $order_details = DB::table('yy_order_details')
                 ->where('order_id', null)
                 ->where('from_id', $request->from_id)
                 ->where('to_id', $request->to_id)
                 ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-                ->where('start_date','=',$date)
+                ->where('start_date','>=',$came_date)
+                ->where('start_date','<',$tomorrow)
                 ->get();
                 $total_trips = DB::table('yy_order_details as dt1')
                 ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
