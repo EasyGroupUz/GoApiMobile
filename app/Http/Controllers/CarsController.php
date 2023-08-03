@@ -24,7 +24,7 @@ class CarsController extends Controller
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.user_id', auth()->id())
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt1.created_at', 'dt1.updated_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
         $car_array = [];
         foreach ($cars as $car){
@@ -43,6 +43,7 @@ class CarsController extends Controller
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
+                'reg_certificate'=>$car->reg_certificate,
                 'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
                 'production_date'=>$car->production_date,
                 'car_name'=>$car->car_name,
@@ -337,6 +338,50 @@ class CarsController extends Controller
         $response = [
             'status'=>true,
             'message'=>'Success',
+        ];
+        return response()->json($response, 201);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request)
+    {
+        $model= Cars::find($request->id);
+        if(isset($model->id)){
+            if(isset($model->reg_certificate_image)){
+                $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
+                if(file_exists($sms_avatar)){
+                    unlink($sms_avatar);
+                }
+            }
+            if(isset($model->images)){
+                $images_array = json_decode($model->images);
+                if(gettype($images_array) == 'string'){
+                    $str_images = str_replace('[', '', $images_array);
+                    $str_images_1 = str_replace(']', '', $str_images);
+                    $images_array = str_replace("\"", '', $str_images_1);
+                    $images_array = explode(',', $images_array);
+                }
+                if(isset($images_array) && count($images_array)>0){
+                    foreach ($images_array as $image){
+                        $sms_image = storage_path('app/public/cars/'.$image);
+                        if(file_exists($sms_image)){
+                            unlink($sms_image);
+                        }
+                    }
+                }
+            }
+            $status = true;
+            $message = 'Success';
+        }else{
+            $status = false;
+            $message = 'Failed car not found';
+        }
+        $model->delete();
+        $response = [
+            'status'=>$status,
+            'message'=>$message,
         ];
         return response()->json($response, 201);
     }
