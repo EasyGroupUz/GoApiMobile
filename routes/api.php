@@ -46,7 +46,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
         Route::post('/store', [CarsController::class, 'store']);
+        Route::post('/update/{id}', [CarsController::class, 'update']);
         Route::post('/card-list', [CarsController::class, 'cardList']);
+        Route::get('/destroy', [CarsController::class, 'destroy']);
     });
 
     Route::group(['prefix' => 'user'], function () {
@@ -87,6 +89,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     
     Route::group(['prefix' => 'complain'], function () {
         Route::post('/create', [ComplainController::class, 'create']);
+        Route::post('/store-reason', [ComplainController::class, 'storeReason']);
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
