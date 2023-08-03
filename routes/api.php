@@ -88,8 +88,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     
     Route::group(['prefix' => 'complain'], function () {
-        Route::post('/create', [ComplainController::class, 'create']);
         Route::post('/store-reason', [ComplainController::class, 'storeReason']);
+        Route::get('/get-reason', [ComplainController::class, 'getReason']);
+        Route::get('/get-complain', [ComplainController::class, 'getComplain']);
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);

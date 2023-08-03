@@ -14,6 +14,6 @@ class Complain extends Model
     protected $fillable = [
         'order_id',
         'text',
-        'type'
+        'type'  // 0 - clientga jaloba   1- haydovchiga jaloba
     ];
 }

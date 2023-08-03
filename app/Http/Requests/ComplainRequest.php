@@ -22,9 +22,11 @@ class ComplainRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id' => 'required|integer',
-            'text' => 'required|string',
+            'order_detail_id' => 'required|integer',
+            'text' => 'nullable|string',
             'type' => 'nullable|integer',
+            'reasons_id' => 'nullable',
+            'order_id' => 'nullable',
         ];
     }
 }
