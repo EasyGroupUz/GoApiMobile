@@ -20,7 +20,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $model = Order::all();
+        $model = Order::orderBy('start_date', 'asc')->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -31,6 +31,7 @@ class OrderController extends Controller
                     $arrCars['id'] = $value->car->id;
                     $arrCars['car_list_name'] = $value->car->car->name;
                     $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
+                    $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
                     $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
                     $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
                     $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
@@ -41,7 +42,11 @@ class OrderController extends Controller
                 $arr[$n]['start_date'] = date('d.m.Y', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from_lng'] = 69.287645;
+                $arr[$n]['from_lat'] = 41.339596;
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['to_lng'] = 69.287645;
+                $arr[$n]['to_lat'] = 41.339596;
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
                 $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name[0] . ' ' . $value->driver->personalInfo->middle_name[0] : '';
                 $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->avatar : '';
@@ -261,10 +266,6 @@ class OrderController extends Controller
             $data['from_id'] = $from_id;
             $data['to_id'] = $to_id;
 
-            echo "<pre>";
-            print_r($data);
-            die();
-
             $order = new Order();
             $order->create($data);
         }
@@ -323,7 +324,7 @@ class OrderController extends Controller
 
     public function expired()
     {
-        $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->get();
+        $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -354,7 +355,11 @@ class OrderController extends Controller
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from_lng'] = 69.287645;
+                $arr[$n]['from_lat'] = 41.339596;
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
+                $arr[$n]['to_lng'] = 69.287645;
+                $arr[$n]['to_lat'] = 41.339596;
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
