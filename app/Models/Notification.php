@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Complain extends Model
+class Notification extends Model
 {
     use HasFactory;
 
-    protected $table = 'yy_complains';
+    public $table = 'yy_notifications';
 
     protected $fillable = [
-        'order_id',
+        'title',
         'text',
-        'type'  // 0 - clientga jaloba   1- haydovchiga jaloba
+        'date',
+        'read_at'
     ];
 }
