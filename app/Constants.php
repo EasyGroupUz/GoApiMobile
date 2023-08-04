@@ -14,5 +14,5 @@ class Constants {
    // Order    statuses
    const ORDERED = 3;
    const ON_THE_WAY = 4;
-   const  COMPLETED = 5;
+   const COMPLETED = 5;
 }
