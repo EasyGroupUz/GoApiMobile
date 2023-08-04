@@ -12,24 +12,15 @@ if (!function_exists('default_language')) {
         return env("DEFAULT_LANGUAGE", 'ru');
     }
 }
-if (!function_exists('translate')) {
-    function translate($key, $lang = null)
+if (!function_exists('translate_api')) {
+    function translate_api($key, $lang = null,)
     {
         
         if ($lang === null) {
             $lang = App::getLocale();
         }
-        // $lang = App::getLocale();
         // dd($lang);
-    //  dd($key);
-    // dd($lang);
-        // $app = $key.$lang . va($lang);
 
-
-        // $function = function () use ($key, $lang) {
-
-            // dd($lang);
-            // dd()
             $translate = Translation::where('lang_key', $key)
                 ->where('lang', $lang)
                 ->first();

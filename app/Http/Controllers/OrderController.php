@@ -111,10 +111,14 @@ class OrderController extends Controller
                     array_push($list,$data);
                 }       
         // dd($aa);
+        $language=$request->header('language');
+        $message=translate_api('success',$language);
+        // dd($message);
+        // dd()
         return response()->json([
             'data' => $list,
             'status' => true,
-            'message' => 'success',
+            'message' => $message,
 
         ], 200);
     }
