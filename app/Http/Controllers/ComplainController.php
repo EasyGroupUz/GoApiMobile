@@ -70,4 +70,21 @@ class ComplainController extends Controller
         ];
         return response()->json($response);
     }
+
+    public function destroy(Request $request){
+        $model = Complain::find($request->id);
+        if(isset($model->id)){
+            $model->delete();
+            $status = true;
+            $message = "Success";
+        }else{
+            $status = false;
+            $message = "Complain not found";
+        }
+        $response = [
+          'status'=>$status,
+          'message'=>$message
+        ];
+        return response()->json($response);
+    }
 }
