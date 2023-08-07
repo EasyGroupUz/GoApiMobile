@@ -17,7 +17,6 @@ use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
-
     public function index()
     {
         $model = Order::orderBy('start_date', 'asc')->get();
