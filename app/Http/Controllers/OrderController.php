@@ -28,6 +28,14 @@ class OrderController extends Controller
             foreach ($model as $key => $value) {
                 $arrCars = [];
                 if (isset($value->car)) {
+                    $arrCarImg = [];
+                    if (!empty($value->car->images)) {
+                        $ci = 0;
+                        foreach (json_decode($value->car->images) as $valueCI) {
+                            $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+                            $ci++;
+                        }
+                    }
                     $arrCars['id'] = $value->car->id;
                     $arrCars['car_list_name'] = $value->car->car->name;
                     $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
@@ -35,7 +43,7 @@ class OrderController extends Controller
                     $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
                     $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
                     $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
-                    $arrCars['images'] = $value->car->images ?? [];
+                    $arrCars['images'] = $arrCarImg;
                 }
 
                 $arr[$n]['id'] = $value->id;
@@ -48,8 +56,8 @@ class OrderController extends Controller
                 $arr[$n]['to_lng'] = 69.287645;
                 $arr[$n]['to_lat'] = 41.339596;
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
-                $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name[0] . ' ' . $value->driver->personalInfo->middle_name[0] : '';
-                $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->avatar : '';
+                $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
+                $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
                 $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
                 $arr[$n]['car_information'] = $arrCars;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
@@ -74,7 +82,7 @@ class OrderController extends Controller
         // ]);
 
 
-            $date=Carbon::parse($request->start_date)->format('Y-m-d');
+            $date=Carbon::parse($request->date)->format('Y-m-d');
             $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             // dd($tomorrow);
             $list=[]; 
@@ -83,7 +91,7 @@ class OrderController extends Controller
                 ->where('from_id', $request->from_id)
                 ->where('to_id', $request->to_id)
                 ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>=',$date)
+                ->where('start_date','>',$date)
                 ->where('start_date','<',$tomorrow)
                 // ->orderBy('start_date', 'asc')
                 ->get();
@@ -138,9 +146,9 @@ class OrderController extends Controller
                 if ($driver_info->personalInfo) {
                     $d_personal_info = $driver_info->personalInfo;
 
-                    $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name[0] . ' ' . $d_personal_info->middle_name[0];
+                    $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name . ' ' . $d_personal_info->middle_name;
                     $d_phone_number = $d_personal_info->phone_number;
-                    $d_img = $d_personal_info->avatar;
+                    $d_img = asset('storage/avatar/' . $d_personal_info->avatar);
                 }
 
                 $arrComments = [];
@@ -170,6 +178,15 @@ class OrderController extends Controller
             if ($order->car) {
                 $arr_orde_car = $order->car;
 
+                $arrCarImg = [];
+                if (!empty($arr_orde_car->images)) {
+                    $ci = 0;
+                    foreach (json_decode($arr_orde_car->images) as $valueCI) {
+                        $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+                        $ci++;
+                    }
+                }
+
                 $arrCarInfo['id'] = $arr_orde_car->id;
                 $arrCarInfo['name'] = $arr_orde_car->car->name ?? '';
                 $arrCarInfo['color'] = ($arr_orde_car->color) ? ['name' => $arr_orde_car->color->name, 'code' => $arr_orde_car->color->code] : [];
@@ -177,7 +194,7 @@ class OrderController extends Controller
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
                 $arrCarInfo['reg_certificate_img'] = $arr_orde_car->reg_certificate_image;
-                $arrCarInfo['images'] = $arr_orde_car->images ?? [];
+                $arrCarInfo['images'] = $arrCarImg;
             }
 
             $arrClients = [];
@@ -341,9 +358,9 @@ class OrderController extends Controller
                     if ($valDriver->personalInfo) {
                         $driverPersonalInfo = $valDriver->personalInfo;
 
-                        $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name[0] . ' ' . $driverPersonalInfo->middle_name[0];
+                        $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
                         $d_phone_number = $driverPersonalInfo->phone_number;
-                        $d_img = $driverPersonalInfo->avatar;
+                        $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
                     }
                     $arrDriverInfo['full_name'] = $d_full_name;
                     $arrDriverInfo['phone_number'] = $d_phone_number;
