@@ -25,6 +25,7 @@ class Order extends Model
         'title',
         'start_date',
         'seats',
+        'options',
         'booking_place'
     ];
 
