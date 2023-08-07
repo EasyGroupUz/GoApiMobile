@@ -39,17 +39,26 @@ class MediaHistoryController extends Controller
      */
     public function mediaHistory(){
         $medias = MediaHistory::select('id', 'url_small', 'url_big', 'created_at', 'updated_at')->get();
+        $data = [];
         foreach($medias as $media){
-            $media_array = explode('.', $media->url_big);
-            $media->url_small = 'https://api.easygo.uz/storage/media/thumb/'.$media->url_small;
-            if(!in_array($media_array[1], ['jpg','png','jpeg','webp'])){
-                $media->url_big = 'https://api.easygo.uz/storage/media/videos/'.$media->url_big;
-            }else{
-                $media->url_big = 'https://api.easygo.uz/storage/media/'.$media->url_big;
+            $data['id'][] = $media->id;
+            if(isset($media->url_small)){
+                $media->url_small = 'https://api.easygo.uz/storage/media/thumb/'.$media->url_small;
+                $data['url_small'][] = $media->url_small;
             }
+            if(isset($media->url_big)){
+                $url_bigs = json_decode($media->url_big);
+                foreach ($url_bigs as $url_big){
+                    $url_big_array[] = 'https://api.easygo.uz/storage/media/'.$url_big;
+                }
+                $data['url_big'][] = $url_big_array;
+                $url_big_array = [];
+            }
+            $data['created_at'][] = $media->id;
+            $data['updated_at'][] = $media->id;
         }
         $response = [
-            'data'=>$medias,
+            'data'=>$data,
             'status'=>true,
             'message'=>'Success',
         ];
