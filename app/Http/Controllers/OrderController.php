@@ -17,6 +17,7 @@ use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
+
     public function index()
     {
         $model = Order::orderBy('start_date', 'asc')->get();
@@ -321,6 +322,26 @@ class OrderController extends Controller
                     }
                 }
 
+                $arrDriverInfo = [];
+                if ($value->driver) {
+                    $valDriver = $value->driver;
+    
+                    $d_full_name = '';
+                    $d_phone_number = '';
+                    $d_img = '';
+                    if ($valDriver->personalInfo) {
+                        $driverPersonalInfo = $valDriver->personalInfo;
+
+                        $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
+                        $d_phone_number = $driverPersonalInfo->phone_number;
+                        $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
+                    }
+                    $arrDriverInfo['full_name'] = $d_full_name;
+                    $arrDriverInfo['phone_number'] = $d_phone_number;
+                    $arrDriverInfo['img'] = $d_img;
+                    $arrDriverInfo['rating'] = $valDriver->rating;
+                }
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
@@ -329,6 +350,7 @@ class OrderController extends Controller
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
+                $arr[$n]['driver'] = $arrDriverInfo;
                 $arr[$n]['options'] = $value->options ?? [];
 
                 $n++;
