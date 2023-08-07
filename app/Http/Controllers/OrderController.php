@@ -47,7 +47,7 @@ class OrderController extends Controller
                 }
 
                 $arr[$n]['id'] = $value->id;
-                $arr[$n]['start_date'] = date('d.m.Y', strtotime($value->start_date));
+                $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 $arr[$n]['from_lng'] = 69.287645;
@@ -343,7 +343,7 @@ class OrderController extends Controller
                 }
 
                 $arr[$n]['id'] = $value->id;
-                $arr[$n]['start_date'] = date('d.m.Y', strtotime($value->start_date));
+                $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
