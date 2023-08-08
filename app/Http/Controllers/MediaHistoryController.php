@@ -42,14 +42,14 @@ class MediaHistoryController extends Controller
         $data = [];
         foreach($medias as $media){
             if(isset($media->url_small)){
-                $media->url_small = 'https://api.easygo.uz/storage/thumb/'.$media->url_small;
+                $media->url_small = 'http://admin.easygo.uz/storage/thumb/'.$media->url_small;
                 $url_small = $media->url_small;
             }
             $url_big_array = [];
             if(isset($media->url_big)){
                 $url_bigs = json_decode($media->url_big);
                 foreach ($url_bigs as $url_big){
-                    $url_big_array[] = 'https://api.easygo.uz/storage/media/'.$url_big;
+                    $url_big_array[] = 'http://admin.easygo.uz/storage/media/'.$url_big;
                 }
             }
             $data[] = [
