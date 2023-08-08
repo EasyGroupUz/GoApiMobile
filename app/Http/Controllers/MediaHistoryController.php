@@ -41,21 +41,24 @@ class MediaHistoryController extends Controller
         $medias = MediaHistory::select('id', 'url_small', 'url_big', 'created_at', 'updated_at')->get();
         $data = [];
         foreach($medias as $media){
-            $data['id'][] = $media->id;
             if(isset($media->url_small)){
-                $media->url_small = 'https://api.easygo.uz/storage/media/thumb/'.$media->url_small;
-                $data['url_small'][] = $media->url_small;
+                $media->url_small = 'https://api.easygo.uz/storage/thumb/'.$media->url_small;
+                $url_small = $media->url_small;
             }
+            $url_big_array = [];
             if(isset($media->url_big)){
                 $url_bigs = json_decode($media->url_big);
                 foreach ($url_bigs as $url_big){
                     $url_big_array[] = 'https://api.easygo.uz/storage/media/'.$url_big;
                 }
-                $data['url_big'][] = $url_big_array;
-                $url_big_array = [];
             }
-            $data['created_at'][] = $media->id;
-            $data['updated_at'][] = $media->id;
+            $data[] = [
+                'id' =>$media->id,
+                'url_small'=>$url_small??'',
+                'url_big'=>$url_big_array,
+                'created_at'=>$media->created_at??'',
+                'updated_at'=>$media->updated_at??'',
+            ];
         }
         $response = [
             'data'=>$data,
