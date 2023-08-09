@@ -60,7 +60,7 @@ class OrderController extends Controller
                 $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
                 $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
                 $arr[$n]['car_information'] = $arrCars;
-                $arr[$n]['options'] = json_decode($value->options) ?? [];
+                $arr[$n]['options'] = $value->options ?? [];
                 $n++;
             }
         }
