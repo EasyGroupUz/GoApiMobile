@@ -70,6 +70,16 @@ class OrderController extends Controller
             'status' => true,
             'message' => "success"
         ], 200);
+
+        // return $this->success(
+        //     'success',
+        //     $arr
+        // );
+
+        // return $this->error(
+        //     'There are some problems',
+        //     []
+        // );
     }
 
     public function searchTaxi(Request $request)
@@ -248,6 +258,8 @@ class OrderController extends Controller
             $arr['to_lng'] = 69.287645;
             $arr['to_lat'] = 41.339596;
             $arr['seats_count'] = $order->seats;
+            $arr['price'] = $order->price;
+            $arr['price_type'] = $order->price_type;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = $arrCarInfo;
             $arr['clients_list'] = $arrClients;
