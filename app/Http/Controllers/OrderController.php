@@ -60,7 +60,7 @@ class OrderController extends Controller
                 $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
                 $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
                 $arr[$n]['car_information'] = $arrCars;
-                $arr[$n]['options'] = $value->options ?? [];
+                $arr[$n]['options'] = json_decode($value->options) ?? [];
                 $n++;
             }
         }
@@ -263,7 +263,7 @@ class OrderController extends Controller
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = $arrCarInfo;
             $arr['clients_list'] = $arrClients;
-            $arr['options'] = $order->options ?? [];
+            $arr['options'] = json_decode($order->options) ?? [];
         }
 
         return response()->json([
@@ -363,7 +363,7 @@ class OrderController extends Controller
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
-                $arr[$n]['options'] = $value->options ?? [];
+                $arr[$n]['options'] = json_decode($value->options) ?? [];
 
                 $n++;
             }
@@ -417,7 +417,7 @@ class OrderController extends Controller
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
-                $arr[$n]['options'] = $value->options ?? [];
+                $arr[$n]['options'] = json_decode($value->options) ?? [];
                 
                 $n++;
             }
