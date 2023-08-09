@@ -263,7 +263,7 @@ class OrderController extends Controller
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = $arrCarInfo;
             $arr['clients_list'] = $arrClients;
-            $arr['options'] = json_decode($order->options) ?? [];
+            $arr['options'] = $order->options ?? [];
         }
 
         return response()->json([
@@ -417,7 +417,7 @@ class OrderController extends Controller
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
-                $arr[$n]['options'] = json_decode($value->options) ?? [];
+                $arr[$n]['options'] = $value->options ?? [];
                 
                 $n++;
             }
