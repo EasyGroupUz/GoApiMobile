@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use App\Models\User;
 
 /**
  * @OA\Info(
@@ -54,5 +55,13 @@ class Controller extends BaseController
             'status' => true,
             'message' => $message ?? 'success'
         ], $error_type);
+    }
+
+    public function validateByToken($request)
+    {
+        $token = $request->header()['token'];
+        $user = User::where('token', $token)->first();
+
+        return $user;
     }
 }
