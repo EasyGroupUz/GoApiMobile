@@ -26,7 +26,7 @@ class CarsController extends Controller
             ->where('dt1.user_id', auth()->id())
             ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
-        $car_array = [];
+        $car_array = null;
         foreach ($cars as $car){
             $images_array = json_decode($car->images);
             if(gettype($images_array) == 'string'){
@@ -53,13 +53,11 @@ class CarsController extends Controller
             ];
             $images_ = [];
         }
-
-        return response()->json([
-            'data' => $car_array,
-            'status' => true,
-            'message' => 'success',
-
-        ], 200);
+        if($car_array != null){
+            return $this->success('Success', 200, $car_array);
+        }else{
+            return $this->error('No my cars', 400);
+        }
     }
 
 
@@ -123,6 +121,19 @@ class CarsController extends Controller
             'status'=>true,
             'message'=>'success',
         ];
+        if(count($class_list)>0 && count($color_list)>0 && count($carList)>0){
+            return $this->success('Success', 200, [
+                "class_list"=>$class_list??[],
+                "color_list"=>$color_list??[],
+                "car_list"=>$carList??[],
+            ]);
+        }elseif(count($class_list) == 0){
+            return $this->error('No car class', 400);
+        }elseif(count($color_list) == 0){
+            return $this->error('No car color', 400);
+        }elseif(count($carList) == 0){
+            return $this->error('No car list', 400);
+        }
         return response()->json($response);
     }
 
@@ -216,27 +227,15 @@ class CarsController extends Controller
         $is_driver = Driver::where('user_id', $user->id)->first();
         $car_list = CarList::find($request->model_id);
         if(!isset($car_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Car list is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Car list is not exist', 400);
         }
         $color_list = ColorList::find($request->color_id);
         if(!isset($color_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Color is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Color is not exist', 400);
         }
         $color_list = ClassList::find($request->class_id);
         if(!isset($color_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Class list is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Class list is not exist', 400);
         }
         if(!isset($is_driver)){
             $driver = new Driver();
@@ -248,11 +247,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        $response = [
-            'status'=>true,
-            'message'=>'Success',
-        ];
-        return response()->json($response, 201);
+        return $this->success('Success', 201);
     }
 
 
@@ -303,27 +298,15 @@ class CarsController extends Controller
         $is_driver = Driver::where('user_id', $user->id)->first();
         $car_list = CarList::find($request->model_id);
         if(!isset($car_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Car list is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Car list is not exist', 400);
         }
         $color_list = ColorList::find($request->color_id);
         if(!isset($color_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Color is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Color is not exist', 400);
         }
         $color_list = ClassList::find($request->class_id);
         if(!isset($color_list)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Class list is not exist')
-            ];
-            return response()->json($response);
+            return $this->error('Class list is not exist', 400);
         }
         if(!isset($is_driver)){
             $driver = new Driver();
@@ -335,11 +318,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        $response = [
-            'status'=>true,
-            'message'=>'Success',
-        ];
-        return response()->json($response, 201);
+        return $this->success('Success', 201);
     }
 
     /**
@@ -375,14 +354,9 @@ class CarsController extends Controller
             $status = true;
             $message = 'Success';
         }else{
-            $status = false;
-            $message = 'Failed car not found';
+            return $this->error('Failed car not found', 400);
         }
         $model->delete();
-        $response = [
-            'status'=>$status,
-            'message'=>$message,
-        ];
-        return response()->json($response, 201);
+        return $this->success('Success', 201);
     }
 }
