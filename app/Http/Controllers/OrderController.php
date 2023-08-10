@@ -70,6 +70,18 @@ class OrderController extends Controller
             'status' => true,
             'message' => "success"
         ], 200);
+
+        // return $this->success(
+        //     'success',
+        //     200,
+        //     $arr
+        // );
+
+        // return $this->error(
+        //     'There are some problems',
+        //     400,
+        //     []
+        // );
     }
 
     public function searchTaxi(Request $request)
@@ -248,6 +260,8 @@ class OrderController extends Controller
             $arr['to_lng'] = 69.287645;
             $arr['to_lat'] = 41.339596;
             $arr['seats_count'] = $order->seats;
+            $arr['price'] = $order->price;
+            $arr['price_type'] = $order->price_type;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = $arrCarInfo;
             $arr['clients_list'] = $arrClients;
@@ -351,7 +365,7 @@ class OrderController extends Controller
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
-                $arr[$n]['options'] = $value->options ?? [];
+                $arr[$n]['options'] = json_decode($value->options) ?? [];
 
                 $n++;
             }

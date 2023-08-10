@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+
 /**
  * @OA\Info(
  *      version="1.0.0",
@@ -37,4 +38,22 @@ class Controller extends BaseController
     }
     
     use AuthorizesRequests, ValidatesRequests;
+
+    public function error(string $message, integer $error_type, array $data = null)
+    {
+        return response()->json([
+            'data' => $data,
+            'status' => false,
+            'message' => $message ?? 'error occured'
+        ], $error_type);
+    }
+
+    public function success(string $message, integer $error_type array $data = null)
+    {
+        return response()->json([
+            'data' => $data,
+            'status' => true,
+            'message' => $message ?? 'success'
+        ], $error_type);
+    }
 }
