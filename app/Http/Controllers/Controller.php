@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use App\Models\User;
 
 /**
  * @OA\Info(
@@ -39,7 +40,7 @@ class Controller extends BaseController
     
     use AuthorizesRequests, ValidatesRequests;
 
-    public function error(string $message, integer $error_type, array $data = null)
+    public function error(string $message, int $error_type, array $data = null)
     {
         return response()->json([
             'data' => $data,
@@ -48,12 +49,20 @@ class Controller extends BaseController
         ], $error_type);
     }
 
-    public function success(string $message, integer $error_type array $data = null)
+    public function success(string $message, int $error_type, array $data = null)
     {
         return response()->json([
             'data' => $data,
             'status' => true,
             'message' => $message ?? 'success'
         ], $error_type);
+    }
+
+    public function validateByToken($request)
+    {
+        $token = $request->header()['token'];
+        $user = User::where('token', $token)->first();
+
+        return $user;
     }
 }
