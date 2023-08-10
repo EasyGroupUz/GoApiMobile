@@ -39,7 +39,7 @@ class MediaHistoryController extends Controller
      */
     public function mediaHistory(){
         $medias = MediaHistory::select('id', 'url_small', 'url_big', 'created_at', 'updated_at')->get();
-        $data = [];
+        $data = null;
         foreach($medias as $media){
             if(isset($media->url_small)){
                 $media->url_small = 'http://admin.easygo.uz/storage/thumb/'.$media->url_small;
@@ -60,12 +60,11 @@ class MediaHistoryController extends Controller
                 'updated_at'=>$media->updated_at??'',
             ];
         }
-        $response = [
-            'data'=>$data,
-            'status'=>true,
-            'message'=>'Success',
-        ];
-        return response()->json($response);
+        if($data != null){
+            return $this->success('Success', 200, $data);
+        }else{
+            return $this->error('No media history', 400);
+        }
     }
     /**
      * @OA\Get(
@@ -96,13 +95,12 @@ class MediaHistoryController extends Controller
      * )
      */
     public function getHistoryUser(){
-        $media_users = MediaHistoryUser::select('id', 'user_id', 'media_history_id', 'created_at', 'updated_at')->get();
-        $response = [
-            'data'=>$media_users,
-            'status'=>true,
-            'message'=>'Success',
-        ];
-        return response()->json($response);
+        $media_users = MediaHistoryUser::select('id', 'user_id', 'media_history_id', 'created_at', 'updated_at')->get()->toArray();
+        if(count($media_users)>0){
+            return $this->success('Success', 200, $media_users);
+        }else{
+            return $this->error('No media history guest', 400);
+        }
     }
 
     /**
@@ -143,20 +141,17 @@ class MediaHistoryController extends Controller
         $media_user = new MediaHistoryUser();
         $user = User::find($request->user_id);
         $media = MediaHistory::find($request->media_history_id);
-        if(isset($user) && isset($media)){
-            $status = true;
-            $message = 'Success';
+        if(isset($user->id) && isset($media->id)){
             $media_user->user_id = $request->user_id;
             $media_user->media_history_id = $request->media_history_id;
             $media_user->save();
+            return $this->success('Success', 201);
+        }elseif(!isset($user->id) && isset($media->id)){
+            return $this->error('User not found', 400);
+        }elseif(!isset($media->id) && isset($user->id)){
+            return $this->error('Media not found', 400);
         }else{
-            $status = false;
-            $message = 'User or media not found';
+            return $this->error('User and media not found', 400);
         }
-        $response = [
-            'status'=>$status,
-            'message'=>$message,
-        ];
-        return response()->json($response);
     }
 }

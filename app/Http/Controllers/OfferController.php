@@ -49,9 +49,14 @@ class OfferController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        Offer::destroy($id);
-        return redirect(route('offer.index'));
+        $offer = Offer::find($request->id);
+        if(isset($offer)){
+            $offer->delete();
+            return $this->success('Success', 200);
+        }else{
+            return $this->error('Offer not found', 400);
+        }
     }
 }

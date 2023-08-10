@@ -14,7 +14,7 @@ class ComplainController extends Controller
 
     public function getComplain(){
         $complains = Complain::select('id', 'type', 'order_id', 'order_detail_id', 'text', 'complain_reason', 'created_at')->get();
-        $getComplain = [];
+        $getComplain = null;
         foreach($complains as $complain){
             $getComplain[] = [
                 'id'=>$complain->id,
@@ -26,12 +26,20 @@ class ComplainController extends Controller
                 'created_at'=>$complain->created_at,
             ];
         }
-        return response()->json($getComplain);
+        if($getComplain != null){
+            return $this->success('Success', 200, $getComplain);
+        }else{
+            return $this->error('No complains', 400);
+        }
     }
 
     public function getReason(){
-        $complain_reasons = ComplainReason::select('id', 'text')->get();
-        return response()->json($complain_reasons);
+        $complain_reasons = ComplainReason::select('id', 'text')->get()->toArray();
+        if(count($complain_reasons)>0){
+            return $this->success('Success', 200, $complain_reasons);
+        }else{
+            return $this->error('No complains', 400);
+        }
     }
     
     public function storeReason(ComplainRequest $request)
