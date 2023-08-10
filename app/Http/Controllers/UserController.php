@@ -144,7 +144,11 @@ class UserController extends Controller
      */
     public function update(Request $request){
         $model = Auth::user();
-        $personal_info = $model->personalInfo;
+        if(isset($model->personalInfo->id)){
+            $personal_info = $model->personalInfo;
+        }else{
+            $personal_info = new PersonalInfo();
+        }
         $personal_info->first_name = $request->first_name;
         $personal_info->last_name = $request->last_name;
         $personal_info->middle_name = $request->middle_name;
