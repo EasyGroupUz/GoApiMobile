@@ -86,9 +86,19 @@ if (!function_exists('table_translate')) {
                 return $from_to;
                 break;
 
-            case 'country':
-                
-                return 'dadwad';
+            case 'color':
+
+                // dd($lang);
+                $color= DB::table('yy_color_lists as dt1')
+                ->leftJoin('yy_color_translations as dt2', 'dt2.color_list_id', '=', 'dt1.id')
+                ->where('dt1.id', $key->color_id)
+                ->where('dt2.lang', $lang)
+                ->select('dt1.name as color_name', 'dt2.name as color_translation_name')
+                ->first();
+                // $name_to=$from_name->city_name;
+                // dd($color);
+                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
+                return $color_name;
                 break;
             
             default:
