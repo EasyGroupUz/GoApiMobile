@@ -37,7 +37,7 @@ class Controller extends BaseController
     public function __construct(){
         date_default_timezone_set("Asia/Tashkent");
     }
-    
+
     use AuthorizesRequests, ValidatesRequests;
 
     public function error(string $message, int $error_type, array $data = null)
@@ -48,7 +48,6 @@ class Controller extends BaseController
             'message' => $message ?? 'error occured'
         ], $error_type);
     }
-
     public function success(string $message, int $error_type, array $data = null)
     {
         return response()->json([
