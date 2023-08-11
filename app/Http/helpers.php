@@ -92,17 +92,24 @@ if (!function_exists('table_translate')) {
                 ->leftJoin('yy_color_translations as dt2', 'dt2.color_list_id', '=', 'dt1.id')
                 ->where('dt1.id', $key->color_id)
                 ->where('dt2.lang', $lang)
-                ->select('dt1.name as color_name', 'dt2.name as color_translation_name')
+                ->select('dt1.name as color_name','dt1.code as color_code', 'dt2.name as color_translation_name')
                 ->first();
                 // $name_to=$from_name->city_name;
                 // dd($color);
                 $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
                 return $color_name;
                 break;
-            
-            case 'color':
-         
-
+            case 'class_list':
+                $class_lists = ClassList::select('id', 'name')->get();
+                foreach ($class_lists as $class_list){
+                    $class_list_translate = DB::table('yy_class_lists as Class')
+                        ->leftJoin('yy_class_translations as ClassT', 'Class.id', '=', 'ClassT.class_list_id')
+                        ->where('Class.id', $class_list->id)
+                        ->where('ClassT.lang', $lang)
+                        ->select('Class.id as id', 'ClassT.name as name')->get()->toArray();
+                }
+                return $class_list_translate;
+                break;
             default:
                 # code...
                 break;
