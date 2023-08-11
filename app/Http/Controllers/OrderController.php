@@ -86,6 +86,7 @@ class OrderController extends Controller
 
     public function searchTaxi(Request $request)
     {
+        $language = $request->header('language');
         // dd($request->all());
         // $request = $request->validate([
         //     'from_id'=>'required',
@@ -94,7 +95,8 @@ class OrderController extends Controller
         // ]);
 
 
-            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $date=Carbon::parse($request->start_date)->format('Y-m-d');
+            // dd($date);
             $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             // dd($tomorrow);
             $list=[]; 
@@ -102,12 +104,14 @@ class OrderController extends Controller
                 ->where('status_id', Constants::ORDERED)
                 ->where('from_id', $request->from_id)
                 ->where('to_id', $request->to_id)
-                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>',$date)
+                ->select('start_date','driver_id','price','booking_place','car_id','seats')
+                ->where('start_date','>=',$date)
                 ->where('start_date','<',$tomorrow)
                 // ->orderBy('start_date', 'asc')
                 ->get();
-                // dd($orders);
+                $order_count=count($orders);
+
+                // dd($order_count);
                 $total_trips=Order::where('driver_id',auth()->id())
                     ->where('status_id', Constants::COMPLETED)
                     ->count();
@@ -116,17 +120,38 @@ class OrderController extends Controller
                 foreach ($orders as $order) {
                     // dd($order);
                     // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
-                    $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    $user=User::where('id',$order->driver_id)->first();
+                    $personalInfo=PersonalInfo::where('id',$user->personal_info_id)->first();
+
+                    $car=DB::table('yy_cars as dt1')
+                    ->join('yy_car_lists as dt2', 'dt2.id', '=', 'dt1.car_list_id')
+                    // ->join('yy_color_lists as dt3', 'dt3.id', '=', 'dt1.color_list_id')
+                    ->where('dt1.id',$order->car_id)
+                    ->select(DB::raw('DATE(dt1.production_date) as production_date'),'dt2.name','dt1.color_list_id as color_id')
+                    ->first();
+
+                    // dd($car);
+                    $color=table_translate($car,'color',$language);
+                    // dd($color);
+                    $car_information=[
+                        'name'=>$car->name,
+                        'color'=>$color,
+                        'production_date'=>$car->production_date
+                    ];
                     // dd($personalInfo);
                     $data=[
+                        'order_count'=>$order_count,
                         'start_date'=>$order->start_date ,
                         'avatar'=>$personalInfo->avatar,
                         'rating'=>4,
                         'price'=>$order->price,
                         'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                        'total_trips'=>$total_trips,
+                        // 'total_trips'=>$total_trips,
                         'count_pleace'=>$order->booking_place,
+                        'seats'=>$order->seats, // obshi joylar soni
+                        'car_information'=>$car_information
                     ];
+
                     // dd($data);
                     array_push($list,$data);
                 }       
