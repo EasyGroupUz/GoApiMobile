@@ -94,7 +94,8 @@ class OrderController extends Controller
         // ]);
 
 
-            $date=Carbon::parse($request->date)->format('Y-m-d');
+            $date=Carbon::parse($request->start_date)->format('Y-m-d');
+            // dd($date);
             $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             // dd($tomorrow);
             $list=[]; 
@@ -103,7 +104,7 @@ class OrderController extends Controller
                 ->where('from_id', $request->from_id)
                 ->where('to_id', $request->to_id)
                 ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>',$date)
+                ->where('start_date','>=',$date)
                 ->where('start_date','<',$tomorrow)
                 // ->orderBy('start_date', 'asc')
                 ->get();
@@ -116,7 +117,9 @@ class OrderController extends Controller
                 foreach ($orders as $order) {
                     // dd($order);
                     // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
-                    $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    $user=User::where('id',$order->driver_id)->first();
+                        // dd($user);
+                    $personalInfo=PersonalInfo::where('id',$user->personal_info_id)->first();
                     // dd($personalInfo);
                     $data=[
                         'start_date'=>$order->start_date ,
