@@ -4,6 +4,8 @@ use App\Models\Translation;
 use App\Models\Language;
 // use Modules\ForTheBuilder\Entities\Language;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+
 
 
 if (!function_exists('default_language')) {
@@ -13,7 +15,7 @@ if (!function_exists('default_language')) {
     }
 }
 if (!function_exists('translate_api')) {
-    function translate_api($key, $lang = null,)
+    function translate_api($key, $lang = null)
     {
         
         if ($lang === null) {
@@ -46,5 +48,55 @@ if (!function_exists('translate_api')) {
         // };
 
         // return tkram(Translation::class, $app, $function);
+    }
+}
+
+
+if (!function_exists('table_translate')) {
+    function table_translate($key,$type, $lang)
+    {   
+        switch ($type) {
+            case 'city':
+                
+
+                $from_name = DB::table('yy_cities as dt1')
+                ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('dt1.id', $key->from_id)
+                ->orWhere('dt2.lang', $lang)
+                ->select('dt1.name as city_name', 'dt2.name as city_translation_name')
+                ->first();
+                // $name_from=$from_name->city_name;
+                $name_from = ($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name;
+                
+        
+                $from_name = DB::table('yy_cities as dt1')
+                ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('dt1.id', $key->to_id)
+                ->orWhere('dt2.lang', $lang)
+                ->select('dt1.name as city_name', 'dt2.name as city_translation_name')
+                ->first();
+                $name_to=$from_name->city_name;
+                $name_to = ($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name;
+        
+                $from_to=[
+                    'from_name'=>$name_from,
+                    'to_name'=>$name_to,
+                ];
+
+                return $from_to;
+                break;
+
+            case 'country':
+                
+                return 'dadwad';
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+        
+        // dd($from_to);
+
     }
 }

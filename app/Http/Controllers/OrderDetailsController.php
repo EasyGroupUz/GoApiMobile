@@ -35,6 +35,8 @@ class OrderDetailsController extends Controller
      */
     public function store(Request $request)
     {
+        $language = $request->header('language');
+
         $request = $request->validate([
            'from_id'=>'required',
            'to_id'=>'required',
@@ -43,6 +45,8 @@ class OrderDetailsController extends Controller
            'date'=>'required'
        ]);
         //    dd($request);
+        // $language=$request->header('language');
+        // dd($language);
 
         $order_detail= OrderDetail::create([
             'client_id'=>auth()->id(),
@@ -53,7 +57,7 @@ class OrderDetailsController extends Controller
             'seats_count'=>$request['seats_count'],
             'start_date'=>date('Y-m-d', strtotime($request['date']))
         ]);
-        
+        // dd($order_detail);
 
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
@@ -72,38 +76,24 @@ class OrderDetailsController extends Controller
             $endDate=Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
         }
         
-        $orders = DB::table('yy_orders')
-            ->where('status_id', Constants::ORDERED)
-            ->where('from_id', $request['from_id'])
-            ->where('to_id', $request['to_id']);
-            // ->get();
-            // dd($orders);
-
+       
         if ( $came_date >= $date) {
-            // dd($date);
-            // $name=DB::table('yy_cities')->where('id', $order_detail->from_id)->first()->name;
-            // dd($order_detail->from_id);
+
+
+            $from_to_name=table_translate($order_detail,'city',$language);
+
+
             $order_detail = [
                 'seats_count'=>$order_detail->seats_count,
                 'start_date'=>$order_detail->start_date,
                 'from_id'=>$order_detail->from_id,
                 'to_id'=>$order_detail->to_id,
-                'from_name'=>DB::table('yy_cities')->where('id', $order_detail->from_id)->first()->name,
-                'to_name'=>DB::table('yy_cities')->where('id', $order_detail->to_id)->first()->name,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
                 'long'=>null,
                 'lat'=>null
             ];
-            // dd($order_detail);
-            // $order_information = DB::table('yy_orders')
-            // ->where('status_id', Constants::ORDERED)
-            // ->where('from_id', $request['from_id'])
-            // ->where('to_id', $request['to_id'])
-            // ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-            // ->where('start_date','>=',$came_date)
-            // ->where('start_date','<',$tomorrow)
-            // ->where('status_id', Constants::ORDERED)
-            // ->get();
-            // dd($order_information);
+
             if ($order_information = DB::table('yy_orders')
                 ->where('status_id', Constants::ORDERED)
                 ->where('from_id', $request['from_id'])
@@ -113,25 +103,16 @@ class OrderDetailsController extends Controller
                 ->where('start_date','<',$tomorrow)
                 ->where('status_id', Constants::ORDERED)
                 ->get() == []) {
-                    // dd($order_information);
-
+                //   dd('fsef');
                     $list=[]; 
-                    // $order_information = $orders
-                    //     ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                    //     ->where('start_date','>',$date)
-                    //     ->where('start_date','<',$tomorrow)
-                    //     ->get();
-                    // dd($orders);
+
                     $total_trips=DB::table('yy_orders')->where('driver_id',auth()->id())
                         ->where('status_id', Constants::COMPLETED)
                         ->count();
-                        // dd($total_trips);
         
                     foreach ($order_information as $order) {
-                        // dd($order);
-                        // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
+
                         $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
-                        // dd($personalInfo);
                         $data=[
                             'start_date'=>$order->start_date ,
                             'avatar'=>$personalInfo->avatar,
@@ -141,12 +122,10 @@ class OrderDetailsController extends Controller
                             'total_trips'=>$total_trips,
                             'count_pleace'=>$order->booking_place,
                         ];
-                        // dd($data);
                         array_push($list,$data);
                     }
                                     
             } else {
-                // dd('came');
                 $order_dates = DB::table('yy_orders')
                 ->where('status_id', Constants::ORDERED)
                 ->where('from_id', $request['from_id'])
@@ -158,29 +137,28 @@ class OrderDetailsController extends Controller
                 ->distinct()
                 ->take(5)
                 ->get();
-                // dd($order_dates);
 
                 $list=[];
                 foreach ($order_dates as $key => $value) {
-                    // dd($value->start_date);
                     $list[$key]=$value->start_date;
                 }
-                // dd($list);
                
 
             }
-
+            $message=translate_api('success',$language);
             return response()->json([
                 'data' => $list,
                 'order_detail'=>$order_detail,
                 'status' => true,
-                'message' => 'success',
+                'message' => $message,
             ], 200);
         }
         else {
+            $message=translate_api('Sorry, you must enter a date greater than or equal to today',$language);
+
             return response()->json([
                 'status' => false,
-                'message' => 'error',
+                'message' => $message,
                 // 'orders' => $orders,
 
             ], 500);
