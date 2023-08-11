@@ -19,12 +19,13 @@ class CarsController extends Controller
 {
     public function myTaxi(Request $request)
     {
+        $language = $request->header('language');
         $cars = DB::table('yy_drivers as dt1')
             ->leftJoin('yy_cars as dt2', 'dt2.driver_id', '=', 'dt1.id')
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.user_id', auth()->id())
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt1.created_at', 'dt1.updated_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
         $car_array = null;
         foreach ($cars as $car){
@@ -40,6 +41,7 @@ class CarsController extends Controller
                     $images_[] = asset("storage/cars/$images");
                 }
             }
+            $color = table_translate($car, 'color', $language);
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
@@ -47,7 +49,8 @@ class CarsController extends Controller
                 'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
                 'production_date'=>$car->production_date,
                 'car_name'=>$car->car_name,
-                'color'=>$car->color,
+                'color'=>$color->name,
+                'color_code'=>$color->code,
                 'created_at'=>$car->created_at,
                 'updated_at'=>$car->updated_at,
             ];
@@ -90,10 +93,12 @@ class CarsController extends Controller
      * )
      */
 
-    public function information(){
-        $class_list = ClassList::select('id', 'name')->get()->toArray();
+    public function information(Request $request){
+        $language = $request->header('language');
+        $class_list = ClassList ::select('id', 'name')->get();
         $color_list = ColorList::select('id', 'name')->get()->toArray();
         $car_types = CarTypes::select('id', 'name')->get();
+        $class_lists = table_translate('', 'class_list', $language);
         foreach ($car_types as $car_type){
             $model = $car_type->name;
             foreach($car_type->carList as $car_list){
@@ -123,7 +128,7 @@ class CarsController extends Controller
         ];
         if(count($class_list)>0 && count($color_list)>0 && count($carList)>0){
             return $this->success('Success', 200, [
-                "class_list"=>$class_list??[],
+                "class_list"=>$class_lists??[],
                 "color_list"=>$color_list??[],
                 "car_list"=>$carList??[],
             ]);

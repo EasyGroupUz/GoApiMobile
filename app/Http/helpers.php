@@ -57,7 +57,6 @@ if (!function_exists('table_translate')) {
     {   
         switch ($type) {
             case 'city':
-                
 
                 $from_name = DB::table('yy_cities as dt1')
                 ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
@@ -91,6 +90,9 @@ if (!function_exists('table_translate')) {
                 return 'dadwad';
                 break;
             
+            case 'color':
+         
+
             default:
                 # code...
                 break;
