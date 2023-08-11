@@ -2,6 +2,8 @@
 
 use App\Models\Translation;
 use App\Models\Language;
+use App\Models\ClassList;
+use App\Models\ColorList;
 // use Modules\ForTheBuilder\Entities\Language;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -109,6 +111,17 @@ if (!function_exists('table_translate')) {
                         ->select('Class.id as id', 'ClassT.name as name')->get()->toArray();
                 }
                 return $class_list_translate;
+                break;
+            case 'color_list':
+                $color_lists = ColorList::select('id', 'name')->get();
+                foreach ($color_lists as $color_list){
+                    $color_list_translate = DB::table('yy_color_lists as Color')
+                        ->leftJoin('yy_color_translations as ColorT', 'Color.id', '=', 'ColorT.color_list_id')
+                        ->where('Color.id', $color_list->id)
+                        ->where('ColorT.lang', $lang)
+                        ->select('Color.id as id', 'ColorT.name as name')->get()->toArray();
+                }
+                return $color_list_translate;
                 break;
             default:
                 # code...

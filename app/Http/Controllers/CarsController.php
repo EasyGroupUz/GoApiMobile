@@ -57,12 +57,11 @@ class CarsController extends Controller
             $images_ = [];
         }
         if($car_array != null){
-            return $this->success('Success', 200, $car_array);
+            return $this->success(translate_api('Success', $language), 200, $car_array);
         }else{
-            return $this->error('No my cars', 400);
+            return $this->error(translate_api('No my cars', $language), 400);
         }
     }
-
 
     /**
      * @OA\Get(
@@ -95,10 +94,9 @@ class CarsController extends Controller
 
     public function information(Request $request){
         $language = $request->header('language');
-        $class_list = ClassList ::select('id', 'name')->get();
-        $color_list = ColorList::select('id', 'name')->get()->toArray();
         $car_types = CarTypes::select('id', 'name')->get();
         $class_lists = table_translate('', 'class_list', $language);
+        $color_lists = table_translate('', 'color_list', $language);
         foreach ($car_types as $car_type){
             $model = $car_type->name;
             foreach($car_type->carList as $car_list){
@@ -117,29 +115,20 @@ class CarsController extends Controller
             ];
             $list = [];
         }
-        $response = [
-            'data'=>[
-                "class_list"=>$class_list??[],
-                "color_list"=>$color_list??[],
-                "car_list"=>$carList??[],
-            ],
-            'status'=>true,
-            'message'=>'success',
-        ];
-        if(count($class_list)>0 && count($color_list)>0 && count($carList)>0){
-            return $this->success('Success', 200, [
+
+        if(count($class_lists)>0 && count($color_lists)>0 && count($carList)>0){
+            return $this->success(translate_api('Success', $language), 200, [
                 "class_list"=>$class_lists??[],
                 "color_list"=>$color_list??[],
                 "car_list"=>$carList??[],
             ]);
-        }elseif(count($class_list) == 0){
-            return $this->error('No car class', 400);
-        }elseif(count($color_list) == 0){
-            return $this->error('No car color', 400);
+        }elseif(count($class_lists) == 0){
+            return $this->error(translate_api('No car class', $language), 400);
+        }elseif(count($color_lists) == 0){
+            return $this->error(translate_api('No car color', $language), 400);
         }elseif(count($carList) == 0){
-            return $this->error('No car list', 400);
+            return $this->error(translate_api('No car list', $language), 400);
         }
-        return response()->json($response);
     }
 
     /**
@@ -198,6 +187,7 @@ class CarsController extends Controller
      */
 
     public function store(Request $request) {
+        $language = $request->header('language');
         $user = Auth::user();
         $cars = new Cars();
         $cars->status_id = 1;
@@ -232,15 +222,15 @@ class CarsController extends Controller
         $is_driver = Driver::where('user_id', $user->id)->first();
         $car_list = CarList::find($request->model_id);
         if(!isset($car_list)){
-            return $this->error('Car list is not exist', 400);
+            return $this->error(translate_api('Car list is not exist', $language), 400);
         }
         $color_list = ColorList::find($request->color_id);
         if(!isset($color_list)){
-            return $this->error('Color is not exist', 400);
+            return $this->error(translate_api('Color is not exist', $language), 400);
         }
         $color_list = ClassList::find($request->class_id);
         if(!isset($color_list)){
-            return $this->error('Class list is not exist', 400);
+            return $this->error(translate_api('Class list is not exist', $language), 400);
         }
         if(!isset($is_driver)){
             $driver = new Driver();
@@ -252,11 +242,12 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        return $this->success('Success', 201);
+        return $this->success(translate_api('Success', $language), 201);
     }
 
 
     public function update(Request $request, $id) {
+        $language = $request->header('language');
         $user = Auth::user();
         $cars = Cars::find($id);
         $cars->status_id = 1;
