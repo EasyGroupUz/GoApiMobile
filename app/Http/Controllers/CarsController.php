@@ -351,8 +351,6 @@ class CarsController extends Controller
                     }
                 }
             }
-            $status = true;
-            $message = 'Success';
         }else{
             return $this->error('Failed car not found', 400);
         }
