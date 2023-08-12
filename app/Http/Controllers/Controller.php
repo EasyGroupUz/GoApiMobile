@@ -43,7 +43,7 @@ class Controller extends BaseController
     public function error(string $message, int $error_type, array $data = null)
     {
         return response()->json([
-            'data' => $data,
+            'data' => $data ?? [],
             'status' => false,
             'message' => $message ?? 'error occured'
         ], $error_type);
@@ -51,7 +51,7 @@ class Controller extends BaseController
     public function success(string $message, int $error_type, array $data = null)
     {
         return response()->json([
-            'data' => $data,
+            'data' => $data ?? [],
             'status' => true,
             'message' => $message ?? 'success'
         ], 200); // $error_type
