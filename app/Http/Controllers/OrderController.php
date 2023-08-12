@@ -12,144 +12,129 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Constants;
 
-
 use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
 
-    public function index()
-    {
-        $model = Order::orderBy('start_date', 'asc')->get();
+    // public function index()
+    // {
+    //     $model = Order::orderBy('start_date', 'asc')->get();
 
-        $arr = [];
-        if (isset($model) && count($model) > 0) {
-            $n = 0;
-            foreach ($model as $key => $value) {
-                $arrCars = [];
-                if (isset($value->car)) {
-                    $arrCarImg = [];
-                    if (!empty($value->car->images)) {
-                        $ci = 0;
-                        foreach (json_decode($value->car->images) as $valueCI) {
-                            $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
-                            $ci++;
-                        }
-                    }
-                    $arrCars['id'] = $value->car->id;
-                    $arrCars['car_list_name'] = $value->car->car->name;
-                    $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
-                    $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
-                    $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
-                    $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
-                    $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
-                    $arrCars['images'] = $arrCarImg;
-                }
+    //     $arr = [];
+    //     if (isset($model) && count($model) > 0) {
+    //         $n = 0;
+    //         foreach ($model as $key => $value) {
+    //             $arrCars = [];
+    //             if (isset($value->car)) {
+    //                 $arrCarImg = [];
+    //                 if (!empty($value->car->images)) {
+    //                     $ci = 0;
+    //                     foreach (json_decode($value->car->images) as $valueCI) {
+    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+    //                         $ci++;
+    //                     }
+    //                 }
+    //                 $arrCars['id'] = $value->car->id;
+    //                 $arrCars['car_list_name'] = $value->car->car->name;
+    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
+    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
+    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
+    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
+    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
+    //                 $arrCars['images'] = $arrCarImg;
+    //             }
 
-                $arr[$n]['id'] = $value->id;
-                $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
-                $arr[$n]['price'] = (double)$value->price;
-                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['from_lng'] = 69.287645;
-                $arr[$n]['from_lat'] = 41.339596;
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
-                $arr[$n]['to_lng'] = 69.287645;
-                $arr[$n]['to_lat'] = 41.339596;
-                $arr[$n]['seats_count'] = $value->seats ?? 0;
-                $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
-                $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
-                $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
-                $arr[$n]['car_information'] = $arrCars;
-                $arr[$n]['options'] = json_decode($value->options) ?? [];
-                $n++;
-            }
-        }
+    //             $arr[$n]['id'] = $value->id;
+    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
+    //             $arr[$n]['price'] = (double)$value->price;
+    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+    //             $arr[$n]['from_lng'] = 69.287645;
+    //             $arr[$n]['from_lat'] = 41.339596;
+    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+    //             $arr[$n]['to_lng'] = 69.287645;
+    //             $arr[$n]['to_lat'] = 41.339596;
+    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
+    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
+    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
+    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
+    //             $arr[$n]['car_information'] = $arrCars;
+    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
+    //             $n++;
+    //         }
+    //     }
 
-        return response()->json([
-            'data' => $arr,
-            'status' => true,
-            'message' => "success"
-        ], 200);
+    //     return response()->json([
+    //         'data' => $arr,
+    //         'status' => true,
+    //         'message' => "success"
+    //     ], 200);
 
-        // return $this->success(
-        //     'success',
-        //     200,
-        //     $arr
-        // );
+    //     // return $this->success(
+    //     //     'success',
+    //     //     200,
+    //     //     $arr
+    //     // );
 
-        // return $this->error(
-        //     'There are some problems',
-        //     400,
-        //     []
-        // );
-    }
+    //     // return $this->error(
+    //     //     'There are some problems',
+    //     //     400,
+    //     //     []
+    //     // );
+    // }
 
     public function searchTaxi(Request $request)
     {
-        // dd($request->all());
-        // $request = $request->validate([
-        //     'from_id'=>'required',
-        //     'to_id'=>'required',
-        //     'date'=>'required'
-        // ]);
+        $date = Carbon::parse($request->date)->format('Y-m-d');
+        $tomorrow = Carbon::parse($date)->addDays(1)->format('Y-m-d');
 
+        $orders = DB::table('yy_orders')
+            ->where('status_id', Constants::ORDERED)
+            ->where('from_id', $request->from_id)
+            ->where('to_id', $request->to_id)
+            ->select(DB::raw('DATE(start_date) as start_date'), 'driver_id', 'price', 'booking_place')
+            ->where('start_date', '>', $date)
+            ->where('start_date', '<', $tomorrow)
+            ->get();
 
-            $date=Carbon::parse($request->date)->format('Y-m-d');
-            $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
-            // dd($tomorrow);
-            $list=[]; 
-                $orders = DB::table('yy_orders')
-                ->where('status_id', Constants::ORDERED)
-                ->where('from_id', $request->from_id)
-                ->where('to_id', $request->to_id)
-                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>',$date)
-                ->where('start_date','<',$tomorrow)
-                // ->orderBy('start_date', 'asc')
-                ->get();
-                // dd($orders);
-                $total_trips=Order::where('driver_id',auth()->id())
-                    ->where('status_id', Constants::COMPLETED)
-                    ->count();
-                    // dd($total_trips);
+        $total_trips = Order::where('driver_id', auth()->id())
+            ->where('status_id', Constants::COMPLETED)
+            ->count();
 
-                foreach ($orders as $order) {
-                    // dd($order);
-                    // dd(User::where('id',$order->driver_id)->first()->personal_info_id);
-                    $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
-                    // dd($personalInfo);
-                    $data=[
-                        'start_date'=>$order->start_date ,
-                        'avatar'=>$personalInfo->avatar,
-                        'rating'=>4,
-                        'price'=>$order->price,
-                        'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                        'total_trips'=>$total_trips,
-                        'count_pleace'=>$order->booking_place,
-                    ];
-                    // dd($data);
-                    array_push($list,$data);
-                }       
-        // dd($aa);
-        $language=$request->header('language');
-        $message=translate_api('success',$language);
-        // dd($message);
-        // dd()
-        return response()->json([
-            'data' => $list,
-            'status' => true,
-            'message' => $message,
+        $list = []; 
+        if (isset($orders) && count($orders) > 0) {
+            foreach ($orders as $order) {
+                $personalInfo = PersonalInfo::where('id', User::where('id', $order->driver_id)->first()->personal_info_id)->first();
+                $data = [
+                    'start_date' => $order->start_date ,
+                    'avatar' => $personalInfo->avatar,
+                    'rating' => 4,
+                    'price' => $order->price,
+                    'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                    'total_trips' => $total_trips,
+                    'count_pleace' => $order->booking_place,
+                ];
 
-        ], 200);
+                array_push($list, $data);
+            }       
+            $language = $request->header('language');
+            $message = translate_api('success', $language);
+            
+            return $this->success($message, 200, $list);
+        } else {
+            return $this->success('Order not found', 204);
+        }
     }
 
     public function show(Request $request)
     {
+        if (!$request->id)
+            return $this->error('id parameter is missing', 400);
+
         $id = $request->id;
-
         $order = Order::find($id);
-        $arr = [];
 
+        $arr = [];
         if (isset($order)) {
             $arrDriverInformation = [];
             if ($order->driver) {
@@ -266,28 +251,27 @@ class OrderController extends Controller
             $arr['car_information'] = $arrCarInfo;
             $arr['clients_list'] = $arrClients;
             $arr['options'] = json_decode($order->options) ?? [];
-        }
 
-        return response()->json([
-            'data' => $arr,
-            'status' => true,
-            'message' => "success"
-        ], 200);
+            return $this->success('success', 200, $arr);
+        } else {
+            return $this->success('This kind of order not found', 204);
+        }
     }
 
     public function create(OrderRequest $request)
     {
         $data = $request->validated();
-        $token = $request->header()['token'];
-        $driver = User::where('token', $token)->first();
+        // $token = $request->header()['token'];
+        // $driver = User::where('token', $token)->first();
 
-        if (!isset($driver)) {
-            return [
-                "status" => false,
-                "message" => "Token not found"
-            ];
-        }
-        $driver_id = $driver->id;
+        // if (!isset($driver)) {
+        //     return [
+        //         "status" => false,
+        //         "message" => "Token not found"
+        //     ];
+        // }
+
+        $driver_id = auth()->user()->id;
         $data['driver_id'] = $driver_id;
 
         $order = new Order();
@@ -305,15 +289,18 @@ class OrderController extends Controller
             $order->create($data);
         }
 
-        return response()->json([
-            "status" => true,
-            "message" => "success"
-        ], 200);
+        return $this->success('success', 200);
     }
 
     public function history(Request $request)
     {
-        $page = $request->page;
+        // if (!$this->validateByToken($request))
+        //     return $this->error('The owner of the token you sent was not identified', 400);
+     
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
         
         $model = Order::orderBy('id', 'asc')->offset($page - 1)->limit(15)->get();
 
@@ -369,13 +356,17 @@ class OrderController extends Controller
 
                 $n++;
             }
+
+            return $this->success('success', 200, $arr);
+        } else {
+            return $this->success('Order table is empty', 204);
         }
 
-        return response()->json([
-            'data' => $arr,
-            'status' => true,
-            'message' => "success"
-        ], 200);
+        // return response()->json([
+        //     'data' => $arr,
+        //     'status' => true,
+        //     'message' => "success"
+        // ], 200);
     }
 
     public function expired()
@@ -423,73 +414,64 @@ class OrderController extends Controller
                 
                 $n++;
             }
-        }
 
-        return response()->json([
-            'data' => $arr,
-            'status' => true,
-            'message' => 'success'
-        ], 200);
+            return $this->success('success', 200, $arr);
+        } else {
+            return $this->success('Order table is empty', 204);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function booking(Request $request)
     {
-        // $token = $request->header()['token'];
+        if (!$request['order_id'])
+            return $this->error('order_id parameter is missing', 400);
+
         $order_id = $request['order_id'];
+
+        if (!$request['order_detail_id'])
+            return $this->error('order_detail_id parameter is missing', 400);
+        
         $order_detail_id = $request['order_detail_id'];
 
         $order = Order::find($order_id);
         $orderDetail = OrderDetail::find($order_detail_id);
 
-        $status = true;
-        $message = 'Success';
-        if (!$order) {
-            $status = false;
-            $message = 'Order not found';
-        }
+        if (!$order)
+            return $this->success('Order not found', 204);
 
-        if (!$orderDetail) {
-            $status = false;
-            $message = 'Order Detail not found';
-        }
+        if (!$orderDetail)
+            return $this->success('Order Detail not found', 204);
+        else
+            if ($orderDetail->order_id != null)
+                return $this->error('This order detail is booked already', 400);
 
-        if ($status) {
-            $orderDetail->order_id = $order->id;
-            $saveOrderDetail = $orderDetail->save();
+        $orderDetail->order_id = $order->id;
+        $saveOrderDetail = $orderDetail->save();
 
-            if ($saveOrderDetail) {
-                $status = true;
-                $message = 'success';
-            }
-        }
+        $order->booking_place = ($order->booking_place > 0) ? $order->booking_place + 1 : 1;
+        $saveOrder = $order->save();
 
-        return response()->json([
-            "status" => $status,
-            "message" => $message
-        ], 200);
+        if ($saveOrderDetail && $saveOrder)
+            return $this->success('success', 200);
     }
 
-    public function getOptions(){
+    public function getOptions()
+    {
         $options = Options::select('id', 'name', 'icon')->get();
-        $status = false;
-        $message = 'no data';
-        foreach($options as $option){
-            $data[] = [
-                'id'=>$option->id,
-                'name'=>$option->name,
-                'icon'=>"http://admin.easygo.uz/storage/option/$option->icon",
-            ];
-            $status = true;
-            $message = 'success';
+
+        $data = [];
+        if (isset($options) && count($options) > 0) {
+            foreach ($options as $option) {
+                $data[] = [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'icon' => "http://admin.easygo.uz/storage/option/$option->icon",
+                ];
+            }
+
+            return $this->success('success', 200, $data);
+        } else {
+            return $this->success('Options table is empty', 204);
         }
-        $response = [
-          'data'=>$data,
-          'status'=>$status,
-          'message'=>$message,
-        ];
-        return response()->json($response);
     }
 }
