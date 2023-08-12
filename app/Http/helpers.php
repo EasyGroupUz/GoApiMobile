@@ -89,13 +89,16 @@ if (!function_exists('table_translate')) {
 
             case 'color':
 
-                // dd($lang);
                 $color= DB::table('yy_color_lists as dt1')
-                ->leftJoin('yy_color_translations as dt2', 'dt2.color_list_id', '=', 'dt1.id')
-                ->where('dt1.id', $key->color_id)
-                ->where('dt2.lang', $lang)
-                ->select('dt1.name as color_name','dt1.code as color_code', 'dt2.name as color_translation_name')
-                ->first();
+                    ->leftJoin('yy_color_translations as dt2', function ($join) use ($lang) {
+                        $join->on('dt2.color_list_id', '=', 'dt1.id')
+                            ->where('dt2.lang', $lang);
+                    })
+                    ->where('dt1.id', $key->color_id)
+                    ->select('dt1.name as color_name','dt1.code as color_code', 'dt2.name as color_translation_name')
+                    ->first();
+
+
                 if(!isset($color->color_translation_name) && isset($color->color_name)){
                     $color->color_translation_name = $color->color_name;
                 }
