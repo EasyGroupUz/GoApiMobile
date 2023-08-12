@@ -105,26 +105,30 @@ if (!function_exists('table_translate')) {
                 return $color;
                 break;
             case 'class_list':
-                $class_lists = ClassList::select('id', 'name')->get();
-                foreach ($class_lists as $class_list){
+                $class_lists = ClassList::select('id', 'name')->get()->toArray();
+                foreach ($class_lists as $key => $class_list){
                     $class_list_translate = DB::table('yy_class_lists as Class')
                         ->leftJoin('yy_class_translations as ClassT', 'Class.id', '=', 'ClassT.class_list_id')
-                        ->where('Class.id', $class_list->id)
+                        ->where('Class.id', $class_list['id'])
                         ->where('ClassT.lang', $lang)
-                        ->select('Class.id as id', 'ClassT.name as name')->get()->toArray();
+                        ->select('Class.id as id', 'ClassT.name as name')->first();
+                    $class_lists[$key]['name'] = $class_list_translate->name??$class_list['name'];
+                    $class_lists[$key]['id'] = $class_list['id'];
                 }
-                return $class_list_translate;
+                return $class_lists;
                 break;
             case 'color_list':
-                $color_lists = ColorList::select('id', 'name')->get();
-                foreach ($color_lists as $color_list){
+                $color_lists = ColorList::select('id', 'name')->get()->toArray();
+                foreach ($color_lists as $key => $color_list){
                     $color_list_translate = DB::table('yy_color_lists as Color')
                         ->leftJoin('yy_color_translations as ColorT', 'Color.id', '=', 'ColorT.color_list_id')
-                        ->where('Color.id', $color_list->id)
+                        ->where('Color.id', $color_list['id'])
                         ->where('ColorT.lang', $lang)
-                        ->select('Color.id as id', 'ColorT.name as name')->get()->toArray();
+                        ->select('Color.id as id', 'ColorT.name as name')->first();
+                    $color_lists[$key]['name'] = $color_list_translate->name??$color_list['name'];
+                    $color_lists[$key]['id'] = $color_list['id'];
                 }
-                return $color_list_translate;
+                return $color_lists;
                 break;
             default:
                 # code...
