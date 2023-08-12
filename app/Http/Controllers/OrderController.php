@@ -436,8 +436,10 @@ class OrderController extends Controller
         $model = DB::table('yy_orders as yyo')
             ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
             ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
-            ->where('yyo.driver_id',auth()->id())
+            ->where('yyo.driver_id', auth()->id())
             ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', DB::raw('67.098776 as from_lng'), DB::raw('41.098776 as from_lat'), 'yyT.name as to', 'yyT.id as to_id', DB::raw('67.098776 as to_lng'), DB::raw('41.098776 as to_lat'))
+            ->orderBy('id', 'desc')
+            ->limit(5)
             ->get()
             ->toArray();
 
