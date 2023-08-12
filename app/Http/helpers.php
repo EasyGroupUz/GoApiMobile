@@ -96,10 +96,13 @@ if (!function_exists('table_translate')) {
                 ->where('dt2.lang', $lang)
                 ->select('dt1.name as color_name','dt1.code as color_code', 'dt2.name as color_translation_name')
                 ->first();
+                if(!isset($color->color_translation_name) && isset($color->color_name)){
+                    $color->color_translation_name = $color->color_name;
+                }
                 // $name_to=$from_name->city_name;
-                // dd($color);
-                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
-                return $color_name;
+//                 dd($color);
+//                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
+                return $color;
                 break;
             case 'class_list':
                 $class_lists = ClassList::select('id', 'name')->get();
