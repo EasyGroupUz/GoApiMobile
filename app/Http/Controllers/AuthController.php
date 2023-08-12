@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Controllers\Controller;
 use App\Models\PersonalInfo;
 use App\Models\User;
 use GuzzleHttp\Client;
@@ -12,7 +13,6 @@ use App\Models\EskizToken;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -120,22 +120,14 @@ class AuthController extends Controller
         $result = $res->getBody();
         $result = json_decode($result);
         if(isset($result)){
-            $status = true;
             $message = "Success";
+            $user_verify->verify_code = $random;
+            $user_verify->save();
+            return $this->success($message, 200, ['Verify_code'=>$random]);
         }else{
-            $status = false;
             $message = translate("Fail message not sent. Try again");
+            return $this->error($message, 400, ['Verify_code'=>$random]);
         }
-        $user_verify->verify_code = $random;
-        $user_verify->save();
-        $response = [
-            "data"=>[
-                'Verify_code'=>$random,
-            ],
-            'status'=>$status,
-            'message'=>$message,
-        ];
-        return response()->json($response);
     }
 
     /**
@@ -213,7 +205,7 @@ class AuthController extends Controller
                     $new_user->device_id = json_encode([$fields['device_id']]);
                     $new_user->save();
                     $message = 'Success';
-                    $status = true;
+                    return $this->success($message, 201, ['token'=>$token]);
                 }else{
                     $model->user->email = $model->phone_number;
                     if(!isset($model->user->personalInfo)){
@@ -265,26 +257,18 @@ class AuthController extends Controller
                     }
                     $model->user->save();
                     $message = 'Success';
-                    $status = true;
+                    return $this->success($message, 201, ['token'=>$token]);
                 }
             }else{
                 $message = 'Failed your token didn\'t match';
-                $status = false;
                 $token = 'no token';
+                return $this->error($message, 400, ['token'=>$token]);
             }
         }else{
             $message = 'Failed your token didn\'t match';
-            $status = false;
             $token = 'no token';
+            return $this->error($message, 400, ['token'=>$token]);
         }
-        $response = [
-            'data'=>[
-                'token' => $token,
-            ],
-            'status'=>$status,
-            'message'=>$message
-        ];
-        return response()->json($response);
     }
 
 
@@ -337,12 +321,7 @@ class AuthController extends Controller
         $personal_info->save();
         $auth_user->personal_info_id = $personal_info->id;
         $auth_user->save();
-
-        $response = [
-            'status'=>true,
-            'message'=>'Success',
-        ];
-        return response()->json($response, 201);
+        return $this->success('Success', 201);
     }
 
     /**
@@ -371,11 +350,7 @@ class AuthController extends Controller
      */
     public function Logout() {
         auth()->user()->tokens()->delete();
-        $response = [
-            'status'=>true,
-            'message'=>'Logged out'
-        ];
-        return response($response);
+        return $this->success('Logged out', 200);
     }
 
 }

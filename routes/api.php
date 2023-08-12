@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'offer'], function () {
         Route::get('/get', [OfferController::class, 'getOffer']);
         Route::post('/store', [OfferController::class, 'postOffer']);
+        Route::get('/destroy', [OfferController::class, 'destroy']);
     });
 
     Route::group(['prefix' => 'order'], function () {

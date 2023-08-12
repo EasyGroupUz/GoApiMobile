@@ -23,18 +23,10 @@ class OfferController extends Controller
         $order_detail = OrderDetail::find($field['order_detail_id']);
         $order = Order::find($field['order_id']);
         if(!isset($order_detail)){
-            $response = [
-                'status'=>false,
-                'message'=>'Order detail not found'
-            ];
-            return response()->json($response);
+            return $this->error('Order detail not found', 400);
         }
         if(!isset($order)){
-            $response = [
-                'status'=>false,
-                'message'=>'Order not found'
-            ];
-            return response()->json($response);
+            return $this->error('Order not found', 400);
         }
         $offer->driver_id = $order->driver_id;
         $offer->client_id = $order_detail->client_id;
@@ -44,27 +36,27 @@ class OfferController extends Controller
         $offer->status = 1;
         $offer->comment = $field['comment'];
         $offer->save();
-        $response = [
-          'status'=>true,
-          'message'=>'Success'
-        ];
-        return response()->json($response);
+        return $this->success('Success', 201);
     }
 
     public function getOffer(){
         $offer = Offer::select('driver_id', 'client_id', 'order_id',
-            'order_detail_id', 'price', 'status', 'comment')->get();
-        $response = [
-            'data'=>$offer,
-            'status'=>true,
-            'message'=>'Success'
-        ];
-        return response()->json($response);
+            'order_detail_id', 'price', 'status', 'comment')->get()->toArray();
+        if(count($offer)>0){
+            return $this->success('Success', 200, $offer);
+        }else{
+            return $this->error('Offer not found', 400);
+        }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        Offer::destroy($id);
-        return redirect(route('offer.index'));
+        $offer = Offer::find($request->id);
+        if(isset($offer)){
+            $offer->delete();
+            return $this->success('Success', 200);
+        }else{
+            return $this->error('Offer not found', 400);
+        }
     }
 }
