@@ -10,17 +10,15 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $model = Notification::select('id', 'title', 'text', 'date')->whereNull('read_at')->get();
+        $model = Notification::select('id', 'title', 'text', 'date')->whereNull('read_at')->get()->toArray();
 
-        $arr = [];
-        if (isset($model) && count($model) > 0)
-            foreach ($model as $key => $value)
-                $value->date = date('d.m.Y H:i', strtotime($value->date));
+        if (isset($model) && count($model) > 0) {
+            foreach ($model as $value) 
+                $value['date'] = date('d.m.Y H:i', strtotime($value['date']));
 
-        return response()->json([
-            'data' => $model,
-            'status' => true,
-            'message' => "success"
-        ], 200);
+            return $this->success('success', 200, (array)$model);
+        } else {
+            return $this->success('Notification not found', 204);
+        }
     }
 }
