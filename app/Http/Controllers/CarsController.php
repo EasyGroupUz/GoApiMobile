@@ -25,7 +25,7 @@ class CarsController extends Controller
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.user_id', auth()->id())
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
         $car_array = null;
         foreach ($cars as $car){
@@ -41,7 +41,8 @@ class CarsController extends Controller
                     $images_[] = asset("storage/cars/$images");
                 }
             }
-            $color = table_translate($car, 'color', $language);
+            $color_table = table_translate($car, 'color', $language);
+//            return response($color_name);
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
@@ -49,8 +50,8 @@ class CarsController extends Controller
                 'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
                 'production_date'=>$car->production_date,
                 'car_name'=>$car->car_name,
-                'color'=>$color->name,
-                'color_code'=>$color->code,
+                'color'=>$color_table->color_translation_name??$car->color_name,
+                'color_code'=>$color_table->color_code??$car->color_code,
                 'created_at'=>$car->created_at,
                 'updated_at'=>$car->updated_at,
             ];
@@ -119,7 +120,7 @@ class CarsController extends Controller
         if(count($class_lists)>0 && count($color_lists)>0 && count($carList)>0){
             return $this->success(translate_api('Success', $language), 200, [
                 "class_list"=>$class_lists??[],
-                "color_list"=>$color_list??[],
+                "color_list"=>$color_lists??[],
                 "car_list"=>$carList??[],
             ]);
         }elseif(count($class_lists) == 0){
@@ -197,6 +198,18 @@ class CarsController extends Controller
         $cars->class_list_id = $request->class_id;
         $cars->production_date = $request->production_date;
         $cars->wheel_side = $request->wheel_side;
+        $car_list = CarList::find($request->model_id);
+        if(!isset($car_list)){
+            return $this->error(translate_api('Car list is not exist', $language), 400);
+        }
+        $color_list = ColorList::find($request->color_id);
+        if(!isset($color_list)){
+            return $this->error(translate_api('Color is not exist', $language), 400);
+        }
+        $color_list = ClassList::find($request->class_id);
+        if(!isset($color_list)){
+            return $this->error(translate_api('Class list is not exist', $language), 400);
+        }
         $letters = range('a', 'z');
         if(isset($request->reg_certificate_image)){
             $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
@@ -220,18 +233,7 @@ class CarsController extends Controller
             $cars->images = json_encode($images_array);
         }
         $is_driver = Driver::where('user_id', $user->id)->first();
-        $car_list = CarList::find($request->model_id);
-        if(!isset($car_list)){
-            return $this->error(translate_api('Car list is not exist', $language), 400);
-        }
-        $color_list = ColorList::find($request->color_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Color is not exist', $language), 400);
-        }
-        $color_list = ClassList::find($request->class_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Class list is not exist', $language), 400);
-        }
+
         if(!isset($is_driver)){
             $driver = new Driver();
             $driver->user_id = $user->id;
