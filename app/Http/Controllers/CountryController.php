@@ -24,8 +24,8 @@ class CountryController extends Controller
                     $arrCity[] = [
                         'id' => $valueCity->id,
                         'name' => $valueCity->name,
-                        'lng' => 41.339596,
-                        'lat' => 69.287645
+                        'lng' => $valueCity->lng,
+                        'lat' => $valueCity->lat
                     ];
                 }
                 

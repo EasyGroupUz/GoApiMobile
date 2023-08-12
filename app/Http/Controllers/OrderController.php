@@ -186,14 +186,18 @@ class OrderController extends Controller
                 }
             }
 
+
+
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['from'] = ($order->from) ? $order->from->name : '';
-            $arr['from_lng'] = 69.287645;
-            $arr['from_lat'] = 41.339596;
+            $arr['from_lng'] = ($order->from) ? $order->from->lng : '';
+            $arr['from_lat'] = ($order->from) ? $order->from->lat : '';
             $arr['to'] = ($order->to) ? $order->to->name : '';
-            $arr['to_lng'] = 69.287645;
-            $arr['to_lat'] = 41.339596;
+            $arr['to_lng'] = ($order->to) ? $order->to->lng : '';
+            $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
+            $arr['distance'] = $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat']);
+            $arr['arrived_date'] = $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat'])));
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
@@ -321,7 +325,8 @@ class OrderController extends Controller
 
     public function expired()
     {
-        $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
+        // $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
+        $model = Order::orderBy('start_date', 'asc')->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -352,11 +357,13 @@ class OrderController extends Controller
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['from_lng'] = 69.287645;
-                $arr[$n]['from_lat'] = 41.339596;
+                $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
+                $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
-                $arr[$n]['to_lng'] = 69.287645;
-                $arr[$n]['to_lat'] = 41.339596;
+                $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
+                $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
+                $arr[$n]['distance'] = $this->getDistance($arr[$n]['from_lng'], $arr[$n]['from_lat'], $arr[$n]['to_lng'], $arr[$n]['to_lat']);
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($arr[$n]['start_date']. ' +' . $this->getDistance($arr[$n]['from_lng'], $arr[$n]['from_lat'], $arr[$n]['to_lng'], $arr[$n]['to_lat'])));
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
@@ -437,7 +444,7 @@ class OrderController extends Controller
             ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
             ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
             ->where('yyo.driver_id', auth()->id())
-            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', DB::raw('67.098776 as from_lng'), DB::raw('41.098776 as from_lat'), 'yyT.name as to', 'yyT.id as to_id', DB::raw('67.098776 as to_lng'), DB::raw('41.098776 as to_lat'))
+            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
             ->orderBy('id', 'desc')
             ->limit(5)
             ->get()

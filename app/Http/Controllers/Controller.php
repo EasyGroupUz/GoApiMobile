@@ -54,7 +54,7 @@ class Controller extends BaseController
             'data' => $data,
             'status' => true,
             'message' => $message ?? 'success'
-        ], $error_type);
+        ], 200); // $error_type
     }
 
     public function validateByToken($request)
@@ -63,5 +63,25 @@ class Controller extends BaseController
         $user = User::where('token', $token)->first();
 
         return $user;
+    }
+
+    public function getDistance($fromLng, $fromLat, $toLng, $toLat)
+    {
+        $apiUrl = 'https://api.distancematrix.ai/maps/api/distancematrix/json?origins=' . $fromLng . ', ' . $fromLat . '&destinations=' . $toLng . ', ' . $toLat . '&key=7Q0lMsRgFBBSTgcFtBvQAMk3Qfe5O';
+
+        $response = file_get_contents($apiUrl);
+
+        if ($response !== false) {
+            $data = json_decode($response, true);
+
+            if ($data !== null && isset($data['rows'][0]['elements'][0]['duration']['text'])) {
+                $distance = $data['rows'][0]['elements'][0]['distance']['text'];
+                return $data['rows'][0]['elements'][0]['duration']['text'];
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
     }
 }
