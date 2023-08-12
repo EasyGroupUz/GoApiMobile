@@ -120,7 +120,7 @@ class CarsController extends Controller
         if(count($class_lists)>0 && count($color_lists)>0 && count($carList)>0){
             return $this->success(translate_api('Success', $language), 200, [
                 "class_list"=>$class_lists??[],
-                "color_list"=>$color_list??[],
+                "color_list"=>$color_lists??[],
                 "car_list"=>$carList??[],
             ]);
         }elseif(count($class_lists) == 0){
