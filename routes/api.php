@@ -72,7 +72,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::get('/options', [OrderController::class, 'getOptions']);
-
+        Route::get('/search-history', [OrderController::class, 'searchHistory']);
     });
 
     Route::group(['prefix' => 'country'], function () {

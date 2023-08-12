@@ -16,73 +16,6 @@ use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
-
-    // public function index()
-    // {
-    //     $model = Order::orderBy('start_date', 'asc')->get();
-
-    //     $arr = [];
-    //     if (isset($model) && count($model) > 0) {
-    //         $n = 0;
-    //         foreach ($model as $key => $value) {
-    //             $arrCars = [];
-    //             if (isset($value->car)) {
-    //                 $arrCarImg = [];
-    //                 if (!empty($value->car->images)) {
-    //                     $ci = 0;
-    //                     foreach (json_decode($value->car->images) as $valueCI) {
-    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
-    //                         $ci++;
-    //                     }
-    //                 }
-    //                 $arrCars['id'] = $value->car->id;
-    //                 $arrCars['car_list_name'] = $value->car->car->name;
-    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
-    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
-    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
-    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
-    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
-    //                 $arrCars['images'] = $arrCarImg;
-    //             }
-
-    //             $arr[$n]['id'] = $value->id;
-    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
-    //             $arr[$n]['price'] = (double)$value->price;
-    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-    //             $arr[$n]['from_lng'] = 69.287645;
-    //             $arr[$n]['from_lat'] = 41.339596;
-    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
-    //             $arr[$n]['to_lng'] = 69.287645;
-    //             $arr[$n]['to_lat'] = 41.339596;
-    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
-    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
-    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
-    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
-    //             $arr[$n]['car_information'] = $arrCars;
-    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
-    //             $n++;
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'data' => $arr,
-    //         'status' => true,
-    //         'message' => "success"
-    //     ], 200);
-
-    //     // return $this->success(
-    //     //     'success',
-    //     //     200,
-    //     //     $arr
-    //     // );
-
-    //     // return $this->error(
-    //     //     'There are some problems',
-    //     //     400,
-    //     //     []
-    //     // );
-    // }
-
     public function searchTaxi(Request $request)
     {
         $language = $request->header('language');
@@ -491,4 +424,89 @@ class OrderController extends Controller
             return $this->success('Options table is empty', 204);
         }
     }
+
+    public function searchHistory()
+    {
+        // if ($request->page)
+        //     $page = $request->page;
+        // else
+        //     return $this->error('page parameter is missing', 400);
+        
+        // $model = Order::where('driver_id',auth()->id())->select('')->orderBy('id', 'desc')->limit(5)->get();
+        $model = DB::table('yy_orders as yyo')
+            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
+            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
+            ->where('yyo.driver_id',auth()->id())
+            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', DB::raw('67.098776 as from_lng'), DB::raw('41.098776 as from_lat'), 'yyT.name as to', 'yyT.id as to_id', DB::raw('67.098776 as to_lng'), DB::raw('41.098776 as to_lat'))
+            ->get()
+            ->toArray();
+
+        return $this->success('success', 200, $model);
+    }
+
+    // public function index()
+    // {
+    //     $model = Order::orderBy('start_date', 'asc')->get();
+
+    //     $arr = [];
+    //     if (isset($model) && count($model) > 0) {
+    //         $n = 0;
+    //         foreach ($model as $key => $value) {
+    //             $arrCars = [];
+    //             if (isset($value->car)) {
+    //                 $arrCarImg = [];
+    //                 if (!empty($value->car->images)) {
+    //                     $ci = 0;
+    //                     foreach (json_decode($value->car->images) as $valueCI) {
+    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+    //                         $ci++;
+    //                     }
+    //                 }
+    //                 $arrCars['id'] = $value->car->id;
+    //                 $arrCars['car_list_name'] = $value->car->car->name;
+    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
+    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
+    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
+    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
+    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
+    //                 $arrCars['images'] = $arrCarImg;
+    //             }
+
+    //             $arr[$n]['id'] = $value->id;
+    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
+    //             $arr[$n]['price'] = (double)$value->price;
+    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+    //             $arr[$n]['from_lng'] = 69.287645;
+    //             $arr[$n]['from_lat'] = 41.339596;
+    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+    //             $arr[$n]['to_lng'] = 69.287645;
+    //             $arr[$n]['to_lat'] = 41.339596;
+    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
+    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
+    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
+    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
+    //             $arr[$n]['car_information'] = $arrCars;
+    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
+    //             $n++;
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'data' => $arr,
+    //         'status' => true,
+    //         'message' => "success"
+    //     ], 200);
+
+    //     // return $this->success(
+    //     //     'success',
+    //     //     200,
+    //     //     $arr
+    //     // );
+
+    //     // return $this->error(
+    //     //     'There are some problems',
+    //     //     400,
+    //     //     []
+    //     // );
+    // }
 }
