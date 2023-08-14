@@ -205,6 +205,8 @@ class OrderDetailsController extends Controller
         foreach ($order_details as $order_detail) {
             $personalInfo = PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
 
+            $distance = $this->getDistanceAndKm((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : ''));
+
             $data = [
                 'id' => $order_detail->id ,
                 'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
@@ -221,9 +223,9 @@ class OrderDetailsController extends Controller
                 'to_lng' => ($order_detail->to) ? $order_detail->to->lng : '',
                 'to_lat' => ($order_detail->to) ? $order_detail->to->lat : '',
 
-                'distance_km' => $this->getKm((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')),
-                'distance' => $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')),
-                'arrived_date' => date('d.m.Y H:i', strtotime($order_detail->start_date. ' +' . $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')))),
+                'distance_km' => $distance['km'],
+                'distance' => $distance['time'],
+                'arrived_date' => date('d.m.Y H:i', strtotime($order_detail->start_date. ' +' . $distance['time'])),
             ];
             
             array_push($list,$data);

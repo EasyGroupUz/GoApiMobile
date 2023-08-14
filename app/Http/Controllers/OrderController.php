@@ -214,7 +214,7 @@ class OrderController extends Controller
                 }
             }
 
-
+            $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
 
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
@@ -224,8 +224,9 @@ class OrderController extends Controller
             $arr['to'] = ($order->to) ? $order->to->name : '';
             $arr['to_lng'] = ($order->to) ? $order->to->lng : '';
             $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
-            $arr['distance'] = $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat']);
-            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat'])));
+            $arr['distance_km'] = $distance['km'];
+            $arr['distance'] = $distance['time'];
+            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $distance['time']));
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
@@ -381,6 +382,8 @@ class OrderController extends Controller
                     $arrDriverInfo['rating'] = $valDriver->rating;
                 }
 
+                $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
@@ -390,8 +393,9 @@ class OrderController extends Controller
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
                 $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
                 $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
-                $arr[$n]['distance'] = $this->getDistance($arr[$n]['from_lng'], $arr[$n]['from_lat'], $arr[$n]['to_lng'], $arr[$n]['to_lat']);
-                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($arr[$n]['start_date']. ' +' . $this->getDistance($arr[$n]['from_lng'], $arr[$n]['from_lat'], $arr[$n]['to_lng'], $arr[$n]['to_lat'])));
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($arr[$n]['start_date']. ' +' . $distance['time']));
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;

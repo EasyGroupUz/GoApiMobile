@@ -113,13 +113,16 @@ class Controller extends BaseController
 
         if ($response !== false) {
             $data = json_decode($response, true);
-            
-            return [
-                'km' => $data['rows'][0]['elements'][0]['distance']['text'],
-                'time' => $data['rows'][0]['elements'][0]['duration']['text'],
-            ];
+
+            if ($data !== null && isset($data['rows'][0]['elements'][0]['distance']['text']) && isset($data['rows'][0]['elements'][0]['duration']['text'])) {
+                return [
+                    'km' => $data['rows'][0]['elements'][0]['distance']['text'],
+                    'time' => $data['rows'][0]['elements'][0]['duration']['text'],
+                ];
+            }
+            return ['km' => 0, 'time' => 0];
         } else {
-            return [];
+            return ['km' => 0, 'time' => 0];
         }
     }
 }
