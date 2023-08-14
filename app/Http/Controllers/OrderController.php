@@ -197,7 +197,7 @@ class OrderController extends Controller
             $arr['to_lng'] = ($order->to) ? $order->to->lng : '';
             $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
             $arr['distance'] = $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat']);
-            $arr['arrived_date'] = $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat'])));
+            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $this->getDistance($arr['from_lng'], $arr['from_lat'], $arr['to_lng'], $arr['to_lat'])));
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;

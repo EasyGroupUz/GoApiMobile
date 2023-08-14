@@ -174,35 +174,56 @@ class OrderDetailsController extends Controller
         // ]);
 
 
-            $came_date=Carbon::parse($request->start_date)->format('Y-m-d');
-            $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
-            $list=[]; 
-                $order_details = DB::table('yy_order_details')
-                ->where('order_id', null)
-                ->where('from_id', $request->from_id)
-                ->where('to_id', $request->to_id)
-                ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-                ->where('start_date','>=',$came_date)
-                ->where('start_date','<',$tomorrow)
-                ->get();
-                $total_trips = DB::table('yy_order_details as dt1')
-                ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
-                ->where('dt1.client_id', auth()->id())
-                ->where('dt2.status_id', Constants::COMPLETED)
-                ->count();
+        $came_date=Carbon::parse($request->start_date)->format('Y-m-d');
+        $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
 
-                foreach ($order_details as $order_detail) {
-                    $personalInfo=PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
-                    $data=[
-                        'start_date'=>$order_detail->start_date ,
-                        'avatar'=>$personalInfo->avatar,
-                        'rating'=>4,
-                        'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                        'total_trips'=>$total_trips,
-                        'count_pleace'=>$order_detail->seats_count,
-                    ];
-                    array_push($list,$data);
-                }       
+        $list=[]; 
+        // $order_details = DB::table('yy_order_details')
+            // ->where('order_id', null)
+            // ->where('from_id', $request->from_id)
+            // ->where('to_id', $request->to_id)
+            // ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+            // ->where('start_date','>=',$came_date)
+            // ->where('start_date','<',$tomorrow)
+            // ->get();
+
+        $order_details = OrderDetail::all();
+        // return $order_details;
+            
+        $total_trips = DB::table('yy_order_details as dt1')
+            ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
+            // ->where('dt1.client_id', auth()->id())
+            // ->where('dt2.status_id', Constants::COMPLETED)
+            ->count();
+
+        foreach ($order_details as $order_detail) {
+            $personalInfo = PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
+
+            // return $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : ''));
+            $data = [
+                'id' => $order_detail->id ,
+                'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
+                'avatar' => $personalInfo->avatar,
+                'rating' => 4,
+                'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                'total_trips' => $total_trips,
+                'count_pleace' => $order_detail->seats_count,
+
+                'from' => ($order_detail->from) ? $order_detail->from->name : '',
+                'from_lng' => ($order_detail->from) ? $order_detail->from->lng : '',
+                'from_lat' => ($order_detail->from) ? $order_detail->from->lat : '',
+                'to' => ($order_detail->to) ? $order_detail->to->name : '',
+                'to_lng' => ($order_detail->to) ? $order_detail->to->lng : '',
+                'to_lat' => ($order_detail->to) ? $order_detail->to->lat : '',
+
+                'distance_km' => $this->getKm((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')),
+                'distance' => $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')),
+                'arrived_date' => date('d.m.Y H:i', strtotime($order_detail->start_date. ' +' . $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : '')))),
+            ];
+            
+            array_push($list,$data);
+        }       
+
         return response()->json([
             'data' => $list,
             'status' => true,
