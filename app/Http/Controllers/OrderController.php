@@ -326,16 +326,29 @@ class OrderController extends Controller
                     $arrDriverInfo['rating'] = $valDriver->rating;
                 }
 
+                $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
-                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                // $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                // $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
+
+                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
+                $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
+                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
+                $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
+
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($value->start_date. ' +' . $distance['time']));
 
                 $n++;
             }
