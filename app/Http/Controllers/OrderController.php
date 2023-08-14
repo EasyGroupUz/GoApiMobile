@@ -33,7 +33,7 @@ class OrderController extends Controller
         //     ->where('start_date','<',$tomorrow)
         //     ->get();
 
-        $orders = OrderDetail::
+        $orders = Order::
             where('status_id', Constants::ORDERED)
             ->where('from_id', $request->from_id)
             ->where('to_id', $request->to_id)
