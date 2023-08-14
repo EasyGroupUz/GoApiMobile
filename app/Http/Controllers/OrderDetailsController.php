@@ -187,14 +187,14 @@ class OrderDetailsController extends Controller
             // ->where('start_date','<',$tomorrow)
             // ->get();
 
-        $order_details = OrderDetail::
+        $order_details = OrderDetail::all();
             // select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-            where('order_id', null)
-            ->where('from_id', $request->from_id)
-            ->where('to_id', $request->to_id)
-            ->where('start_date','>=',$came_date)
-            ->where('start_date','<',$tomorrow)
-            ->get();
+            // where('order_id', null)
+            // ->where('from_id', $request->from_id)
+            // ->where('to_id', $request->to_id)
+            // ->where('start_date','>=',$came_date)
+            // ->where('start_date','<',$tomorrow)
+            // ->get();
             
         $total_trips = DB::table('yy_order_details as dt1')
             ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')

@@ -33,17 +33,17 @@ class OrderController extends Controller
         //     ->where('start_date','<',$tomorrow)
         //     ->get();
 
-        $orders = Order::
-            where('status_id', Constants::ORDERED)
-            ->where('from_id', $request->from_id)
-            ->where('to_id', $request->to_id)
-            ->where('start_date','>=',$date)
-            ->where('start_date','<',$tomorrow)
-            ->get();
+        $orders = Order::all();
+            // where('status_id', Constants::ORDERED)
+            // ->where('from_id', $request->from_id)
+            // ->where('to_id', $request->to_id)
+            // ->where('start_date','>=',$date)
+            // ->where('start_date','<',$tomorrow)
+            // ->get();
 
         $order_count = count($orders);
         $total_trips = Order::where('driver_id',auth()->id())
-            ->where('status_id', Constants::COMPLETED)
+            // ->where('status_id', Constants::COMPLETED)
             ->count();
 
         foreach ($orders as $order) {
