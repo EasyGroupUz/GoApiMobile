@@ -104,4 +104,22 @@ class Controller extends BaseController
             return 0;
         }
     }
+
+    public function getDistanceAndKm($fromLng, $fromLat, $toLng, $toLat)
+    {
+        $apiUrl = 'https://api.distancematrix.ai/maps/api/distancematrix/json?origins=' . $fromLng . ', ' . $fromLat . '&destinations=' . $toLng . ', ' . $toLat . '&key=7Q0lMsRgFBBSTgcFtBvQAMk3Qfe5O';
+
+        $response = file_get_contents($apiUrl);
+
+        if ($response !== false) {
+            $data = json_decode($response, true);
+            
+            return [
+                'km' => $data['rows'][0]['elements'][0]['distance']['text'],
+                'time' => $data['rows'][0]['elements'][0]['duration']['text'],
+            ];
+        } else {
+            return [];
+        }
+    }
 }

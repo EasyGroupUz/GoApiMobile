@@ -24,47 +24,75 @@ class OrderController extends Controller
         $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             
         $list=[]; 
-        $orders = DB::table('yy_orders')
-            ->where('status_id', Constants::ORDERED)
+        // $orders = DB::table('yy_orders')
+        //     ->where('status_id', Constants::ORDERED)
+        //     ->where('from_id', $request->from_id)
+        //     ->where('to_id', $request->to_id)
+        //     ->select('start_date','driver_id','price','booking_place','car_id','seats')
+        //     ->where('start_date','>=',$date)
+        //     ->where('start_date','<',$tomorrow)
+        //     ->get();
+
+        $orders = OrderDetail::
+            where('status_id', Constants::ORDERED)
             ->where('from_id', $request->from_id)
             ->where('to_id', $request->to_id)
-            ->select('start_date','driver_id','price','booking_place','car_id','seats')
             ->where('start_date','>=',$date)
             ->where('start_date','<',$tomorrow)
             ->get();
 
-        $order_count=count($orders);
-        $total_trips=Order::where('driver_id',auth()->id())
+        $order_count = count($orders);
+        $total_trips = Order::where('driver_id',auth()->id())
             ->where('status_id', Constants::COMPLETED)
             ->count();
 
         foreach ($orders as $order) {
-            $user=User::where('id',$order->driver_id)->first();
-            $personalInfo=PersonalInfo::where('id',$user->personal_info_id)->first();
+            $user = User::where('id', $order->driver_id)->first();
 
-            $car=DB::table('yy_cars as dt1')
+            $personalInfo = [];
+            if ($user)
+                $personalInfo = PersonalInfo::where('id',$user->personal_info_id)->first();
+
+            $car = DB::table('yy_cars as dt1')
                 ->join('yy_car_lists as dt2', 'dt2.id', '=', 'dt1.car_list_id')
                 ->where('dt1.id',$order->car_id)
                 ->select(DB::raw('DATE(dt1.production_date) as production_date'),'dt2.name','dt1.color_list_id as color_id')
                 ->first();
 
-            $color=table_translate($car,'color',$language);
-            $car_information=[
-                'name'=>$car->name,
-                'color'=>$color,
-                'production_date'=>$car->production_date
+            $color = '';
+            if ($car)
+                $color = table_translate($car,'color',$language);
+
+            $car_information = [
+                'name' => $car->name ?? '',
+                'color' => $color,
+                'production_date' => $car->production_date ?? ''
             ];
 
-            $data=[
-                'order_count'=>$order_count,
-                'start_date'=>$order->start_date ,
-                'avatar'=>$personalInfo->avatar,
-                'rating'=>4,
-                'price'=>$order->price,
-                'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                'count_pleace'=>$order->booking_place,
-                'seats'=>$order->seats, // obshi joylar soni
-                'car_information'=>$car_information
+            $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
+
+            $data = [
+                'id' => $order->id,
+                'order_count' => $order_count,
+                'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+                'avatar' => $personalInfo->avatar ?? '',
+                'rating' => 4,
+                'price' => $order->price,
+                'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '',
+                'count_pleace' => $order->booking_place,
+                'seats' => $order->seats, // obshi joylar soni
+                'car_information' => $car_information,
+
+                'from' => ($order->from) ? $order->from->name : '',
+                'from_lng' => ($order->from) ? $order->from->lng : '',
+                'from_lat' => ($order->from) ? $order->from->lat : '',
+                'to' => ($order->to) ? $order->to->name : '',
+                'to_lng' => ($order->to) ? $order->to->lng : '',
+                'to_lat' => ($order->to) ? $order->to->lat : '',
+
+                'distance_km' => $distance['km'],
+                'distance' => $distance['time'],
+                'arrived_date' => date('d.m.Y H:i', strtotime($order->start_date. ' +' . $distance['time'])),
             ];
 
             array_push($list,$data);
