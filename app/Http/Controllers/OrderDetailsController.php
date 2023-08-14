@@ -187,8 +187,13 @@ class OrderDetailsController extends Controller
             // ->where('start_date','<',$tomorrow)
             // ->get();
 
-        $order_details = OrderDetail::all();
-        // return $order_details;
+        $order_details = OrderDetail::->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+            ->where('order_id', null)
+            ->where('from_id', $request->from_id)
+            ->where('to_id', $request->to_id)
+            ->where('start_date','>=',$came_date)
+            ->where('start_date','<',$tomorrow)
+            ->get();
             
         $total_trips = DB::table('yy_order_details as dt1')
             ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
@@ -199,7 +204,6 @@ class OrderDetailsController extends Controller
         foreach ($order_details as $order_detail) {
             $personalInfo = PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
 
-            // return $this->getDistance((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : ''));
             $data = [
                 'id' => $order_detail->id ,
                 'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
