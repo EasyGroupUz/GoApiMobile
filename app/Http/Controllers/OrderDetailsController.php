@@ -187,8 +187,9 @@ class OrderDetailsController extends Controller
             // ->where('start_date','<',$tomorrow)
             // ->get();
 
-        $order_details = OrderDetail::select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-            ->where('order_id', null)
+        $order_details = OrderDetail::
+            // select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+            where('order_id', null)
             ->where('from_id', $request->from_id)
             ->where('to_id', $request->to_id)
             ->where('start_date','>=',$came_date)
