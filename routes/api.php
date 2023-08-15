@@ -29,6 +29,7 @@ use App\Http\Controllers\NotificationController;
 
 //
 
+Route::post('/feedback', [UserController::class, 'feedback'])->name('feedback');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
