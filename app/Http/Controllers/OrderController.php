@@ -16,73 +16,6 @@ use App\Http\Requests\OrderRequest;
 
 class OrderController extends Controller
 {
-
-    // public function index()
-    // {
-    //     $model = Order::orderBy('start_date', 'asc')->get();
-
-    //     $arr = [];
-    //     if (isset($model) && count($model) > 0) {
-    //         $n = 0;
-    //         foreach ($model as $key => $value) {
-    //             $arrCars = [];
-    //             if (isset($value->car)) {
-    //                 $arrCarImg = [];
-    //                 if (!empty($value->car->images)) {
-    //                     $ci = 0;
-    //                     foreach (json_decode($value->car->images) as $valueCI) {
-    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
-    //                         $ci++;
-    //                     }
-    //                 }
-    //                 $arrCars['id'] = $value->car->id;
-    //                 $arrCars['car_list_name'] = $value->car->car->name;
-    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
-    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
-    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
-    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
-    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
-    //                 $arrCars['images'] = $arrCarImg;
-    //             }
-
-    //             $arr[$n]['id'] = $value->id;
-    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
-    //             $arr[$n]['price'] = (double)$value->price;
-    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-    //             $arr[$n]['from_lng'] = 69.287645;
-    //             $arr[$n]['from_lat'] = 41.339596;
-    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
-    //             $arr[$n]['to_lng'] = 69.287645;
-    //             $arr[$n]['to_lat'] = 41.339596;
-    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
-    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
-    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
-    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
-    //             $arr[$n]['car_information'] = $arrCars;
-    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
-    //             $n++;
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'data' => $arr,
-    //         'status' => true,
-    //         'message' => "success"
-    //     ], 200);
-
-    //     // return $this->success(
-    //     //     'success',
-    //     //     200,
-    //     //     $arr
-    //     // );
-
-    //     // return $this->error(
-    //     //     'There are some problems',
-    //     //     400,
-    //     //     []
-    //     // );
-    // }
-
     public function searchTaxi(Request $request)
     {
         $language = $request->header('language');
@@ -91,47 +24,75 @@ class OrderController extends Controller
         $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
             
         $list=[]; 
-        $orders = DB::table('yy_orders')
-            ->where('status_id', Constants::ORDERED)
-            ->where('from_id', $request->from_id)
-            ->where('to_id', $request->to_id)
-            ->select('start_date','driver_id','price','booking_place','car_id','seats')
-            ->where('start_date','>=',$date)
-            ->where('start_date','<',$tomorrow)
-            ->get();
+        // $orders = DB::table('yy_orders')
+        //     ->where('status_id', Constants::ORDERED)
+        //     ->where('from_id', $request->from_id)
+        //     ->where('to_id', $request->to_id)
+        //     ->select('start_date','driver_id','price','booking_place','car_id','seats')
+        //     ->where('start_date','>=',$date)
+        //     ->where('start_date','<',$tomorrow)
+        //     ->get();
 
-        $order_count=count($orders);
-        $total_trips=Order::where('driver_id',auth()->id())
-            ->where('status_id', Constants::COMPLETED)
+        $orders = Order::all();
+            // where('status_id', Constants::ORDERED)
+            // ->where('from_id', $request->from_id)
+            // ->where('to_id', $request->to_id)
+            // ->where('start_date','>=',$date)
+            // ->where('start_date','<',$tomorrow)
+            // ->get();
+
+        $order_count = count($orders);
+        $total_trips = Order::where('driver_id',auth()->id())
+            // ->where('status_id', Constants::COMPLETED)
             ->count();
 
         foreach ($orders as $order) {
-            $user=User::where('id',$order->driver_id)->first();
-            $personalInfo=PersonalInfo::where('id',$user->personal_info_id)->first();
+            $user = User::where('id', $order->driver_id)->first();
 
-            $car=DB::table('yy_cars as dt1')
+            $personalInfo = [];
+            if ($user)
+                $personalInfo = PersonalInfo::where('id',$user->personal_info_id)->first();
+
+            $car = DB::table('yy_cars as dt1')
                 ->join('yy_car_lists as dt2', 'dt2.id', '=', 'dt1.car_list_id')
                 ->where('dt1.id',$order->car_id)
                 ->select(DB::raw('DATE(dt1.production_date) as production_date'),'dt2.name','dt1.color_list_id as color_id')
                 ->first();
 
-            $color=table_translate($car,'color',$language);
-            $car_information=[
-                'name'=>$car->name,
-                'color'=>$color,
-                'production_date'=>$car->production_date
+            $color = '';
+            if ($car)
+                $color = table_translate($car,'color',$language);
+
+            $car_information = [
+                'name' => $car->name ?? '',
+                'color' => $color,
+                'production_date' => $car->production_date ?? ''
             ];
 
-            $data=[
-                'order_count'=>$order_count,
-                'start_date'=>$order->start_date ,
-                'avatar'=>$personalInfo->avatar,
-                'rating'=>4,
-                'price'=>$order->price,
-                'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                'count_pleace'=>$order->booking_place,
-                'seats'=>$order->seats, // obshi joylar soni
-                'car_information'=>$car_information
+            $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
+
+            $data = [
+                'id' => $order->id,
+                'order_count' => $order_count,
+                'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+                'avatar' => $personalInfo->avatar ?? '',
+                'rating' => 4,
+                'price' => $order->price,
+                'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '',
+                'count_pleace' => $order->booking_place,
+                'seats' => $order->seats, // obshi joylar soni
+                'car_information' => $car_information,
+
+                'from' => ($order->from) ? $order->from->name : '',
+                'from_lng' => ($order->from) ? $order->from->lng : '',
+                'from_lat' => ($order->from) ? $order->from->lat : '',
+                'to' => ($order->to) ? $order->to->name : '',
+                'to_lng' => ($order->to) ? $order->to->lng : '',
+                'to_lat' => ($order->to) ? $order->to->lat : '',
+
+                'distance_km' => $distance['km'],
+                'distance' => $distance['time'],
+                'arrived_date' => date('d.m.Y H:i', strtotime($order->start_date. ' +' . $distance['time'])),
             ];
 
             array_push($list,$data);
@@ -253,14 +214,19 @@ class OrderController extends Controller
                 }
             }
 
+            $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
+
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['from'] = ($order->from) ? $order->from->name : '';
-            $arr['from_lng'] = 69.287645;
-            $arr['from_lat'] = 41.339596;
+            $arr['from_lng'] = ($order->from) ? $order->from->lng : '';
+            $arr['from_lat'] = ($order->from) ? $order->from->lat : '';
             $arr['to'] = ($order->to) ? $order->to->name : '';
-            $arr['to_lng'] = 69.287645;
-            $arr['to_lat'] = 41.339596;
+            $arr['to_lng'] = ($order->to) ? $order->to->lng : '';
+            $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
+            $arr['distance_km'] = $distance['km'];
+            $arr['distance'] = $distance['time'];
+            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $distance['time']));
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
@@ -360,16 +326,29 @@ class OrderController extends Controller
                     $arrDriverInfo['rating'] = $valDriver->rating;
                 }
 
+                $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
-                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                // $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                // $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
+
+                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
+                $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
+                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
+                $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
+
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($value->start_date. ' +' . $distance['time']));
 
                 $n++;
             }
@@ -388,7 +367,8 @@ class OrderController extends Controller
 
     public function expired()
     {
-        $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
+        // $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
+        $model = Order::orderBy('start_date', 'asc')->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -415,15 +395,20 @@ class OrderController extends Controller
                     $arrDriverInfo['rating'] = $valDriver->rating;
                 }
 
+                $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-                $arr[$n]['from_lng'] = 69.287645;
-                $arr[$n]['from_lat'] = 41.339596;
+                $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
+                $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
-                $arr[$n]['to_lng'] = 69.287645;
-                $arr[$n]['to_lat'] = 41.339596;
+                $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
+                $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($arr[$n]['start_date']. ' +' . $distance['time']));
                 $arr[$n]['seats_count'] = $value->seats;
                 // $arr[$n]['booking_count'] = $value->/*seats*/;
                 $arr[$n]['driver_information'] = $arrDriverInfo;
@@ -493,4 +478,91 @@ class OrderController extends Controller
             return $this->success('Options table is empty', 204);
         }
     }
+
+    public function searchHistory()
+    {
+        // if ($request->page)
+        //     $page = $request->page;
+        // else
+        //     return $this->error('page parameter is missing', 400);
+        
+        // $model = Order::where('driver_id',auth()->id())->select('')->orderBy('id', 'desc')->limit(5)->get();
+        $model = DB::table('yy_orders as yyo')
+            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
+            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
+            ->where('yyo.driver_id', auth()->id())
+            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
+            ->orderBy('id', 'desc')
+            ->limit(5)
+            ->get()
+            ->toArray();
+
+        return $this->success('success', 200, $model);
+    }
+
+    // public function index()
+    // {
+    //     $model = Order::orderBy('start_date', 'asc')->get();
+
+    //     $arr = [];
+    //     if (isset($model) && count($model) > 0) {
+    //         $n = 0;
+    //         foreach ($model as $key => $value) {
+    //             $arrCars = [];
+    //             if (isset($value->car)) {
+    //                 $arrCarImg = [];
+    //                 if (!empty($value->car->images)) {
+    //                     $ci = 0;
+    //                     foreach (json_decode($value->car->images) as $valueCI) {
+    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+    //                         $ci++;
+    //                     }
+    //                 }
+    //                 $arrCars['id'] = $value->car->id;
+    //                 $arrCars['car_list_name'] = $value->car->car->name;
+    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
+    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
+    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
+    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
+    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
+    //                 $arrCars['images'] = $arrCarImg;
+    //             }
+
+    //             $arr[$n]['id'] = $value->id;
+    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
+    //             $arr[$n]['price'] = (double)$value->price;
+    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+    //             $arr[$n]['from_lng'] = 69.287645;
+    //             $arr[$n]['from_lat'] = 41.339596;
+    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+    //             $arr[$n]['to_lng'] = 69.287645;
+    //             $arr[$n]['to_lat'] = 41.339596;
+    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
+    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
+    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
+    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
+    //             $arr[$n]['car_information'] = $arrCars;
+    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
+    //             $n++;
+    //         }
+    //     }
+
+    //     return response()->json([
+    //         'data' => $arr,
+    //         'status' => true,
+    //         'message' => "success"
+    //     ], 200);
+
+    //     // return $this->success(
+    //     //     'success',
+    //     //     200,
+    //     //     $arr
+    //     // );
+
+    //     // return $this->error(
+    //     //     'There are some problems',
+    //     //     400,
+    //     //     []
+    //     // );
+    // }
 }
