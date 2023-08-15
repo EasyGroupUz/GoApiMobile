@@ -145,7 +145,7 @@ class CommentScoreController extends Controller
             $last_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->last_name[0].'. '):'';
             $middle_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->middle_name[0].'.'):'';
             $personal_info = [
-                'img'=>$comment->driver->personalInfo?asset('avatar/'.$comment->driver->personalInfo->avatar):'',
+                'img'=>$comment->driver->personalInfo?asset('storage/avatar/'.$comment->driver->personalInfo->avatar):'',
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
@@ -153,7 +153,7 @@ class CommentScoreController extends Controller
             foreach ($getComments as $getComment){
                 $date = explode(" ", $getComment->date);
                 $comments_list[] = [
-                    "img" => $getComment->driver->personalInfo?asset('avatar/'.$getComment->driver->personalInfo->avatar):'',
+                    "img" => $getComment->driver->personalInfo?asset('storage/avatar/'.$getComment->driver->personalInfo->avatar):'',
                     "full_name" => $first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                     "date" => $date[0],
                     "rating" => $getComment->score,
@@ -183,7 +183,7 @@ class CommentScoreController extends Controller
                 $middle_name = '';
             }
             $personal_info = [
-                'img'=>$driver->user->personalInfo?asset('avatar/'.$driver->user->personalInfo->avatar):'',
+                'img'=>$driver->user->personalInfo?asset('storage/avatar/'.$driver->user->personalInfo->avatar):'',
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'rating'=>'no score',
                 'comment_count'=> 0
