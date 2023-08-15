@@ -189,7 +189,7 @@ class CommentScoreController extends Controller
                 'comment_count'=> 0
             ];
             return $this->success(translate_api('No comment', $language), 400, [
-                'personal_info'=>$personal_info,``
+                'personal_info'=>$personal_info,
                 'ratings_list'=> 0,
                 'comments_list'=> 0,
             ]);
