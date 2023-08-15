@@ -167,9 +167,21 @@ class CommentScoreController extends Controller
             ]);
         }else{
             $driver = Driver::where('user_id', $request->driver_id)->first();
-            $first_name = $driver->user->personalInfo?$driver->user->personalInfo->first_name.' ':'';
-            $last_name = $driver->user->personalInfo?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
-            $middle_name = $driver->user->personalInfo?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
+            if(isset($driver->user->personalInfo)){
+                $first_name = $driver->user->personalInfo->first_name?$driver->user->personalInfo->first_name.' ':'';
+            }else{
+                $first_name = '';
+            }
+            if(isset($driver->user->personalInfo)){
+                $last_name = $driver->user->personalInfo->last_name?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
+            }else{
+                $last_name = '';
+            }
+            if(isset($driver->user->personalInfo)){
+                $middle_name = $driver->user->personalInfo->middle_name?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
+            }else{
+                $middle_name = '';
+            }
             $personal_info = [
                 'img'=>$driver->user->personalInfo?$driver->user->personalInfo->avatar:'',
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
