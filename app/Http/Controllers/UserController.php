@@ -225,15 +225,15 @@ class UserController extends Controller
         if (!isset($request['name']) || $request['name'] == '')
             return $this->error('name parameter is missing', 400);
 
-        if (!isset($request['phoneNumber']) || $request['phoneNumber'] == '')
-            return $this->error('phoneNumber parameter is missing', 400);
+        if (!isset($request['phone']) || $request['phone'] == '')
+            return $this->error('phone parameter is missing', 400);
 
         if (!isset($request['message']) || $request['message'] == '')
             return $this->error('message parameter is missing', 400);
 
         $newPersonalInfo = new PersonalInfo();
         $newPersonalInfo->last_name = $request['name'];
-        $newPersonalInfo->phone_number = $request['phoneNumber'];
+        $newPersonalInfo->phone_number = $request['phone'];
         if (!$newPersonalInfo->save())
             return $this->error('PersonalInfo is not saved', 400);
 
