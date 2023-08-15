@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CommentScore;
 use App\Models\Order;
+use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -61,6 +62,7 @@ class CommentScoreController extends Controller
      */
     public function commentCreate(Request $request)
     {
+        $language = $request->header('language');
         $user = Auth::user();
         $comment = new CommentScore();
         $comment->client_id = $request->client_id;
@@ -76,26 +78,14 @@ class CommentScoreController extends Controller
             $comment->to_whom = $request->client_id;
             $comment->type = 0;
         }else{
-            $response = [
-                'status'=>false,
-                'message'=> translate('Client or driver not exist')
-            ];
-            return response()->json($response);
+            return $this->error(translate_api('Client or driver not exist', $language), 400);
         }
         $order = Order::find($request->order_id);
         if(!isset($order)){
-            $response = [
-                'status'=>false,
-                'message'=> translate('Order is not exist')
-            ];
-            return response()->json($response);
+            return $this->error(translate_api('Order is not exist', $language), 400);
         }
         $comment->save();
-        $response = [
-            'status'=>true,
-            'message'=>'Success'
-        ];
-        return response()->json($response);
+        return $this->success(translate_api('Success', $language), 400);
     }
     /**
      * @OA\Get(
@@ -127,6 +117,7 @@ class CommentScoreController extends Controller
      */
     public function getComments(Request $request)
     {
+        $language = $request->header('language');
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
@@ -169,21 +160,27 @@ class CommentScoreController extends Controller
                     "comment" => $getComment->text
                 ];
             }
-            $status = true;
-            $message = 'Success';
-        }else{
-            $status = false;
-            $message = 'No comment';
-        }
-        $response = [
-            'data'=>[
+            return $this->success(translate_api('Success', $language), 400, [
                 'personal_info'=>$personal_info,
                 'ratings_list'=>$ratings_list,
                 'comments_list'=>$comments_list,
-            ],
-            'status'=>$status,
-            'message'=>$message,
-        ];
-        return response()->json($response);
+            ]);
+        }else{
+            $driver = Driver::where('user_id', $request->driver_id)->first();
+            $first_name = $driver->user->personalInfo?$driver->user->personalInfo->first_name.' ':'';
+            $last_name = $driver->user->personalInfo?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
+            $middle_name = $driver->user->personalInfo?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
+            $personal_info = [
+                'img'=>$driver->user->personalInfo?$driver->user->personalInfo->avatar:'',
+                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                'rating'=>'no score',
+                'comment_count'=> 0
+            ];
+            return $this->success(translate_api('No comment', $language), 400, [
+                'personal_info'=>$personal_info,
+                'ratings_list'=> 0,
+                'comments_list'=> 0,
+            ]);
+        }
     }
 }

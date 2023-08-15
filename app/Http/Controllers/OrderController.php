@@ -472,9 +472,11 @@ class OrderController extends Controller
             return $this->success('success', 200);
     }
 
-    public function getOptions()
+    public function getOptions(Request $request)
     {
-        $options = Options::select('id', 'name', 'icon')->get();
+        $language = $request->header('language');
+        $options = table_translate('', 'option', $language);
+//        $options = Options::select('id', 'name', 'icon')->get();
 
         $data = [];
         if (isset($options) && count($options) > 0) {
