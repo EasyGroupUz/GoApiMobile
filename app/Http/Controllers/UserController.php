@@ -222,18 +222,18 @@ class UserController extends Controller
 
     public function feedback(Request $request)
     {
-        if (!isset($request['full_name']) || $request['full_name'] == '')
-            return $this->error('full_name parameter is missing', 400);
+        if (!isset($request['name']) || $request['name'] == '')
+            return $this->error('name parameter is missing', 400);
 
-        if (!isset($request['phone_number']) || $request['phone_number'] == '')
-            return $this->error('phone_number parameter is missing', 400);
+        if (!isset($request['phoneNumber']) || $request['phoneNumber'] == '')
+            return $this->error('phoneNumber parameter is missing', 400);
 
         if (!isset($request['text']) || $request['text'] == '')
             return $this->error('text parameter is missing', 400);
 
         $newPersonalInfo = new PersonalInfo();
-        $newPersonalInfo->last_name = $request['full_name'];
-        $newPersonalInfo->phone_number = $request['phone_number'];
+        $newPersonalInfo->last_name = $request['name'];
+        $newPersonalInfo->phone_number = $request['phoneNumber'];
         if (!$newPersonalInfo->save())
             return $this->error('PersonalInfo is not saved', 400);
 
@@ -241,7 +241,7 @@ class UserController extends Controller
         $newUser->about_me = $request['text'];
         $newUser->personal_info_id = $newPersonalInfo->id;
         $newUser->balance = 0;
-        $newUser->personal_account = 0;
+        $newUser->personal_account = rand(100000, 999999);
         $newUser->rating = 4.5;
         if (!$newUser->save())
             return $this->error('User is not saved', 400);
