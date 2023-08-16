@@ -39,6 +39,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
+        Route::post('/edit', [OrderDetailsController::class, 'edit']);
+        Route::post('/delete', [OrderDetailsController::class, 'delete']);
         Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
@@ -69,6 +71,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/index', [OrderController::class, 'index']);
         Route::get('/show', [OrderController::class, 'show']);
         Route::post('/create', [OrderController::class, 'create']);
+        Route::post('/edit', [OrderController::class, 'edit']);
+        Route::post('/delete', [OrderController::class, 'delete']);
         Route::get('/expired', [OrderController::class, 'expired']);
         Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
