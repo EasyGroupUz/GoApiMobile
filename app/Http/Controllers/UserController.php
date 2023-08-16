@@ -38,7 +38,8 @@ class UserController extends Controller
      *     }
      * )
      */
-    public function show(){
+    public function show(Request $request){
+        $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->device_type) && isset($model->device_id)){
             $device_types = json_decode($model->device_type);
@@ -69,21 +70,10 @@ class UserController extends Controller
                 'phone_number'=>$model->personalInfo->phone_number,
                 'rating'=>$model->rating,
             ];
-            $response = [
-                'data'=>$list,
-                'status'=>true,
-                'message'=>'success'
-            ];
+            return $this->success('Success', 201, $list);
         }else{
-            $response = [
-                'data'=>[
-                    'device'=>$device??[]
-                ],
-                'status'=>false,
-                'message'=>'No personal info'
-            ];
+            return $this->error(translate_api('No personal info', $language), 201, $device??null);
         }
-        return response()->json($response);
     }
     /**
      * @OA\Post(
@@ -145,11 +135,29 @@ class UserController extends Controller
      * )
      */
     public function update(Request $request){
+        $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo->id)){
             $personal_info = $model->personalInfo;
         }else{
             $personal_info = new PersonalInfo();
+        }if(!isset($request->first_name)){
+            return $this->error(translate_api('first name is not entered', $language), 400);
+        }
+        if(!isset($request->last_name)){
+            return $this->error(translate_api('last name is not entered', $language), 400);
+        }
+        if(!isset($request->middle_name)){
+            return $this->error(translate_api('middle name is not entered', $language), 400);
+        }
+        if(!isset($request->birth_date)){
+            return $this->error(translate_api('birth date is not entered', $language), 400);
+        }
+        if(!isset($request->gender)){
+            return $this->error(translate_api('gender is not entered', $language), 400);
+        }
+        if(!isset($request->email)){
+            return $this->error(translate_api('email is not entered', $language), 400);
         }
         $personal_info->first_name = $request->first_name;
         $personal_info->last_name = $request->last_name;
@@ -173,11 +181,7 @@ class UserController extends Controller
             $personal_info->avatar = $image_name;
         }
         $personal_info->save();
-        $response = [
-            'status'=>true,
-            'message'=>'success'
-        ];
-        return response()->json($response);
+        return $this->success(translate_api('Success', $language), 201);
     }
     /**
      * @OA\Post(
@@ -203,7 +207,8 @@ class UserController extends Controller
      *     }
      * )
      */
-    public function delete(){
+    public function delete(Request $request){
+        $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo)){
             $model->personalInfo->delete();
@@ -213,11 +218,7 @@ class UserController extends Controller
             $user_verify->delete();
         }
         $model->delete();
-        $response = [
-            'status'=>true,
-            'message'=>'success'
-        ];
-        return response()->json($response);
+        return $this->success('Success', 201);
     }
 
     public function feedback(Request $request)

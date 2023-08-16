@@ -2,6 +2,7 @@
 
 use App\Models\Translation;
 use App\Models\Language;
+use App\Models\Options;
 use App\Models\ClassList;
 use App\Models\ColorList;
 // use Modules\ForTheBuilder\Entities\Language;
@@ -132,6 +133,19 @@ if (!function_exists('table_translate')) {
                     $color_lists[$key]['id'] = $color_list['id'];
                 }
                 return $color_lists;
+                break;
+            case 'option':
+                $option_lists = Options::select('id', 'name', 'icon')->get();
+                foreach ($option_lists as $key => $option_list){
+                    $color_list_translate = DB::table('yy_options as Option')
+                        ->leftJoin('yy_option_translations as OptionT', 'Option.id', '=', 'OptionT.option_id')
+                        ->where('Option.id', $option_list['id'])
+                        ->where('OptionT.lang', $lang)
+                        ->select('Option.id as id', 'OptionT.name as name')->first();
+                    $option_lists[$key]->name = $color_list_translate->name??$option_list->name;
+                    $option_lists[$key]->id = $color_list_translate->id;
+                }
+                return $option_lists;
                 break;
             default:
                 # code...

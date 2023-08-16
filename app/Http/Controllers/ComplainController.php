@@ -44,6 +44,7 @@ class ComplainController extends Controller
     
     public function storeReason(ComplainRequest $request)
     {
+        $language = $request->header('language');
         $reasons_id = $request->reasons_id;
         foreach ($reasons_id as $reason_id){
             $complainReason = ComplainReason::find($reason_id);
@@ -53,46 +54,34 @@ class ComplainController extends Controller
         }
         $order_detail = OrderDetail::find($request->order_detail_id);
         if(!isset($order_detail)){
-            return response()->json([
-                "status" => false,
-                "message" => "Order detail not found"
-            ]);
+            return $this->error(translate_api("Order detail not found", $language), 400);
         }
         $order = Order::find($request->order_id);
         if(!isset($order)){
-            return response()->json([
-                "status" => false,
-                "message" => "Order not found"
-            ]);
+            return $this->error(translate_api("Order not found", $language), 400);
         }
         $complain = new Complain();
         $complain->complain_reason = json_encode($reason);
+        if(!isset($request->text)){
+            return $this->error('text is not entered', 400);
+        }
+        if(!isset($request->type)){
+            return $this->error('type is not entered', 400);
+        }
         $complain->text = $request->text;
-        $complain->order_detail_id = $request->order_detail_id;
-        $complain->order_id = $request->order_id;
         $complain->type = $request->type;
         $complain->save();
-        $response = [
-            "status" => true,
-            "message" => "success"
-        ];
-        return response()->json($response);
+        return $this->error(translate_api("success", $language), 200);
     }
 
     public function destroy(Request $request){
+        $language = $request->header('language');
         $model = Complain::find($request->id);
         if(isset($model->id)){
             $model->delete();
-            $status = true;
-            $message = "Success";
+            return $this->success(translate_api("Success", $language), 200);
         }else{
-            $status = false;
-            $message = "Complain not found";
+            return $this->error(translate_api("Complain not found", $language), 400);
         }
-        $response = [
-          'status'=>$status,
-          'message'=>$message
-        ];
-        return response()->json($response);
     }
 }

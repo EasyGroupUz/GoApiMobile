@@ -48,6 +48,7 @@ class AuthController extends Controller
      * )
      */
     public function Login(Request $request){
+        $language = $request->header('language');
         $fields = $request->validate([
             'phone'=>'required|string'
         ]);
@@ -59,11 +60,7 @@ class AuthController extends Controller
             $user_verify = new UserVerify();
             $user_verify->phone_number = (int)$request->phone;
             $user_verify->status_id = 1;
-            $message = 'Success. Phone number registered';
-        }else{
-            $message = 'Success';
         }
-        $status = true;
         $token_options = [
             'multipart' => [
                 [
@@ -107,7 +104,7 @@ class AuthController extends Controller
                 ],
                 [
                     'name' => 'message',
-                    'contents' => "GoEasy - Sizni bir martalik tasdiqlash kodingiz: $random"
+                    'contents' => translate_api('GoEasy - Sizni bir martalik tasdiqlash kodingiz', $language).': '.$random
                 ],
                 [
                     'name' => 'from',
@@ -120,13 +117,11 @@ class AuthController extends Controller
         $result = $res->getBody();
         $result = json_decode($result);
         if(isset($result)){
-            $message = "Success";
             $user_verify->verify_code = $random;
             $user_verify->save();
-            return $this->success($message, 200, ['Verify_code'=>$random]);
+            return $this->success("Success", 200, ['Verify_code'=>$random]);
         }else{
-            $message = translate("Fail message not sent. Try again");
-            return $this->error($message, 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Fail message not sent. Try again", $language), 400, ['Verify_code'=>$random]);
         }
     }
 
@@ -172,6 +167,7 @@ class AuthController extends Controller
      * )
      */
     public function loginToken(Request $request){
+        $language = $request->header('language');
         $fields = $request->validate([
              'phone_number'=>'required',
              'verify_code'=>'required',
@@ -262,12 +258,12 @@ class AuthController extends Controller
             }else{
                 $message = 'Failed your token didn\'t match';
                 $token = 'no token';
-                return $this->error($message, 400, ['token'=>$token]);
+                return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
             }
         }else{
             $message = 'Failed your token didn\'t match';
             $token = 'no token';
-            return $this->error($message, 400, ['token'=>$token]);
+            return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
         }
     }
 
@@ -308,6 +304,7 @@ class AuthController extends Controller
      */
 
     public function Set_name_surname(Request $request) {
+        $language = $request->header('language');
         $auth_user = Auth::user();
         if(!isset($auth_user->personalInfo)){
             $personal_info = new PersonalInfo();

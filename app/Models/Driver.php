@@ -28,10 +28,9 @@ class Driver extends Model
         'status_id',
         'balance'
     ];
-
-    public function personalInfo(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(PersonalInfo::class);
+        return $this->belongsTo(User::class);
     }
 
     public function status(): BelongsTo
