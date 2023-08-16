@@ -122,9 +122,9 @@ class Controller extends BaseController
                         'duration_value' => $dataElements['duration']['value']
                     ];
                 }
-                return ['new' => true, 'km' => 0, 'distance_value' => 0, 'time' => 0, 'duration_value' => 0];
+                return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
             } else {
-                return ['new' => true, 'km' => 0, 'distance_value' => 0, 'time' => 0, 'duration_value' => 0];
+                return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
             }
         }
 
