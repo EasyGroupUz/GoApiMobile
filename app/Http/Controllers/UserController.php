@@ -64,6 +64,9 @@ class UserController extends Controller
             $list = [
                 'device'=>$device??[],
                 'img'=>$model->personalInfo->avatar,
+                'first_name'=>$model->personalInfo->first_name,
+                'last_name'=>$model->personalInfo->last_name,
+                'middle_name'=>$model->personalInfo->middle_name,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
                 'gender'=>$model->personalInfo->gender,
@@ -144,9 +147,9 @@ class UserController extends Controller
         }if(!isset($request->first_name)){
             return $this->error(translate_api('first name is not entered', $language), 400);
         }
-        if(!isset($request->last_name)){
-            return $this->error(translate_api('last name is not entered', $language), 400);
-        }
+//        if(!isset($request->last_name)){
+//            return $this->error(translate_api('last name is not entered', $language), 400);
+//        }
         if(!isset($request->birth_date)){
             return $this->error(translate_api('birth date is not entered', $language), 400);
         }
