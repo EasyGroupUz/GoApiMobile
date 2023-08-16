@@ -165,6 +165,161 @@ class OrderDetailsController extends Controller
         }
     }
 
+    public function edit(Request $request)
+    {
+        if (!isset($request->id))
+            return $this->error('id parameter is missing', 400);
+
+        $id = $request->id;
+        $model = OrderDetail::find($id);
+        if (!isset($model))
+            return $this->error('id parameter is not correct. OrderDetail not found', 400);
+
+        $model->seats_type = $request->seats_type;
+        $model->seats_count = $request->seats_count;
+        $model->comment = $request->comment;
+        $model->price = $request->price;
+        $model->save();
+
+        return $this->success('success', 200);
+        
+        //    dd($request);
+        // $language=$request->header('language');
+        // dd($language);
+
+        // $order_detail= OrderDetail::create([
+        //     'client_id'=>auth()->id(),
+        //     'status_id'=>Constants::ACTIVE,
+        //     'from_id'=>$request['from_id'],
+        //     'to_id'=>$request['to_id'],
+        //     'seats_type'=>$request['seats_type'],
+        //     'seats_count'=>$request['seats_count'],
+        //     'start_date'=>date('Y-m-d', strtotime($request['date']))
+        // ]);
+        // // dd($order_detail);
+
+        // $timezone = 'Asia/Tashkent';
+        // $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
+        // $date = Carbon::now($timezone)->format('Y-m-d');
+        // // $date=Carbon::parse($request->date)->format('Y-m-d');
+        // $three_day_after=Carbon::parse($date)->addDays(3)->format('Y-m-d');
+        
+        // $came_date=date('Y-m-d', strtotime($request['date']));
+        // $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
+        // $came_date_time=date('Y-m-d H:i:s', strtotime($request['date']));
+        // $startDate=Carbon::parse($came_date)->subDays(3)->format('Y-m-d');
+        // $endDate=Carbon::parse($came_date)->addDays(3)->format('Y-m-d');
+
+        // if ($came_date < $three_day_after) {
+        //     $startDate=$date;
+        //     $endDate=Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
+        // }
+        
+       
+        // if ( $came_date >= $date) {
+
+
+        //     $from_to_name=table_translate($order_detail,'city',$language);
+
+
+        //     $order_detail = [
+        //         'seats_count'=>$order_detail->seats_count,
+        //         'start_date'=>$order_detail->start_date,
+        //         'from_id'=>$order_detail->from_id,
+        //         'to_id'=>$order_detail->to_id,
+        //         'from_name'=>$from_to_name['from_name'],
+        //         'to_name'=>$from_to_name['to_name'],
+        //         'long'=>null,
+        //         'lat'=>null
+        //     ];
+
+        //     if ($order_information = DB::table('yy_orders')
+        //         ->where('status_id', Constants::ORDERED)
+        //         ->where('from_id', $request['from_id'])
+        //         ->where('to_id', $request['to_id'])
+        //         ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+        //         ->where('start_date','>=',$came_date)
+        //         ->where('start_date','<',$tomorrow)
+        //         ->where('status_id', Constants::ORDERED)
+        //         ->get() == []) {
+        //         //   dd('fsef');
+        //             $list=[]; 
+
+        //             $total_trips=DB::table('yy_orders')->where('driver_id',auth()->id())
+        //                 ->where('status_id', Constants::COMPLETED)
+        //                 ->count();
+        
+        //             foreach ($order_information as $order) {
+
+        //                 $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+        //                 $data=[
+        //                     'start_date'=>$order->start_date ,
+        //                     'avatar'=>$personalInfo->avatar,
+        //                     'rating'=>4,
+        //                     'price'=>$order->price,
+        //                     'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+        //                     'total_trips'=>$total_trips,
+        //                     'count_pleace'=>$order->booking_place,
+        //                 ];
+        //                 array_push($list,$data);
+        //             }
+                                    
+        //     } else {
+        //         $order_dates = DB::table('yy_orders')
+        //         ->where('status_id', Constants::ORDERED)
+        //         ->where('from_id', $request['from_id'])
+        //         ->where('to_id', $request['to_id'])
+        //         ->where('start_date', '>=', $date)
+        //         ->select(DB::raw('DATE(start_date) as start_date'))
+        //         ->whereBetween('start_date', [$startDate, $endDate])
+        //         ->orderBy('start_date', 'asc')
+        //         ->distinct()
+        //         ->take(5)
+        //         ->get();
+
+        //         $list=[];
+        //         foreach ($order_dates as $key => $value) {
+        //             $list[$key]=$value->start_date;
+        //         }
+               
+
+        //     }
+        //     $message=translate_api('success',$language);
+        //     return response()->json([
+        //         'data' => $list,
+        //         'order_detail'=>$order_detail,
+        //         'status' => true,
+        //         'message' => $message,
+        //     ], 200);
+        // }
+        // else {
+        //     $message=translate_api('Sorry, you must enter a date greater than or equal to today',$language);
+
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => $message,
+        //         // 'orders' => $orders,
+
+        //     ], 500);
+        // }
+    }
+
+    public function delete(Request $request)
+    {
+        if (!isset($request->id))
+            return $this->error('id parameter is missing', 400);
+
+        $id = $request->id;
+
+        $orderDetail = OrderDetail::find($id);
+        if (!isset($orderDetail))
+            return $this->error('id parameter is not correct. OrderDetail not found', 400);
+
+        $orderDetail->delete();
+
+        return $this->success('success', 200);
+    }
+
     public function searchClients(Request $request)
     {
         // $request = $request->validate([
@@ -252,10 +407,10 @@ class OrderDetailsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(OrderDetails $orderDetails)
-    {
-        //
-    }
+    // public function edit(OrderDetails $orderDetails)
+    // {
+    //     //
+    // }
 
     /**
      * Update the specified resource in storage.

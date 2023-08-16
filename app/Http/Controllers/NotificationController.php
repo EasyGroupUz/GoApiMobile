@@ -12,11 +12,16 @@ class NotificationController extends Controller
     {
         $model = Notification::select('id', 'title', 'text', 'date')->whereNull('read_at')->get()->toArray();
 
+        $arr = [];
         if (isset($model) && count($model) > 0) {
-            foreach ($model as $value) 
-                $value['date'] = date('d.m.Y H:i', strtotime($value['date']));
+            foreach ($model as $value) {
+                $arr['id'] = $value['id'];
+                $arr['title'] = $value['title'];
+                $arr['text'] = $value['text'];
+                $arr['date'] = date('d.m.Y H:i', strtotime($value['date']));
+            }
 
-            return $this->success('success', 200, (array)$model);
+            return $this->success('success', 200, $arr);
         } else {
             return $this->success('Notification not found', 204);
         }

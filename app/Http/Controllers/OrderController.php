@@ -275,6 +275,43 @@ class OrderController extends Controller
         return $this->success('success', 200);
     }
 
+    public function edit(Request $request)
+    {
+        if (!isset($request->id))
+            return $this->error('id parameter is missing', 400);
+
+        $id = $request->id;
+
+        $order = Order::find($id);
+        if (!isset($order))
+            return $this->error('id parameter is not correct. Order not found', 400);
+
+        $order->car_id = $request->car_id;
+        $order->seats = $request->seats;
+        $order->options = $request->options;
+        $order->price = $request->price;
+        $order->price_type = $request->price_type;
+        $order->save();
+
+        return $this->success('success', 200);
+    }
+
+    public function delete(Request $request)
+    {
+        if (!isset($request->id))
+            return $this->error('id parameter is missing', 400);
+
+        $id = $request->id;
+
+        $order = Order::find($id);
+        if (!isset($order))
+            return $this->error('id parameter is not correct. Order not found', 400);
+
+        $order->delete();
+
+        return $this->success('success', 200);
+    }
+
     public function history(Request $request)
     {
         // if (!$this->validateByToken($request))
