@@ -147,9 +147,6 @@ class UserController extends Controller
         if(!isset($request->last_name)){
             return $this->error(translate_api('last name is not entered', $language), 400);
         }
-        if(!isset($request->middle_name)){
-            return $this->error(translate_api('middle name is not entered', $language), 400);
-        }
         if(!isset($request->birth_date)){
             return $this->error(translate_api('birth date is not entered', $language), 400);
         }
