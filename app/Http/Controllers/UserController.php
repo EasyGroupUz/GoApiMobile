@@ -64,6 +64,9 @@ class UserController extends Controller
             $list = [
                 'device'=>$device??[],
                 'img'=>$model->personalInfo->avatar,
+                'first_name'=>$model->personalInfo->first_name,
+                'last_name'=>$model->personalInfo->last_name,
+                'middle_name'=>$model->personalInfo->middle_name,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
                 'gender'=>$model->personalInfo->gender,
@@ -141,27 +144,26 @@ class UserController extends Controller
             $personal_info = $model->personalInfo;
         }else{
             $personal_info = new PersonalInfo();
-        }if(!isset($request->first_name)){
-            return $this->error(translate_api('first name is not entered', $language), 400);
         }
-        if(!isset($request->last_name)){
-            return $this->error(translate_api('last name is not entered', $language), 400);
+        if(isset($request->first_name)){
+            $personal_info->first_name = $request->first_name;
         }
-        if(!isset($request->birth_date)){
-            return $this->error(translate_api('birth date is not entered', $language), 400);
+        if(isset($request->last_name)){
+            $personal_info->last_name = $request->last_name;
         }
-        if(!isset($request->gender)){
-            return $this->error(translate_api('gender is not entered', $language), 400);
+        if(isset($request->middle_name)){
+            $personal_info->middle_name = $request->middle_name;
         }
-        if(!isset($request->email)){
-            return $this->error(translate_api('email is not entered', $language), 400);
+        if(isset($request->birth_date)){
+            $personal_info->birth_date = $request->birth_date;
         }
-        $personal_info->first_name = $request->first_name;
-        $personal_info->last_name = $request->last_name;
-        $personal_info->middle_name = $request->middle_name;
-        $personal_info->birth_date = $request->birth_date;
-        $personal_info->gender = $request->gender;
-        $personal_info->email = $request->email;
+        if(isset($request->gender)){
+            $personal_info->gender = $request->gender;
+        }
+        if(isset($request->email)){
+            $personal_info->email = $request->email;
+        }
+
         $letters = range('a', 'z');
         $user_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
         $user_random = implode("", $user_random_array);
