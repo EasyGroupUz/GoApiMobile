@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Options;
+use App\Models\Offer;
 use App\Models\OrderDetail;
 use App\Models\PersonalInfo;
 use Carbon\Carbon;
@@ -75,6 +76,7 @@ class OrderController extends Controller
                 'id' => $order->id,
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+                'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 'avatar' => $personalInfo->avatar ?? '',
                 'rating' => 4,
                 'price' => $order->price,
@@ -316,7 +318,7 @@ class OrderController extends Controller
     {
         // if (!$this->validateByToken($request))
         //     return $this->error('The owner of the token you sent was not identified', 400);
-     
+
         if ($request->page)
             $page = $request->page;
         else
@@ -368,6 +370,7 @@ class OrderController extends Controller
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
+                $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
                 // $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 // $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
@@ -434,9 +437,11 @@ class OrderController extends Controller
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
+                $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
                 $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
@@ -462,6 +467,7 @@ class OrderController extends Controller
 
     public function booking(Request $request)
     {
+        // dd($request->all());
         if (!$request['order_id'])
             return $this->error('order_id parameter is missing', 400);
 
@@ -480,17 +486,112 @@ class OrderController extends Controller
 
         if (!$orderDetail)
             return $this->success('Order Detail not found', 204);
-        else
-            if ($orderDetail->order_id != null)
-                return $this->error('This order detail is booked already', 400);
+        // else
+        //     if ($orderDetail->order_id != null)
+        //         return $this->error('This order detail is booked already', 400);
 
-        $orderDetail->order_id = $order->id;
-        $saveOrderDetail = $orderDetail->save();
+     
+        $options=json_decode($order->options);
+        
+        // dd($options->offer);
 
-        $order->booking_place = ($order->booking_place > 0) ? $order->booking_place + 1 : 1;
-        $saveOrder = $order->save();
+        if ($offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
+            // dd($offer);
+            // $a=Constants::CANCEL;
+            // dd(Constants::CANCEL);
+             if ($offer->status != Constants::CANCEL) {
+                $offer->update(['status' => Constants::ACCEPT]);
+               
+                $orderDetail->order_id = $order->id;
+                $saveOrderDetail = $orderDetail->save();
+        
+                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->booking_count ): $orderDetail->booking_count;
+                $saveOrder = $order->save();
+                // dd($offer);
+
+             }
+        }
+        elseif ($options->offer==0) {
+            // dd($options->offer);
+            // if ($options->offer==0) {
+                $offer = [
+                    'order_id' => $order->id,
+                    'order_detail_id' => $orderDetail->id,
+                    'status' => Constants::ACCEPT,
+                    'price' => $order->price
+                ];
+                
+                $new_offer = Offer::create($offer);
+                // dd($new_offer);
+            // }else {
+                return $this->success('offer created', 204);
+            // }
+            
+        }
+        else{
+
+            return $this->success('Offer not found', 204);
+        }
+
 
         if ($saveOrderDetail && $saveOrder)
+            return $this->success('success', 200);
+    }
+    public function bookingCancel(Request $request)
+    {
+        if (!$request['order_id'])
+            return $this->error('order_id parameter is missing', 400);
+
+        $order_id = $request['order_id'];
+
+        if (!$request['order_detail_id'])
+            return $this->error('order_detail_id parameter is missing', 400);
+        
+        $order_detail_id = $request['order_detail_id'];
+
+        $order = Order::find($order_id);
+        $orderDetail = OrderDetail::find($order_detail_id);
+
+        if (!$order)
+            return $this->success('Order not found', 204);
+
+        if (!$orderDetail)
+            return $this->success('Order Detail not found', 204);
+        // else
+        //     if ($orderDetail->order_id != null)
+        //         return $this->error('This order detail is booked already', 400);
+
+
+        $orderDetail->order_id = null;
+        $saveOrderDetail = $orderDetail->save();
+
+        $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $orderDetail->booking_count) : 0;
+        $saveOrder = $order->save();
+
+        $timezone = 'Asia/Tashkent';
+        $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
+        $id=auth()->id();
+        $cencel_type=$id ;
+        if ($first_offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
+            // dd($offer);
+            $offer = [
+                'cancel_type' => $cencel_type,
+                'cancel_date' => $date_time,
+                'status' => Constants::CANCEL,
+                'price' => $order->price
+            ];
+
+            $cancel_offer = $first_offer->update($offer);
+            
+
+          
+        }
+        else {
+            return $this->success('Offer not found', 204);
+        }
+
+
+        if ($offer)
             return $this->success('success', 200);
     }
 

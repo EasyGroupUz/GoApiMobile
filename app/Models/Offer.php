@@ -14,13 +14,14 @@ class Offer extends Model
     protected $table = 'yy_offers';
 
     protected $fillable = [
-        'driver_id',
-        'client_id',
         'order_id',
         'order_detail_id',
         'price',
         'status',
         'comment',
+        'create_type',
+        'cancel_type',
+        'cancel_date'
     ];
 
 //    public function driver()
