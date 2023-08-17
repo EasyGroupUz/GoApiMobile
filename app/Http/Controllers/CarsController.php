@@ -203,12 +203,12 @@ class CarsController extends Controller
         }
         $field = $request->validate([
             'model_id'=>'required',
-            'state_number'=>'required',
+            'state_number'=>'nullable',
             'color_id'=>'required',
             'class_id'=>'required',
             'production_date'=>'required',
             'wheel_side'=>'required',
-            'reg_certificate_image'=>'required',
+            'reg_certificate_image'=>'nullable',
         ]);
         $user = Auth::user();
         $cars = new Cars();
@@ -272,19 +272,16 @@ class CarsController extends Controller
     public function update(Request $request, $id) {
         $language = $request->header('language');
         $user = Auth::user();
-        if(!isset($request->state_number)){
-            return $this->error('Car state number is not entered', 400);
-        }
+//        if(!isset($request->state_number)){
+//            return $this->error('Car state number is not entered', 400);
+//        }
         if(!isset($request->production_date)){
             return $this->error('Car production date is not entered', 400);
         }
         if(!isset($request->wheel_side)){
             return $this->error('Car wheel side is not entered', 400);
         }
-        if(!isset($request->reg_certificate_image)){
-            return $this->error('Car reg certificate image is not entered', 400);
-        }
-        if(!isset($request->reg_certificate_image)){
+        if(!isset($request->images)){
             return $this->error('Car images are not entered', 400);
         }
         $field = $request->validate([
