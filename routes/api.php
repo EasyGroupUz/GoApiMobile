@@ -34,6 +34,8 @@ Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
+    Route::post('/phone-update', [AuthController::class, 'PhoneUpdate']);
+    Route::post('/phone-update/verify', [AuthController::class, 'resetLoginToken']);
     Route::post('/logout', [AuthController::class, 'Logout']);
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);       
 
