@@ -365,6 +365,7 @@ class OrderDetailsController extends Controller
             $data = [
                 'id' => $order_detail->id ,
                 'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
+                'isYour' => ($order_detail->client_id == auth()->id()) ? true : false,
                 'avatar' => $personalInfo->avatar,
                 'rating' => 4,
                 'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,

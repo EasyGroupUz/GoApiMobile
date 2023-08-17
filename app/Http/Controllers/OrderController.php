@@ -76,6 +76,7 @@ class OrderController extends Controller
                 'id' => $order->id,
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+                'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 'avatar' => $personalInfo->avatar ?? '',
                 'rating' => 4,
                 'price' => $order->price,
@@ -317,7 +318,7 @@ class OrderController extends Controller
     {
         // if (!$this->validateByToken($request))
         //     return $this->error('The owner of the token you sent was not identified', 400);
-     
+
         if ($request->page)
             $page = $request->page;
         else
@@ -369,6 +370,7 @@ class OrderController extends Controller
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
+                $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
                 // $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 // $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
                 $arr[$n]['seats_count'] = $value->seats ?? 0;
@@ -435,9 +437,11 @@ class OrderController extends Controller
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
+                $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
                 $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
                 $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
