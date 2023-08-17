@@ -474,9 +474,6 @@ class AuthController extends Controller
         $eskiz_token = EskizToken::first();
         $user_verify = UserVerify::where('user_id', $user->id)->first();
         $random = rand(100000, 999999);
-        if($user_verify->phone_number == (int)$fields['phone']){
-            return $this->error(translate_api("Failed enter new phone number ", $language), 400);
-        }
         $user_verify_phone = UserVerify::where('phone_number', (int)$fields['phone'])->first();
         if(isset($user_verify_phone->phone_number) && $user_verify_phone->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400);
@@ -548,6 +545,7 @@ class AuthController extends Controller
             }else{
                 $user_verify->user->personalInfo->phone_history = json_encode([(int)$fields['phone']]);
             }
+            $user_verify->save();
             $user_verify->user->personalInfo->save();
             return $this->success("Success", 200, ['Verify_code'=>$random]);
         }else{
