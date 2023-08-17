@@ -286,12 +286,12 @@ class CarsController extends Controller
         }
         $field = $request->validate([
             'model_id'=>'required',
-            'state_number'=>'required',
+            'state_number'=>'nullable',
             'color_id'=>'required',
             'class_id'=>'required',
             'production_date'=>'required',
             'wheel_side'=>'required',
-            'reg_certificate_image'=>'required',
+            'reg_certificate_image'=>'nullable',
         ]);
         $cars = Cars::find($id);
         $cars->status_id = 1;
