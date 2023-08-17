@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\UserVerify;
 use App\Models\PersonalInfo;
 use App\Models\User;
+use App\Models\Driver;
 
 class UserController extends Controller
 {
@@ -207,10 +208,19 @@ class UserController extends Controller
      * )
      */
     public function delete(Request $request){
-        $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo)){
+            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
+                if(file_exists($avatar)){
+                    unlink($avatar);
+                }
+            }
             $model->personalInfo->delete();
+        }
+        $driver = Driver::where('user_id', $model->id)->first();
+        if(isset($driver->id)){
+            $driver->deleted_at = date("Y-m-d", strtotime('now'));
         }
         $user_verify = UserVerify::where('user_id', $model->id)->first();
         if(isset($user_verify->id)){
