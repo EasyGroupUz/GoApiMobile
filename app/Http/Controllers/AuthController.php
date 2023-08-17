@@ -121,7 +121,7 @@ class AuthController extends Controller
             $user_verify->save();
             return $this->success("Success", 200, ['Verify_code'=>$random]);
         }else{
-            return $this->error(translate_api("Fail message not sent. Try again", $language), 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Fail message not sent. Try again", $language), 400);
         }
     }
 
@@ -254,12 +254,12 @@ class AuthController extends Controller
 
                 $message = 'Failed your token didn\'t match';
                 $token = 'no token';
-                return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
+                return $this->error(translate_api($message, $language), 400);
             }
         }else{
             $message = 'Failed your token didn\'t match';
             $token = 'no token';
-            return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
+            return $this->error(translate_api($message, $language), 400);
         }
     }
 
@@ -372,12 +372,12 @@ class AuthController extends Controller
             }else{
                 $message = 'Failed your token didn\'t match';
                 $token = 'no token';
-                return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
+                return $this->error(translate_api($message, $language), 400);
             }
         }else{
             $message = 'Failed your token didn\'t match';
             $token = 'no token';
-            return $this->error(translate_api($message, $language), 400, ['token'=>$token]);
+            return $this->error(translate_api($message, $language), 400);
         }
     }
 
@@ -475,14 +475,14 @@ class AuthController extends Controller
         $user_verify = UserVerify::where('user_id', $user->id)->first();
         $random = rand(100000, 999999);
         if($user_verify->phone_number == (int)$fields['phone']){
-            return $this->error(translate_api("Failed enter new phone number ", $language), 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Failed enter new phone number ", $language), 400);
         }
         $user_verify_phone = UserVerify::where('phone_number', (int)$fields['phone'])->first();
         if(isset($user_verify_phone->phone_number) && $user_verify_phone->phone_number == (int)$fields['phone']){
-            return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400);
         }
         if(isset($user_verify_phone->phone_number) && $user_verify->phone_number == (int)$fields['phone']){
-            return $this->error(translate_api("Failed enter new phone number ", $language), 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Failed enter new phone number ", $language), 400);
         }
         $user_verify->phone_number = (int)$fields['phone'];
         $token_options = [
@@ -551,7 +551,7 @@ class AuthController extends Controller
             $user_verify->user->personalInfo->save();
             return $this->success("Success", 200, ['Verify_code'=>$random]);
         }else{
-            return $this->error(translate_api("Fail message not sent. Try again", $language), 400, ['Verify_code'=>$random]);
+            return $this->error(translate_api("Fail message not sent. Try again", $language), 400);
         }
     }
 
