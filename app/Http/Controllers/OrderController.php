@@ -510,6 +510,9 @@ class OrderController extends Controller
                 // dd($offer);
 
              }
+             else {
+                return $this->success('Sorry, this booking has been cancelled', 204);
+             }
         }
         elseif ($options->offer==0) {
             // dd($options->offer);
