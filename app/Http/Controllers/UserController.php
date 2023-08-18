@@ -64,6 +64,7 @@ class UserController extends Controller
                 }
             }
             $list = [
+                'id'=>$model->id,
                 'device'=>$device??[],
                 'img'=>$model->personalInfo->avatar,
                 'first_name'=>$model->personalInfo->first_name,
@@ -71,6 +72,7 @@ class UserController extends Controller
                 'middle_name'=>$model->personalInfo->middle_name,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
+                'email'=>$model->personalInfo->email??'',
                 'gender'=>$model->personalInfo->gender,
                 'phone_number'=>$model->personalInfo->phone_number,
                 'rating'=>$model->rating,
