@@ -167,27 +167,23 @@ class CommentScoreController extends Controller
             ]);
         }else{
             $driver = Driver::where('user_id', $request->driver_id)->first();
+            if(isset($driver->id)){
+                return $this->error(translate_api('Driver not found', $language), 400);
+            }
             if(isset($driver->user->personalInfo)){
                 $first_name = $driver->user->personalInfo->first_name?$driver->user->personalInfo->first_name.' ':'';
-            }else{
-                $first_name = '';
-            }
-            if(isset($driver->user->personalInfo)){
                 $last_name = $driver->user->personalInfo->last_name?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
-            }else{
-                $last_name = '';
-            }
-            if(isset($driver->user->personalInfo)){
                 $middle_name = $driver->user->personalInfo->middle_name?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
+                $image_driver = asset('storage/avatar/'.$driver->user->personalInfo->avatar);
+                $personal_info = [
+                    'img'=>$driver->user->personalInfo->avatar?asset('storage/avatar/'.$driver->user->personalInfo->avatar):'no image',
+                    'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                    'rating'=>'no score',
+                    'comment_count'=> 0
+                ];
             }else{
-                $middle_name = '';
+                $personal_info = [];
             }
-            $personal_info = [
-                'img'=>$driver->user->personalInfo?asset('storage/avatar/'.$driver->user->personalInfo->avatar):'',
-                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
-                'rating'=>'no score',
-                'comment_count'=> 0
-            ];
             return $this->success(translate_api('No comment', $language), 400, [
                 'personal_info'=>$personal_info,
                 'ratings_list'=> 0,
