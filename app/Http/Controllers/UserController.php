@@ -64,6 +64,7 @@ class UserController extends Controller
                 }
             }
             $list = [
+                'id'=>$model->id,
                 'device'=>$device??[],
                 'img'=>$model->personalInfo->avatar,
                 'first_name'=>$model->personalInfo->first_name,
