@@ -81,6 +81,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::post('/booking-cancel', [OrderController::class, 'bookingCancel']);
         Route::get('/options', [OrderController::class, 'getOptions']);
+        Route::get('/price-destinations', [OrderController::class, 'priceDestinations']);
     });
 
     Route::group(['prefix' => 'country'], function () {

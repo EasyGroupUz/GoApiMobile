@@ -626,6 +626,16 @@ class OrderController extends Controller
         }
     }
 
+    public function priceDestinations(Request $request)
+    {
+        $distance = $this->getDistanceAndKm($request['fromLng'], $request['fromLat'], $request['toLng'], $request['toLat']);
+
+        $minPrice = round((int)($distance['distance_value'] / 1000 * Constants::MIN_DESTINATION_PRICE) / 1000) * 1000;
+        $maxPrice = round((int)($distance['distance_value'] / 1000 * Constants::MAX_DESTINATION_PRICE) / 1000) * 1000;
+
+        return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
+    }
+
     // public function index()
     // {
     //     $model = Order::orderBy('start_date', 'asc')->get();

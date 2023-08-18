@@ -26,5 +26,6 @@ class Constants {
    const  ORDER_DETAIL= 0;
    const ORDER = 1;
 
-
+   const MIN_DESTINATION_PRICE = 300;
+   const MAX_DESTINATION_PRICE = 500;
 }
