@@ -258,32 +258,38 @@ class CarsController extends Controller
     public function update(Request $request, $id) {
         $language = $request->header('language');
         $user = Auth::user();
-        if(!isset($request->production_date)){
-            return $this->error('Car production date is not entered', 400);
-        }
-        if(!isset($request->wheel_side)){
-            return $this->error('Car wheel side is not entered', 400);
-        }
-        $car_list = CarList::find($request->model_id);
-        if(!isset($car_list)){
-            return $this->error(translate_api('Car list is not exist', $language), 400);
-        }
-        $color_list = ColorList::find($request->color_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Color is not exist', $language), 400);
-        }
-        $class_list = ClassList::find($request->class_id);
-        if(!isset($class_list)){
-            return $this->error(translate_api('Class list is not exist', $language), 400);
-        }
         $cars = Cars::find($id);
-        $cars->status_id = 1;
-        $cars->car_list_id = $request->model_id;
-        $cars->reg_certificate = $request->state_number;
-        $cars->color_list_id = $request->color_id;
-        $cars->class_list_id = $request->class_id;
-        $cars->production_date = $request->production_date;
-        $cars->wheel_side = $request->wheel_side;
+        if(isset($request->production_date)){
+            $cars->production_date = $request->production_date;
+        }
+        if(isset($request->wheel_side)){
+            $cars->wheel_side = $request->wheel_side;
+        }
+        if(isset($request->model_id)){
+            $car_list = CarList::find($request->model_id);
+            if(!isset($car_list)){
+                return $this->error(translate_api('Car list is not exist', $language), 400);
+            }
+            $cars->car_list_id = $request->model_id;
+        }
+
+        if(isset($request->color_id)){
+            $color_list = ColorList::find($request->color_id);
+            if(!isset($color_list)){
+                return $this->error(translate_api('Color is not exist', $language), 400);
+            }
+            $cars->color_list_id = $request->color_id;
+        }
+        if(isset($request->class_id)){
+            $class_list = ClassList::find($request->class_id);
+            if(!isset($class_list)){
+                return $this->error(translate_api('Class list is not exist', $language), 400);
+            }
+            $cars->class_list_id = $request->class_id;
+        }
+        if(isset($request->class_id)){
+            $cars->reg_certificate = $request->state_number;
+        }
         $letters = range('a', 'z');
         if(isset($field['reg_certificate_image'])){
             $sms_avatar = storage_path('app/public/certificate/'.$cars->reg_certificate_image);
