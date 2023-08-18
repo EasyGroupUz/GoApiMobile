@@ -141,13 +141,14 @@ class CommentScoreController extends Controller
     public function getComments(Request $request)
     {
         $language = $request->header('language');
+        $user = Auth::user();
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
-        $comment = CommentScore::where('driver_id', $request->driver_id)->first();
+        $comment = CommentScore::where('to_whom', $request->driver_id)->first();
         if(isset($comment)){
-            $getComments = CommentScore::where('driver_id', $request->driver_id)->get();
-            $comments = CommentScore::where('driver_id', $request->driver_id)->get()->groupBy('score');
+            $getComments = CommentScore::where('to_whom', $request->driver_id)->get();
+            $comments = CommentScore::where('to_whom', $request->driver_id)->get()->groupBy('score');
             $average_score = 0;
             foreach ($comments as $comm){
                 foreach ($comm as $com){
@@ -165,26 +166,62 @@ class CommentScoreController extends Controller
                     ];
                 }
             }
-            $first_name = $comment->driver->personalInfo?$comment->driver->personalInfo->first_name.' ':'';
-            $last_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->last_name[0].'. '):'';
-            $middle_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->middle_name[0].'.'):'';
+            $to_user = User::find($comment->to_whom);
+            if(isset($to_user->personalInfo)){
+                $first_name = $to_user->personalInfo?$to_user->personalInfo->first_name.' ':'';
+                $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
+                $middle_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->middle_name[0].'.'):'';
+                $img_ = $to_user->personalInfo?asset('storage/avatar/'.$to_user->personalInfo->avatar):'';
+                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+            }else{
+                $img_ = '';
+                $full_name = '';
+            }
+
             $personal_info = [
                 'id'=>$comment->id,
-                'img'=>$comment->driver->personalInfo?asset('storage/avatar/'.$comment->driver->personalInfo->avatar):'',
-                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                'img'=>$img_,
+                'full_name'=>$full_name,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
             ];
             foreach ($getComments as $getComment){
+                if($getComment->to_whom == $getComment->client_id){
+                    $to_user_ = User::find($getComment->driver_id);
+                }else{
+                    $to_user_ = User::find($getComment->client_id);
+                }
+                if(isset($to_user_->personalInfo)){
+                    $first_name = $to_user_->personalInfo?$to_user_->personalInfo->first_name.' ':'';
+                    $last_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->last_name[0].'. '):'';
+                    $middle_name = $to_user->personalInfo?strtoupper($to_user_->personalInfo->middle_name[0].'.'):'';
+                    $img__ = $to_user_->personalInfo?asset('storage/avatar/'.$to_user_->personalInfo->avatar):'';
+                    $full_name_ = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                }if(!isset($to_user_)){
+
+                }else{
+                    $img__ = '';
+                    $full_name_ = '';
+                }
                 $date = explode(" ", $getComment->date);
-                $comments_list[] = [
-                    'id'=>$getComment->id,
-                    "img" => $getComment->driver->personalInfo?asset('storage/avatar/'.$getComment->driver->personalInfo->avatar):'',
-                    "full_name" => $first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
-                    "date" => $date[0],
-                    "rating" => $getComment->score,
-                    "comment" => $getComment->text
-                ];
+                if(!isset($to_user_)){
+                    $comments_list[] =[
+                        'id'=>$getComment->id,
+                        "user"=>'deleted',
+                        "date" => $date[0],
+                        "rating" => $getComment->score,
+                        "comment" => $getComment->text
+                    ];
+                }else{
+                    $comments_list[] = [
+                        'id'=>$getComment->id,
+                        "img" => $img__,
+                        "full_name" => $full_name_,
+                        "date" => $date[0],
+                        "rating" => $getComment->score,
+                        "comment" => $getComment->text
+                    ];
+                }
             }
             return $this->success(translate_api('Success', $language), 400, [
                 'personal_info'=>$personal_info,
