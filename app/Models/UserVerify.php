@@ -30,5 +30,4 @@ class UserVerify extends Authenticatable
         return $this->hasOne(User::class, 'id', 'user_id');
     }
 
-
 }

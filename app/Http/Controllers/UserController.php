@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\UserVerify;
 use App\Models\PersonalInfo;
 use App\Models\User;
+use App\Models\Driver;
+use Image;
 
 class UserController extends Controller
 {
@@ -163,7 +165,6 @@ class UserController extends Controller
         if(isset($request->email)){
             $personal_info->email = $request->email;
         }
-
         $letters = range('a', 'z');
         $user_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
         $user_random = implode("", $user_random_array);
@@ -175,8 +176,26 @@ class UserController extends Controller
                     unlink($avatar);
                 }
             }
+            $file_size = round($user_img->getSize()/1024);
+            if($file_size>50000){
+                $x = 5;
+            }
+            elseif($file_size>20000){
+                $x = 10;
+            }
+            elseif($file_size>10000){
+                $x = 10;
+            }elseif($file_size>5000){
+                $x = 20;
+            }elseif($file_size>1000){
+                $x = 50;
+            }else{
+                $x = 100;
+            }
+//            dd($file_size, $x);
             $image_name = $user_random . '' . date('Y-m-dh-i-s') . '.' . $user_img->extension();
-            $user_img->storeAs('public/avatar/', $image_name);
+            $img = Image::make($user_img->path());
+            $img->save(storage_path('app/public/avatar/'.$image_name), $x);
             $personal_info->avatar = $image_name;
         }
         $personal_info->save();
@@ -207,10 +226,19 @@ class UserController extends Controller
      * )
      */
     public function delete(Request $request){
-        $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo)){
+            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
+                if(file_exists($avatar)){
+                    unlink($avatar);
+                }
+            }
             $model->personalInfo->delete();
+        }
+        $driver = Driver::where('user_id', $model->id)->first();
+        if(isset($driver->id)){
+            $driver->deleted_at = date("Y-m-d", strtotime('now'));
         }
         $user_verify = UserVerify::where('user_id', $model->id)->first();
         if(isset($user_verify->id)){
