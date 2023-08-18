@@ -145,10 +145,6 @@ class CommentScoreController extends Controller
         $ratings_list = [];
         $comments_list = [];
         $comment = CommentScore::where('driver_id', $request->driver_id)->first();
-        $driver = Driver::where('user_id', $request->driver_id)->first();
-        if(!isset($driver->id)){
-            return $this->error(translate_api('Driver not found', $language), 400);
-        }
         if(isset($comment)){
             $getComments = CommentScore::where('driver_id', $request->driver_id)->get();
             $comments = CommentScore::where('driver_id', $request->driver_id)->get()->groupBy('score');
