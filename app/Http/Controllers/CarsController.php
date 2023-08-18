@@ -189,48 +189,34 @@ class CarsController extends Controller
 
     public function store(Request $request) {
         $language = $request->header('language');
-//        if(!isset($request->state_number)){
-//            return $this->error('Car state number is not entered', 400);
-//        }
         if(!isset($request->production_date)){
             return $this->error('Car production date is not entered', 400);
         }
         if(!isset($request->wheel_side)){
             return $this->error('Car wheel side is not entered', 400);
         }
-        if(!isset($request->images)){
-            return $this->error('Car images are not entered', 400);
-        }
-        $field = $request->validate([
-            'model_id'=>'required',
-            'state_number'=>'nullable',
-            'color_id'=>'required',
-            'class_id'=>'required',
-            'production_date'=>'required',
-            'wheel_side'=>'required',
-            'reg_certificate_image'=>'nullable',
-        ]);
-        $user = Auth::user();
-        $cars = new Cars();
-        $cars->status_id = 1;
-        $cars->car_list_id = $field['model_id'];
-        $cars->reg_certificate =  $field['state_number'];
-        $cars->color_list_id =  $field['color_id'];
-        $cars->class_list_id =  $field['class_id'];
-        $cars->production_date =  $field['production_date'];
-        $cars->wheel_side =  $field['wheel_side'];
-        $car_list = CarList::find($field['model_id']);
+        $car_list = CarList::find($request->model_id);
         if(!isset($car_list)){
             return $this->error(translate_api('Car list is not exist', $language), 400);
         }
-        $color_list = ColorList::find($field['color_id']);
+        $color_list = ColorList::find($request->color_id);
         if(!isset($color_list)){
             return $this->error(translate_api('Color is not exist', $language), 400);
         }
-        $color_list = ClassList::find($field['class_id']);
+        $color_list = ClassList::find($request->class_id);
         if(!isset($color_list)){
             return $this->error(translate_api('Class list is not exist', $language), 400);
         }
+        $user = Auth::user();
+        $cars = new Cars();
+        $cars->status_id = 1;
+        $cars->car_list_id = $request->model_id;
+        $cars->reg_certificate =  $request->state_number;
+        $cars->color_list_id =  $request->color_id;
+        $cars->class_list_id =  $request->class_id;
+        $cars->production_date =  $request->production_date;
+        $cars->wheel_side =  $request->wheel_side;
+
         $letters = range('a', 'z');
         if(isset($request->reg_certificate_image)){
             $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
@@ -272,35 +258,32 @@ class CarsController extends Controller
     public function update(Request $request, $id) {
         $language = $request->header('language');
         $user = Auth::user();
-//        if(!isset($request->state_number)){
-//            return $this->error('Car state number is not entered', 400);
-//        }
         if(!isset($request->production_date)){
             return $this->error('Car production date is not entered', 400);
         }
         if(!isset($request->wheel_side)){
             return $this->error('Car wheel side is not entered', 400);
         }
-        if(!isset($request->images)){
-            return $this->error('Car images are not entered', 400);
+        $car_list = CarList::find($request->model_id);
+        if(!isset($car_list)){
+            return $this->error(translate_api('Car list is not exist', $language), 400);
         }
-        $field = $request->validate([
-            'model_id'=>'required',
-            'state_number'=>'nullable',
-            'color_id'=>'required',
-            'class_id'=>'required',
-            'production_date'=>'required',
-            'wheel_side'=>'required',
-            'reg_certificate_image'=>'nullable',
-        ]);
+        $color_list = ColorList::find($request->color_id);
+        if(!isset($color_list)){
+            return $this->error(translate_api('Color is not exist', $language), 400);
+        }
+        $class_list = ClassList::find($request->class_id);
+        if(!isset($class_list)){
+            return $this->error(translate_api('Class list is not exist', $language), 400);
+        }
         $cars = Cars::find($id);
         $cars->status_id = 1;
-        $cars->car_list_id = $field['model_id'];
-        $cars->reg_certificate = $field['state_number'];
-        $cars->color_list_id = $field['color_id'];
-        $cars->class_list_id = $field['class_id'];
-        $cars->production_date = $field['production_date'];
-        $cars->wheel_side = $field['wheel_side'];
+        $cars->car_list_id = $request->model_id;
+        $cars->reg_certificate = $request->state_number;
+        $cars->color_list_id = $request->color_id;
+        $cars->class_list_id = $request->class_id;
+        $cars->production_date = $request->production_date;
+        $cars->wheel_side = $request->wheel_side;
         $letters = range('a', 'z');
         if(isset($field['reg_certificate_image'])){
             $sms_avatar = storage_path('app/public/certificate/'.$cars->reg_certificate_image);
@@ -336,18 +319,7 @@ class CarsController extends Controller
             $cars->images = json_encode($images_array);
         }
         $is_driver = Driver::where('user_id', $user->id)->first();
-        $car_list = CarList::find($field['model_id']);
-        if(!isset($car_list)){
-            return $this->error(translate_api('Car list is not exist', $language), 400);
-        }
-        $color_list = ColorList::find($request->color_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Color is not exist', $language), 400);
-        }
-        $color_list = ClassList::find($request->class_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Class list is not exist', $language), 400);
-        }
+
         if(!isset($is_driver)){
             $driver = new Driver();
             $driver->user_id = $user->id;
