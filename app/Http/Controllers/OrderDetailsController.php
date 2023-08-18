@@ -358,9 +358,11 @@ class OrderDetailsController extends Controller
             ->count();
 
         foreach ($order_details as $order_detail) {
-            $personalInfo = PersonalInfo::where('id',User::where('id',$order_detail->client_id)->first()->personal_info_id)->first();
+            $odFrom = $order_detail->from;
+            $odTo = $order_detail->to;
+            $personalInfo = PersonalInfo::where('id',User::where('id', $order_detail->client_id)->first()->personal_info_id)->first();
 
-            $distance = $this->getDistanceAndKm((($order_detail->from) ? $order_detail->from->lng : ''), (($order_detail->from) ? $order_detail->from->lat : ''), (($order_detail->to) ? $order_detail->to->lng : ''), (($order_detail->to) ? $order_detail->to->lat : ''));
+            $distance = $this->getDistanceAndKm((($odFrom) ? $odFrom->lng : ''), (($odFrom) ? $odFrom->lat : ''), (($odTo) ? $odTo->lng : ''), (($odTo) ? $odTo->lat : ''));
 
             $data = [
                 'id' => $order_detail->id ,
@@ -372,12 +374,12 @@ class OrderDetailsController extends Controller
                 'total_trips' => $total_trips,
                 'count_pleace' => $order_detail->seats_count,
 
-                'from' => ($order_detail->from) ? $order_detail->from->name : '',
-                'from_lng' => ($order_detail->from) ? $order_detail->from->lng : '',
-                'from_lat' => ($order_detail->from) ? $order_detail->from->lat : '',
-                'to' => ($order_detail->to) ? $order_detail->to->name : '',
-                'to_lng' => ($order_detail->to) ? $order_detail->to->lng : '',
-                'to_lat' => ($order_detail->to) ? $order_detail->to->lat : '',
+                'from' => ($odFrom) ? $odFrom->name : '',
+                'from_lng' => ($odFrom) ? $odFrom->lng : '',
+                'from_lat' => ($odFrom) ? $odFrom->lat : '',
+                'to' => ($odTo) ? $odTo->name : '',
+                'to_lng' => ($odTo) ? $odTo->lng : '',
+                'to_lat' => ($odTo) ? $odTo->lat : '',
 
                 'distance_km' => $distance['km'],
                 'distance' => $distance['time'],
@@ -394,6 +396,21 @@ class OrderDetailsController extends Controller
 
         ], 200);
 
+    }
+
+    public function searchHistory()
+    {
+        $model = DB::table('yy_order_details as yyo')
+            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
+            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
+            ->where('yyo.client_id', auth()->id())
+            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
+            ->orderBy('id', 'desc')
+            ->limit(5)
+            ->get()
+            ->toArray();
+
+        return $this->success('success', 200, $model);
     }
 
 

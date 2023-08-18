@@ -44,6 +44,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/edit', [OrderDetailsController::class, 'edit']);
         Route::post('/delete', [OrderDetailsController::class, 'delete']);
         Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
+        Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
     
@@ -80,7 +81,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::post('/booking-cancel', [OrderController::class, 'bookingCancel']);
         Route::get('/options', [OrderController::class, 'getOptions']);
-        Route::get('/search-history', [OrderController::class, 'searchHistory']);
     });
 
     Route::group(['prefix' => 'country'], function () {

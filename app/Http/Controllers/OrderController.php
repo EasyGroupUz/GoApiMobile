@@ -599,7 +599,7 @@ class OrderController extends Controller
     {
         $language = $request->header('language');
         $options = table_translate('', 'option', $language);
-//        $options = Options::select('id', 'name', 'icon')->get();
+       // $options = Options::select('id', 'name', 'icon')->get();
 
         $data = [];
         if (isset($options) && count($options) > 0) {
@@ -615,27 +615,6 @@ class OrderController extends Controller
         } else {
             return $this->success('Options table is empty', 204);
         }
-    }
-
-    public function searchHistory()
-    {
-        // if ($request->page)
-        //     $page = $request->page;
-        // else
-        //     return $this->error('page parameter is missing', 400);
-        
-        // $model = Order::where('driver_id',auth()->id())->select('')->orderBy('id', 'desc')->limit(5)->get();
-        $model = DB::table('yy_orders as yyo')
-            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
-            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
-            ->where('yyo.driver_id', auth()->id())
-            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
-            ->orderBy('id', 'desc')
-            ->limit(5)
-            ->get()
-            ->toArray();
-
-        return $this->success('success', 200, $model);
     }
 
     // public function index()
