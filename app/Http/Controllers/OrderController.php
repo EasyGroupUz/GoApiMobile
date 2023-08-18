@@ -628,7 +628,21 @@ class OrderController extends Controller
 
     public function priceDestinations(Request $request)
     {
-        $distance = $this->getDistanceAndKm($request['fromLng'], $request['fromLat'], $request['toLng'], $request['toLat']);
+        if (!$request['from_id'])
+            return $this->error('from_id parameter is missing', 400);
+
+        $cityFrom = DB::table('yy_cities')->find($request['from_id']);
+        if (!$cityFrom)
+            return $this->error('from_id parameter is not correct. cities from not found', 400);
+
+        if (!$request['to_id'])
+            return $this->error('to_id parameter is missing', 400);
+
+        $cityTo = DB::table('yy_cities')->find($request['to_id']);
+        if (!$cityTo)
+            return $this->error('to_id parameter is not correct. cities to not found', 400);
+
+        $distance = $this->getDistanceAndKm($cityFrom->lng, $cityFrom->lat, $cityTo->lng, $cityTo->lat);
 
         $minPrice = round((int)($distance['distance_value'] / 1000 * Constants::MIN_DESTINATION_PRICE) / 1000) * 1000;
         $maxPrice = round((int)($distance['distance_value'] / 1000 * Constants::MAX_DESTINATION_PRICE) / 1000) * 1000;
