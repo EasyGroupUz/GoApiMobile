@@ -525,6 +525,12 @@ class OrderController extends Controller
                 ];
                 
                 $new_offer = Offer::create($offer);
+               
+                $orderDetail->order_id = $order->id;
+                $saveOrderDetail = $orderDetail->save();
+        
+                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->booking_count ): $orderDetail->booking_count;
+                $saveOrder = $order->save();
                 // dd($new_offer);
             // }else {
                 return $this->success('offer created', 204);
