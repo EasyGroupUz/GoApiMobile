@@ -169,8 +169,16 @@ class CommentScoreController extends Controller
             $to_user = User::find($comment->to_whom);
             if(isset($to_user->personalInfo)){
                 $first_name = $to_user->personalInfo?$to_user->personalInfo->first_name.' ':'';
-                $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
-                $middle_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->middle_name[0].'.'):'';
+                if(isset($to_user->personalInfo->last_name)){
+                    $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
+                }else{
+                    $last_name = '';
+                }
+                if(isset($to_user->personalInfo->middle_name)){
+                    $middle_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->middle_name[0].'.'):'';
+                }else{
+                    $middle_name = '';
+                }
                 $img_ = $to_user->personalInfo?asset('storage/avatar/'.$to_user->personalInfo->avatar):'';
                 $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
             }else{
@@ -192,9 +200,16 @@ class CommentScoreController extends Controller
                     $to_user_ = User::find($getComment->client_id);
                 }
                 if(isset($to_user_->personalInfo)){
-                    $first_name = $to_user_->personalInfo?$to_user_->personalInfo->first_name.' ':'';
-                    $last_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->last_name[0].'. '):'';
-                    $middle_name = $to_user->personalInfo?strtoupper($to_user_->personalInfo->middle_name[0].'.'):'';
+                    if(isset($to_user_->personalInfo->last_name)){
+                        $last_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->last_name[0].'. '):'';
+                    }else{
+                        $last_name = '';
+                    }
+                    if(isset($to_user_->personalInfo->middle_name)){
+                        $middle_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->middle_name[0].'.'):'';
+                    }else{
+                        $middle_name = '';
+                    }
                     $img__ = $to_user_->personalInfo?asset('storage/avatar/'.$to_user_->personalInfo->avatar):'';
                     $full_name_ = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
                 }if(!isset($to_user_)){
