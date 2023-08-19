@@ -249,6 +249,14 @@ class UserController extends Controller
         $model->delete();
         return $this->success('Success', 201);
     }
+    
+    public function getUser(Request $request){
+        $user = User::find($request->id);
+        return response()->json([
+            'users' => $user,
+            'personal_info' => $user->personalInfo
+        ]);
+    }
 
     public function feedback(Request $request)
     {
