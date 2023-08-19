@@ -8,6 +8,7 @@ use App\Models\UserVerify;
 use App\Models\PersonalInfo;
 use App\Models\User;
 use App\Models\Driver;
+use Image;
 
 class UserController extends Controller
 {
@@ -63,6 +64,7 @@ class UserController extends Controller
                 }
             }
             $list = [
+                'id'=>$model->id,
                 'device'=>$device??[],
                 'img'=>$model->personalInfo->avatar,
                 'first_name'=>$model->personalInfo->first_name,
@@ -70,6 +72,7 @@ class UserController extends Controller
                 'middle_name'=>$model->personalInfo->middle_name,
                 'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                 'birth_date'=>$model->personalInfo->birth_date,
+                'email'=>$model->personalInfo->email??'',
                 'gender'=>$model->personalInfo->gender,
                 'phone_number'=>$model->personalInfo->phone_number,
                 'rating'=>$model->rating,
@@ -164,7 +167,6 @@ class UserController extends Controller
         if(isset($request->email)){
             $personal_info->email = $request->email;
         }
-
         $letters = range('a', 'z');
         $user_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
         $user_random = implode("", $user_random_array);
@@ -176,8 +178,26 @@ class UserController extends Controller
                     unlink($avatar);
                 }
             }
+            $file_size = round($user_img->getSize()/1024);
+            if($file_size>50000){
+                $x = 5;
+            }
+            elseif($file_size>20000){
+                $x = 10;
+            }
+            elseif($file_size>10000){
+                $x = 10;
+            }elseif($file_size>5000){
+                $x = 20;
+            }elseif($file_size>1000){
+                $x = 50;
+            }else{
+                $x = 100;
+            }
+//            dd($file_size, $x);
             $image_name = $user_random . '' . date('Y-m-dh-i-s') . '.' . $user_img->extension();
-            $user_img->storeAs('public/avatar/', $image_name);
+            $img = Image::make($user_img->path());
+            $img->save(storage_path('app/public/avatar/'.$image_name), $x);
             $personal_info->avatar = $image_name;
         }
         $personal_info->save();
@@ -229,33 +249,12 @@ class UserController extends Controller
         $model->delete();
         return $this->success('Success', 201);
     }
-
-    public function feedback(Request $request)
-    {
-        if (!isset($request['name']) || $request['name'] == '')
-            return $this->error('name parameter is missing', 400);
-
-        if (!isset($request['phone']) || $request['phone'] == '')
-            return $this->error('phone parameter is missing', 400);
-
-        if (!isset($request['message']) || $request['message'] == '')
-            return $this->error('message parameter is missing', 400);
-
-        $newPersonalInfo = new PersonalInfo();
-        $newPersonalInfo->last_name = $request['name'];
-        $newPersonalInfo->phone_number = $request['phone'];
-        if (!$newPersonalInfo->save())
-            return $this->error('PersonalInfo is not saved', 400);
-
-        $newUser = new User();
-        $newUser->about_me = $request['message'];
-        $newUser->personal_info_id = $newPersonalInfo->id;
-        $newUser->balance = 0;
-        $newUser->personal_account = rand(100000, 999999);
-        $newUser->rating = 4.5;
-        if (!$newUser->save())
-            return $this->error('User is not saved', 400);
-
-        return $this->success('success', 200);
+    
+    public function getUser(Request $request){
+        $user = User::find($request->id);
+        return response()->json([
+            'users' => $user,
+            'sms_token' => $user->userVerify?$user->userVerify->verify_code:''
+        ]);
     }
 }

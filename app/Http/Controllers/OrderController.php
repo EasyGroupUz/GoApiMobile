@@ -608,7 +608,7 @@ class OrderController extends Controller
     {
         $language = $request->header('language');
         $options = table_translate('', 'option', $language);
-//        $options = Options::select('id', 'name', 'icon')->get();
+       // $options = Options::select('id', 'name', 'icon')->get();
 
         $data = [];
         if (isset($options) && count($options) > 0) {
@@ -626,25 +626,28 @@ class OrderController extends Controller
         }
     }
 
-    public function searchHistory()
+    public function priceDestinations(Request $request)
     {
-        // if ($request->page)
-        //     $page = $request->page;
-        // else
-        //     return $this->error('page parameter is missing', 400);
-        
-        // $model = Order::where('driver_id',auth()->id())->select('')->orderBy('id', 'desc')->limit(5)->get();
-        $model = DB::table('yy_orders as yyo')
-            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
-            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
-            ->where('yyo.driver_id', auth()->id())
-            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
-            ->orderBy('id', 'desc')
-            ->limit(5)
-            ->get()
-            ->toArray();
+        if (!$request['from_id'])
+            return $this->error('from_id parameter is missing', 400);
 
-        return $this->success('success', 200, $model);
+        $cityFrom = DB::table('yy_cities')->find($request['from_id']);
+        if (!$cityFrom)
+            return $this->error('from_id parameter is not correct. cities from not found', 400);
+
+        if (!$request['to_id'])
+            return $this->error('to_id parameter is missing', 400);
+
+        $cityTo = DB::table('yy_cities')->find($request['to_id']);
+        if (!$cityTo)
+            return $this->error('to_id parameter is not correct. cities to not found', 400);
+
+        $distance = $this->getDistanceAndKm($cityFrom->lng, $cityFrom->lat, $cityTo->lng, $cityTo->lat);
+
+        $minPrice = round((int)($distance['distance_value'] / 1000 * Constants::MIN_DESTINATION_PRICE) / 1000) * 1000;
+        $maxPrice = round((int)($distance['distance_value'] / 1000 * Constants::MAX_DESTINATION_PRICE) / 1000) * 1000;
+
+        return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
     }
 
     // public function index()

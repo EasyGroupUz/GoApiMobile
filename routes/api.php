@@ -14,6 +14,7 @@ use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FeedbackController;
 
 
 /*
@@ -30,7 +31,7 @@ use App\Http\Controllers\NotificationController;
 
 //
 
-Route::post('/feedback', [UserController::class, 'feedback'])->name('feedback');
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -45,6 +46,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/edit', [OrderDetailsController::class, 'edit']);
         Route::post('/delete', [OrderDetailsController::class, 'delete']);
         Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
+        Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
     
@@ -61,6 +63,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/show', [UserController::class, 'show']);
         Route::post('/update', [UserController::class, 'update']);
         Route::post('/delete', [UserController::class, 'delete']);
+        Route::get('/get-user', [UserController::class, 'getUser']);
     });
 
     Route::group(['prefix' => 'offer'], function () {
@@ -86,7 +89,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::post('/booking-cancel', [OrderController::class, 'bookingCancel']);
         Route::get('/options', [OrderController::class, 'getOptions']);
-        Route::get('/search-history', [OrderController::class, 'searchHistory']);
+        Route::get('/price-destinations', [OrderController::class, 'priceDestinations']);
     });
 
     Route::group(['prefix' => 'country'], function () {
@@ -100,6 +103,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'comment'], function () {
         Route::post('/create',[CommentScoreController::class, 'commentCreate']);
         Route::get('/get-comments',[CommentScoreController::class, 'getComments']);
+        Route::get('/get-orders-users',[CommentScoreController::class, 'getOrderUserId']);
     });
     
     Route::group(['prefix' => 'complain'], function () {
