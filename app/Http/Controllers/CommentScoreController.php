@@ -266,4 +266,14 @@ class CommentScoreController extends Controller
             ]);
         }
     }
+
+    public function getOrderUserId(Request $request)
+    {
+        $users = User::select('id')->get();
+        $orders = Order::select('id')->get();
+        return response()->json([
+           'users' => $users,
+           'orders' => $orders
+        ]);
+    }
 }

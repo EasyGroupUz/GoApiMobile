@@ -95,6 +95,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'comment'], function () {
         Route::post('/create',[CommentScoreController::class, 'commentCreate']);
         Route::get('/get-comments',[CommentScoreController::class, 'getComments']);
+        Route::get('/get-orders-users',[CommentScoreController::class, 'getOrderUserId']);
     });
     
     Route::group(['prefix' => 'complain'], function () {
