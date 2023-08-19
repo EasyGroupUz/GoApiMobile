@@ -150,20 +150,55 @@ class CommentScoreController extends Controller
             $getComments = CommentScore::where('to_whom', $request->user_id)->get();
             $comments = CommentScore::where('to_whom', $request->user_id)->get()->groupBy('score');
             $average_score = 0;
-            foreach ($comments as $comm){
-                foreach ($comm as $com){
-                    $average_score = $average_score + $com->score;
-                    if(isset($com->score) || $com->score != 0){
-                        $percent = 100*($com->score/5);
-                    }else{
-                        $percent = 0;
+            foreach ($comments as $key => $comm){
+                if(isset($key) && $key>0){
+                    foreach ($comm as $com){
+                        $average_score = $average_score + $com->score;
+                        switch ($key){
+                            case 1:
+                                $ratings_list_1[] = [
+                                    "id" => $com->id,
+                                    "rating" => $com->score,
+                                    "percent" => 100*count($comm)/count($getComments).' %',
+                                    "comment_count" => count($comm)
+                                ];
+                                break;
+                            case 2:
+                                $ratings_list_2[] = [
+                                    "id" => $com->id,
+                                    "rating" => $com->score,
+                                    "percent" => 100*count($comm)/count($getComments).' %',
+                                    "comment_count" => count($comm)
+                                ];
+                                break;
+                            case 3:
+                                $ratings_list_3[] = [
+                                    "id" => $com->id,
+                                    "rating" => $com->score,
+                                    "percent" => 100*count($comm)/count($getComments).' %',
+                                    "comment_count" => count($comm)
+                                ];
+                                break;
+                            case 4:
+                                $ratings_list_4[] = [
+                                    "id" => $com->id,
+                                    "rating" => $com->score,
+                                    "percent" => 100*count($comm)/count($getComments).' %',
+                                    "comment_count" => count($comm)
+                                ];
+                                break;
+                            case 5:
+                                $ratings_list_5[] = [
+                                    "id" => $com->id,
+                                    "rating" => $com->score,
+                                    "percent" => 100*count($comm)/count($getComments).' %',
+                                    "comment_count" => count($comm)
+                                ];
+                                break;
+                            default:
+                        }
+
                     }
-                    $ratings_list[] = [
-                        "id" => $com->id,
-                        "rating" => $com->score,
-                        "percent" => $percent.' %',
-                        "comment_count" => count($comm)
-                    ];
                 }
             }
             $to_user = User::find($comment->to_whom);
@@ -183,7 +218,16 @@ class CommentScoreController extends Controller
                 }else{
                     $middle_name = '';
                 }
-                $img_ = $to_user->personalInfo?asset('storage/avatar/'.$to_user->personalInfo->avatar):'';
+                if(isset($to_user->personalInfo->avatar) && $to_user->personalInfo->avatar != ''){
+                    $avatar = storage_path('app/public/avatar/'.$to_user->personalInfo->avatar??'no');
+                    if(file_exists($avatar)){
+                        $img_ = asset('storage/avatar/'.$to_user->personalInfo->avatar);
+                    }else{
+                        $img_ = '';
+                    }
+                }else{
+                    $img_ = '';
+                }
                 $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
             }else{
                 $img_ = '';
@@ -209,12 +253,12 @@ class CommentScoreController extends Controller
                         $user_first_name = '';
                     }
                     if(isset($from_user->personalInfo->last_name)){
-                        $user_last_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->last_name[0].'. '):'';
+                        $user_last_name = strtoupper($from_user->personalInfo->last_name[0].'. ');
                     }else{
                         $user_last_name = '';
                     }
                     if(isset($from_user->personalInfo->middle_name)){
-                        $user_middle_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->middle_name[0].'.'):'';
+                        $user_middle_name = strtoupper($from_user->personalInfo->middle_name[0].'.');
                     }else{
                         $user_middle_name = '';
                     }
@@ -229,14 +273,13 @@ class CommentScoreController extends Controller
                         $user_img = '';
                     }
                     $user_full_name = $user_first_name.''.strtoupper($user_last_name).''.strtoupper($user_middle_name);
-
                 }else{
                     $user_img = '';
                     $user_full_name = '';
                 }
                 $date = explode(" ", $getComment->date);
                 if(!isset($from_user)){
-                    $comments_list[] =[
+                    $comments_list[] = [
                         "user"=>'deleted',
                         "date" => $date[0],
                         "rating" => $getComment->score,
@@ -255,7 +298,11 @@ class CommentScoreController extends Controller
             }
             return $this->success(translate_api('Success', $language), 400, [
                 'personal_info'=>$personal_info,
-                'ratings_list'=>$ratings_list,
+                'ratings_list_1'=>$ratings_list_1??[],
+                'ratings_list_2'=>$ratings_list_2??[],
+                'ratings_list_3'=>$ratings_list_3??[],
+                'ratings_list_4'=>$ratings_list_4??[],
+                'ratings_list_5'=>$ratings_list_5??[],
                 'comments_list'=>$comments_list,
             ]);
         }else{
@@ -278,21 +325,18 @@ class CommentScoreController extends Controller
                 if(isset($user->personalInfo->avatar) && $user->personalInfo->avatar != ''){
                     $avatar = storage_path('app/public/avatar/'.$user->personalInfo->avatar??'no');
                     if(file_exists($avatar)){
-                        $img__ = $user->personalInfo?asset('storage/avatar/'.$user->personalInfo->avatar):'';
+                        $img_ = asset('storage/avatar/'.$user->personalInfo->avatar);
                     }else{
-                        $img__ = '';
+                        $img_ = '';
                     }
                 }else{
-                    $img__ = '';
+                    $img_ = '';
                 }
-                $first_name = $user->personalInfo->first_name?$user->personalInfo->first_name.' ':'';
-                $last_name = $user->personalInfo->last_name?strtoupper($user->personalInfo->last_name[0].'. '):'';
-                $middle_name = $user->personalInfo->middle_name?strtoupper($user->personalInfo->middle_name[0].'.'):'';
-                $image_driver = asset('storage/avatar/'.$user->personalInfo->avatar);
+                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
                 $personal_info = [
                     'id'=>$user->personalInfo->id,
-                    'img'=>$user->personalInfo->avatar?asset('storage/avatar/'.$user->personalInfo->avatar):'no image',
-                    'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                    'img'=>$img_,
+                    'full_name'=>$full_name,
                     'rating'=>'no score',
                     'comment_count'=> 0
                 ];
