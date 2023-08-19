@@ -189,9 +189,8 @@ class CommentScoreController extends Controller
                 $img_ = '';
                 $full_name = '';
             }
-
             $personal_info = [
-                'id'=>$comment->id,
+                'user_id'=>$to_user->id,
                 'img'=>$img_,
                 'full_name'=>$full_name,
                 'rating'=>$average_score/count($comments),
@@ -205,41 +204,39 @@ class CommentScoreController extends Controller
                 }
                 if(isset($from_user->personalInfo)){
                     if(isset($from_user->personalInfo->first_name)){
-                        $first_name = $from_user->personalInfo->first_name.' ';
+                        $user_first_name = $from_user->personalInfo->first_name.' ';
                     }else{
-                        $first_name = '';
+                        $user_first_name = '';
                     }
                     if(isset($from_user->personalInfo->last_name)){
-                        $last_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->last_name[0].'. '):'';
+                        $user_last_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->last_name[0].'. '):'';
                     }else{
-                        $last_name = '';
+                        $user_last_name = '';
                     }
                     if(isset($from_user->personalInfo->middle_name)){
-                        $middle_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->middle_name[0].'.'):'';
+                        $user_middle_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->middle_name[0].'.'):'';
                     }else{
-                        $middle_name = '';
+                        $user_middle_name = '';
                     }
                     if(isset($from_user->personalInfo->avatar) && $from_user->personalInfo->avatar != ''){
                         $avatar = storage_path('app/public/avatar/'.$from_user->personalInfo->avatar??'no');
                         if(file_exists($avatar)){
-                            $img__ = $from_user->personalInfo?asset('storage/avatar/'.$from_user->personalInfo->avatar):'';
+                            $user_img = $from_user->personalInfo?asset('storage/avatar/'.$from_user->personalInfo->avatar):'';
                         }else{
-                            $img__ = '';
+                            $user_img = '';
                         }
                     }else{
-                        $img__ = '';
+                        $user_img = '';
                     }
-                    $full_name_ = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
-                }if(!isset($from_user)){
+                    $user_full_name = $user_first_name.''.strtoupper($user_last_name).''.strtoupper($user_middle_name);
 
                 }else{
-                    $img__ = '';
-                    $full_name_ = '';
+                    $user_img = '';
+                    $user_full_name = '';
                 }
                 $date = explode(" ", $getComment->date);
                 if(!isset($from_user)){
                     $comments_list[] =[
-                        'id'=>$getComment->id,
                         "user"=>'deleted',
                         "date" => $date[0],
                         "rating" => $getComment->score,
@@ -247,9 +244,9 @@ class CommentScoreController extends Controller
                     ];
                 }else{
                     $comments_list[] = [
-                        'id'=>$getComment->id,
-                        "img" => $img__,
-                        "full_name" => $full_name_,
+                        'id'=>$from_user->id,
+                        "img" => $user_img,
+                        "full_name" => $user_full_name,
                         "date" => $date[0],
                         "rating" => $getComment->score,
                         "comment" => $getComment->text
@@ -262,14 +259,39 @@ class CommentScoreController extends Controller
                 'comments_list'=>$comments_list,
             ]);
         }else{
-            if(isset($driver->user->personalInfo)){
-                $first_name = $driver->user->personalInfo->first_name?$driver->user->personalInfo->first_name.' ':'';
-                $last_name = $driver->user->personalInfo->last_name?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
-                $middle_name = $driver->user->personalInfo->middle_name?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
-                $image_driver = asset('storage/avatar/'.$driver->user->personalInfo->avatar);
+            if(isset($user->personalInfo)){
+                if(isset($user->personalInfo->first_name)){
+                    $first_name = $user->personalInfo->first_name.' ';
+                }else{
+                    $first_name = '';
+                }
+                if(isset($user->personalInfo->last_name)){
+                    $last_name = strtoupper($user->personalInfo->last_name[0].'. ');
+                }else{
+                    $last_name = '';
+                }
+                if(isset($user->personalInfo->middle_name)){
+                    $middle_name = strtoupper($user->personalInfo->middle_name[0].'.');
+                }else{
+                    $middle_name = '';
+                }
+                if(isset($user->personalInfo->avatar) && $user->personalInfo->avatar != ''){
+                    $avatar = storage_path('app/public/avatar/'.$user->personalInfo->avatar??'no');
+                    if(file_exists($avatar)){
+                        $img__ = $user->personalInfo?asset('storage/avatar/'.$user->personalInfo->avatar):'';
+                    }else{
+                        $img__ = '';
+                    }
+                }else{
+                    $img__ = '';
+                }
+                $first_name = $user->personalInfo->first_name?$user->personalInfo->first_name.' ':'';
+                $last_name = $user->personalInfo->last_name?strtoupper($user->personalInfo->last_name[0].'. '):'';
+                $middle_name = $user->personalInfo->middle_name?strtoupper($user->personalInfo->middle_name[0].'.'):'';
+                $image_driver = asset('storage/avatar/'.$user->personalInfo->avatar);
                 $personal_info = [
-                    'id'=>$driver->user->personalInfo->id,
-                    'img'=>$driver->user->personalInfo->avatar?asset('storage/avatar/'.$driver->user->personalInfo->avatar):'no image',
+                    'id'=>$user->personalInfo->id,
+                    'img'=>$user->personalInfo->avatar?asset('storage/avatar/'.$user->personalInfo->avatar):'no image',
                     'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                     'rating'=>'no score',
                     'comment_count'=> 0
