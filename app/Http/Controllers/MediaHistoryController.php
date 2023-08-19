@@ -38,7 +38,7 @@ class MediaHistoryController extends Controller
      * )
      */
     public function mediaHistory(){
-        $medias = MediaHistory::select('id', 'url_small', 'url_big', 'created_at', 'updated_at')->get();
+        $medias = MediaHistory::select('id', 'url_small', 'url_big', 'is_read', 'expire_date', 'created_at', 'updated_at')->get();
         $data = null;
         foreach($medias as $media){
             if(isset($media->url_small)){
@@ -52,10 +52,48 @@ class MediaHistoryController extends Controller
                     $url_big_array[] = 'http://admin.easygo.uz/storage/media/'.$url_big;
                 }
             }
+            if(isset($media->mediaUser)){
+                foreach ($media->mediaUser as $media_user){
+                    if(isset($media_user->user->personalInfo->first_name)){
+                        $first_name = $media_user->user->personalInfo->first_name.' ';
+                    }else{
+                        $first_name = '';
+                    }
+                    if(isset($media_user->user->personalInfo->last_name)){
+                        $last_name = strtoupper($media_user->user->personalInfo->last_name[0].'. ');
+                    }else{
+                        $last_name = '';
+                    }
+                    if(isset($media_user->user->personalInfo->middle_name)){
+                        $middle_name = strtoupper($media_user->user->personalInfo->middle_name[0].'.');
+                    }else{
+                        $middle_name = '';
+                    }
+                    if(isset($media_user->user->personalInfo->avatar) && $media_user->user->personalInfo->avatar != ''){
+                        $avatar = storage_path('app/public/avatar/'.$media_user->user->personalInfo->avatar??'no');
+                        if(file_exists($avatar)){
+                            $img_ = asset('storage/avatar/'.$media_user->user->personalInfo->avatar);
+                        }else{
+                            $img_ = '';
+                        }
+                    }else{
+                        $img_ = '';
+                    }
+                    $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                    $mediaUser[] = [
+                        'id'=>$media_user->id,
+                        'full_name'=>$full_name,
+                    ];
+                }
+            }
             $data[] = [
                 'id' =>$media->id,
                 'url_small'=>$url_small??'',
                 'url_big'=>$url_big_array,
+                'is_read'=>$media->is_read,
+                'count_user'=>count($media->mediaUser),
+                'media_user'=>$mediaUser,
+                'expire_date'=>$media->expire_date,
                 'created_at'=>$media->created_at??'',
                 'updated_at'=>$media->updated_at??'',
             ];
@@ -142,8 +180,10 @@ class MediaHistoryController extends Controller
         $user = User::find($request->user_id);
         $media = MediaHistory::find($request->media_history_id);
         if(isset($user->id) && isset($media->id)){
+            $media->is_read = 1;
             $media_user->user_id = $request->user_id;
             $media_user->media_history_id = $request->media_history_id;
+            $media->save();
             $media_user->save();
             return $this->success('Success', 201);
         }elseif(!isset($user->id) && isset($media->id)){

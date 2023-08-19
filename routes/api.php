@@ -108,6 +108,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
+        Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
         Route::get('/history/user', [MediaHistoryController::class, 'getHistoryUser']);
         Route::post('/history/user', [MediaHistoryController::class, 'postHistoryUser']);
     });
