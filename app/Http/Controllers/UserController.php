@@ -254,7 +254,7 @@ class UserController extends Controller
         $user = User::find($request->id);
         return response()->json([
             'users' => $user,
-            'personal_info' => $user->personalInfo??'no personal info'
+            'sms_token' => $user->userVerify?$user->userVerify->verify_code:''
         ]);
     }
 

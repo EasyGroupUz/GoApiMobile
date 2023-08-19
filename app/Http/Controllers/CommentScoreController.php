@@ -145,10 +145,10 @@ class CommentScoreController extends Controller
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
-        $comment = CommentScore::where('to_whom', $request->driver_id)->first();
+        $comment = CommentScore::where('to_whom', $request->user_id)->first();
         if(isset($comment)){
-            $getComments = CommentScore::where('to_whom', $request->driver_id)->get();
-            $comments = CommentScore::where('to_whom', $request->driver_id)->get()->groupBy('score');
+            $getComments = CommentScore::where('to_whom', $request->user_id)->get();
+            $comments = CommentScore::where('to_whom', $request->user_id)->get()->groupBy('score');
             $average_score = 0;
             foreach ($comments as $comm){
                 foreach ($comm as $com){
@@ -168,7 +168,11 @@ class CommentScoreController extends Controller
             }
             $to_user = User::find($comment->to_whom);
             if(isset($to_user->personalInfo)){
-                $first_name = $to_user->personalInfo?$to_user->personalInfo->first_name.' ':'';
+                if(isset($to_user->personalInfo->first_name)){
+                    $first_name = $to_user->personalInfo->first_name.' ';
+                }else{
+                    $first_name = '';
+                }
                 if(isset($to_user->personalInfo->last_name)){
                     $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
                 }else{
@@ -195,31 +199,45 @@ class CommentScoreController extends Controller
             ];
             foreach ($getComments as $getComment){
                 if($getComment->to_whom == $getComment->client_id){
-                    $to_user_ = User::find($getComment->driver_id);
+                    $from_user = User::find($getComment->driver_id);
                 }else{
-                    $to_user_ = User::find($getComment->client_id);
+                    $from_user = User::find($getComment->client_id);
                 }
-                if(isset($to_user_->personalInfo)){
-                    if(isset($to_user_->personalInfo->last_name)){
-                        $last_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->last_name[0].'. '):'';
+                if(isset($from_user->personalInfo)){
+                    if(isset($from_user->personalInfo->first_name)){
+                        $first_name = $from_user->personalInfo->first_name.' ';
+                    }else{
+                        $first_name = '';
+                    }
+                    if(isset($from_user->personalInfo->last_name)){
+                        $last_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->last_name[0].'. '):'';
                     }else{
                         $last_name = '';
                     }
-                    if(isset($to_user_->personalInfo->middle_name)){
-                        $middle_name = $to_user_->personalInfo?strtoupper($to_user_->personalInfo->middle_name[0].'.'):'';
+                    if(isset($from_user->personalInfo->middle_name)){
+                        $middle_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->middle_name[0].'.'):'';
                     }else{
                         $middle_name = '';
                     }
-                    $img__ = $to_user_->personalInfo?asset('storage/avatar/'.$to_user_->personalInfo->avatar):'';
+                    if(isset($from_user->personalInfo->avatar) && $from_user->personalInfo->avatar != ''){
+                        $avatar = storage_path('app/public/avatar/'.$from_user->personalInfo->avatar??'no');
+                        if(file_exists($avatar)){
+                            $img__ = $from_user->personalInfo?asset('storage/avatar/'.$from_user->personalInfo->avatar):'';
+                        }else{
+                            $img__ = '';
+                        }
+                    }else{
+                        $img__ = '';
+                    }
                     $full_name_ = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
-                }if(!isset($to_user_)){
+                }if(!isset($from_user)){
 
                 }else{
                     $img__ = '';
                     $full_name_ = '';
                 }
                 $date = explode(" ", $getComment->date);
-                if(!isset($to_user_)){
+                if(!isset($from_user)){
                     $comments_list[] =[
                         'id'=>$getComment->id,
                         "user"=>'deleted',
