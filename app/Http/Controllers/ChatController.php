@@ -14,8 +14,13 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Chat;
+use App\Models\PersonalInfo;
+// use App\Models\User;
+use App\Models\Order;
 use App\Models\Client;
 use Auth;
+use Carbon\Carbon;
+
 
 class ChatController extends Controller implements MessageComponentInterface 
 {
@@ -358,6 +363,118 @@ class ChatController extends Controller implements MessageComponentInterface
         echo "An error has occurred: {$e->getMessage()}\n";
 
         $conn->close();
+    }
+
+
+    public function chatDetails(Request $request)
+    {
+        $language = $request->header('language');
+        // dd($request->all());
+
+        $order_id=$request->order_id;
+        $order = Order::find($order_id);
+        // dd($order);
+
+        $from_to_name=table_translate($order,'city',$language);
+        $start_dates= DB::table('yy_chats')
+        ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+        ->where('order_id',$order_id)
+        ->get();
+        $data=[];
+       foreach ($start_dates as $key => $value) {
+
+            $get_chats= DB::table('yy_chats')
+            // ->select('')
+            ->where('order_id',$order_id)
+            ->get();
+
+            foreach ($get_chats as $key => $chat) {
+                $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                // dd($date);
+                if ($date==$value->start_date ) {
+                   
+                    $time=Carbon::parse($chat->created_at)->format('H:i');
+
+                    $data[$value->start_date][]=[
+                        'from_id'=>$chat->user_from_id,
+                        'to_id'=>$chat->user_to_id,
+                        'text'=>$chat->text,
+                        'time'=>$time
+                    ];
+                }
+                
+                
+            }
+
+       }
+
+        $list=[
+            'start_date'=>$order->start_date,
+            'from_name'=>$from_to_name['from_name'],
+            'to_name'=>$from_to_name['to_name'],
+            'data'=>$data
+        ];
+
+
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'fesfsef',
+        ], 200);
+
+
+    }
+
+    public function chatList(Request $request)
+    {
+        $language = $request->header('language');
+        // dd($request->all());
+
+        $id=auth()->id();
+        // $order = Order::find($order_id);
+        // dd($order);
+        
+        $chats= DB::table('yy_chats')
+        ->where('user_from_id', $id)
+        ->Orwhere('user_to_id', $id)
+        ->distinct('order_id')
+        ->orderBy('order_id')
+        ->get();
+        // dd($chats);
+
+        foreach ($chats as $key => $chat) {
+            $order = Order::find($chat->order_id);
+            
+            // dd($order);
+            $from_to_name=table_translate($order,'city',$language);
+            $personalInfo=PersonalInfo::where('id',User::where('id',$id)->first()->personal_info_id)->first();
+            $list=[
+                'start_date'=>$order->start_date,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
+                'name'=>$personalInfo->first_name,
+                'image'=>null,
+
+            ];
+        }
+        // $data=[];
+        
+        
+        // $list=[
+        //     'start_date'=>$order->start_date,
+        //     'from_name'=>$from_to_name['from_name'],
+        //     'to_name'=>$from_to_name['to_name'],
+        //     // 'data'=>$data
+        // ];
+
+
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'fesfsef',
+        ], 200);
+
+
     }
 
 }
