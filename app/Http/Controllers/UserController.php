@@ -257,33 +257,4 @@ class UserController extends Controller
             'sms_token' => $user->userVerify?$user->userVerify->verify_code:''
         ]);
     }
-
-    public function feedback(Request $request)
-    {
-        if (!isset($request['name']) || $request['name'] == '')
-            return $this->error('name parameter is missing', 400);
-
-        if (!isset($request['phone']) || $request['phone'] == '')
-            return $this->error('phone parameter is missing', 400);
-
-        if (!isset($request['message']) || $request['message'] == '')
-            return $this->error('message parameter is missing', 400);
-
-        $newPersonalInfo = new PersonalInfo();
-        $newPersonalInfo->last_name = $request['name'];
-        $newPersonalInfo->phone_number = $request['phone'];
-        if (!$newPersonalInfo->save())
-            return $this->error('PersonalInfo is not saved', 400);
-
-        $newUser = new User();
-        $newUser->about_me = $request['message'];
-        $newUser->personal_info_id = $newPersonalInfo->id;
-        $newUser->balance = 0;
-        $newUser->personal_account = rand(100000, 999999);
-        $newUser->rating = 4.5;
-        if (!$newUser->save())
-            return $this->error('User is not saved', 400);
-
-        return $this->success('success', 200);
-    }
 }

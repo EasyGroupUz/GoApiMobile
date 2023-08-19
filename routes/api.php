@@ -13,6 +13,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FeedbackController;
 
 
 /*
@@ -29,7 +30,7 @@ use App\Http\Controllers\NotificationController;
 
 //
 
-Route::post('/feedback', [UserController::class, 'feedback'])->name('feedback');
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
