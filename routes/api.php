@@ -62,6 +62,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/show', [UserController::class, 'show']);
         Route::post('/update', [UserController::class, 'update']);
         Route::post('/delete', [UserController::class, 'delete']);
+        Route::get('/get-user', [UserController::class, 'getUser']);
     });
 
     Route::group(['prefix' => 'offer'], function () {
@@ -96,6 +97,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'comment'], function () {
         Route::post('/create',[CommentScoreController::class, 'commentCreate']);
         Route::get('/get-comments',[CommentScoreController::class, 'getComments']);
+        Route::get('/get-orders-users',[CommentScoreController::class, 'getOrderUserId']);
     });
     
     Route::group(['prefix' => 'complain'], function () {

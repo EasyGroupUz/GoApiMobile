@@ -249,4 +249,12 @@ class UserController extends Controller
         $model->delete();
         return $this->success('Success', 201);
     }
+    
+    public function getUser(Request $request){
+        $user = User::find($request->id);
+        return response()->json([
+            'users' => $user,
+            'sms_token' => $user->userVerify?$user->userVerify->verify_code:''
+        ]);
+    }
 }

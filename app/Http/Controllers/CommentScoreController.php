@@ -141,13 +141,14 @@ class CommentScoreController extends Controller
     public function getComments(Request $request)
     {
         $language = $request->header('language');
+        $user = Auth::user();
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
-        $comment = CommentScore::where('driver_id', $request->driver_id)->first();
+        $comment = CommentScore::where('to_whom', $request->user_id)->first();
         if(isset($comment)){
-            $getComments = CommentScore::where('driver_id', $request->driver_id)->get();
-            $comments = CommentScore::where('driver_id', $request->driver_id)->get()->groupBy('score');
+            $getComments = CommentScore::where('to_whom', $request->user_id)->get();
+            $comments = CommentScore::where('to_whom', $request->user_id)->get()->groupBy('score');
             $average_score = 0;
             foreach ($comments as $comm){
                 foreach ($comm as $com){
@@ -165,26 +166,92 @@ class CommentScoreController extends Controller
                     ];
                 }
             }
-            $first_name = $comment->driver->personalInfo?$comment->driver->personalInfo->first_name.' ':'';
-            $last_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->last_name[0].'. '):'';
-            $middle_name = $comment->driver->personalInfo?strtoupper($comment->driver->personalInfo->middle_name[0].'.'):'';
+            $to_user = User::find($comment->to_whom);
+            if(isset($to_user->personalInfo)){
+                if(isset($to_user->personalInfo->first_name)){
+                    $first_name = $to_user->personalInfo->first_name.' ';
+                }else{
+                    $first_name = '';
+                }
+                if(isset($to_user->personalInfo->last_name)){
+                    $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
+                }else{
+                    $last_name = '';
+                }
+                if(isset($to_user->personalInfo->middle_name)){
+                    $middle_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->middle_name[0].'.'):'';
+                }else{
+                    $middle_name = '';
+                }
+                $img_ = $to_user->personalInfo?asset('storage/avatar/'.$to_user->personalInfo->avatar):'';
+                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+            }else{
+                $img_ = '';
+                $full_name = '';
+            }
             $personal_info = [
-                'id'=>$comment->id,
-                'img'=>$comment->driver->personalInfo?asset('storage/avatar/'.$comment->driver->personalInfo->avatar):'',
-                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
+                'user_id'=>$to_user->id,
+                'img'=>$img_,
+                'full_name'=>$full_name,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
             ];
             foreach ($getComments as $getComment){
+                if($getComment->to_whom == $getComment->client_id){
+                    $from_user = User::find($getComment->driver_id);
+                }else{
+                    $from_user = User::find($getComment->client_id);
+                }
+                if(isset($from_user->personalInfo)){
+                    if(isset($from_user->personalInfo->first_name)){
+                        $user_first_name = $from_user->personalInfo->first_name.' ';
+                    }else{
+                        $user_first_name = '';
+                    }
+                    if(isset($from_user->personalInfo->last_name)){
+                        $user_last_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->last_name[0].'. '):'';
+                    }else{
+                        $user_last_name = '';
+                    }
+                    if(isset($from_user->personalInfo->middle_name)){
+                        $user_middle_name = $from_user->personalInfo?strtoupper($from_user->personalInfo->middle_name[0].'.'):'';
+                    }else{
+                        $user_middle_name = '';
+                    }
+                    if(isset($from_user->personalInfo->avatar) && $from_user->personalInfo->avatar != ''){
+                        $avatar = storage_path('app/public/avatar/'.$from_user->personalInfo->avatar??'no');
+                        if(file_exists($avatar)){
+                            $user_img = $from_user->personalInfo?asset('storage/avatar/'.$from_user->personalInfo->avatar):'';
+                        }else{
+                            $user_img = '';
+                        }
+                    }else{
+                        $user_img = '';
+                    }
+                    $user_full_name = $user_first_name.''.strtoupper($user_last_name).''.strtoupper($user_middle_name);
+
+                }else{
+                    $user_img = '';
+                    $user_full_name = '';
+                }
                 $date = explode(" ", $getComment->date);
-                $comments_list[] = [
-                    'id'=>$getComment->id,
-                    "img" => $getComment->driver->personalInfo?asset('storage/avatar/'.$getComment->driver->personalInfo->avatar):'',
-                    "full_name" => $first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
-                    "date" => $date[0],
-                    "rating" => $getComment->score,
-                    "comment" => $getComment->text
-                ];
+                if(!isset($from_user)){
+                    $comments_list[] =[
+                        "user"=>'deleted',
+                        "date" => $date[0],
+                        "rating" => $getComment->score,
+                        "comment" => $getComment->text
+                    ];
+                }else{
+                    $comments_list[] = [
+                        'id'=>$from_user->id,
+                        "img" => $user_img,
+                        "full_name" => $user_full_name,
+                        "date" => $date[0],
+                        "rating" => $getComment->score,
+                        "comment" => $getComment->text
+                    ];
+                }
             }
             return $this->success(translate_api('Success', $language), 400, [
                 'personal_info'=>$personal_info,
@@ -192,14 +259,39 @@ class CommentScoreController extends Controller
                 'comments_list'=>$comments_list,
             ]);
         }else{
-            if(isset($driver->user->personalInfo)){
-                $first_name = $driver->user->personalInfo->first_name?$driver->user->personalInfo->first_name.' ':'';
-                $last_name = $driver->user->personalInfo->last_name?strtoupper($driver->user->personalInfo->last_name[0].'. '):'';
-                $middle_name = $driver->user->personalInfo->middle_name?strtoupper($driver->user->personalInfo->middle_name[0].'.'):'';
-                $image_driver = asset('storage/avatar/'.$driver->user->personalInfo->avatar);
+            if(isset($user->personalInfo)){
+                if(isset($user->personalInfo->first_name)){
+                    $first_name = $user->personalInfo->first_name.' ';
+                }else{
+                    $first_name = '';
+                }
+                if(isset($user->personalInfo->last_name)){
+                    $last_name = strtoupper($user->personalInfo->last_name[0].'. ');
+                }else{
+                    $last_name = '';
+                }
+                if(isset($user->personalInfo->middle_name)){
+                    $middle_name = strtoupper($user->personalInfo->middle_name[0].'.');
+                }else{
+                    $middle_name = '';
+                }
+                if(isset($user->personalInfo->avatar) && $user->personalInfo->avatar != ''){
+                    $avatar = storage_path('app/public/avatar/'.$user->personalInfo->avatar??'no');
+                    if(file_exists($avatar)){
+                        $img__ = $user->personalInfo?asset('storage/avatar/'.$user->personalInfo->avatar):'';
+                    }else{
+                        $img__ = '';
+                    }
+                }else{
+                    $img__ = '';
+                }
+                $first_name = $user->personalInfo->first_name?$user->personalInfo->first_name.' ':'';
+                $last_name = $user->personalInfo->last_name?strtoupper($user->personalInfo->last_name[0].'. '):'';
+                $middle_name = $user->personalInfo->middle_name?strtoupper($user->personalInfo->middle_name[0].'.'):'';
+                $image_driver = asset('storage/avatar/'.$user->personalInfo->avatar);
                 $personal_info = [
-                    'id'=>$driver->user->personalInfo->id,
-                    'img'=>$driver->user->personalInfo->avatar?asset('storage/avatar/'.$driver->user->personalInfo->avatar):'no image',
+                    'id'=>$user->personalInfo->id,
+                    'img'=>$user->personalInfo->avatar?asset('storage/avatar/'.$user->personalInfo->avatar):'no image',
                     'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
                     'rating'=>'no score',
                     'comment_count'=> 0
@@ -213,5 +305,15 @@ class CommentScoreController extends Controller
                 'comments_list'=> 0,
             ]);
         }
+    }
+
+    public function getOrderUserId(Request $request)
+    {
+        $users = User::select('id')->get();
+        $orders = Order::select('id')->get();
+        return response()->json([
+           'users' => $users,
+           'orders' => $orders
+        ]);
     }
 }
