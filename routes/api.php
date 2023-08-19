@@ -12,6 +12,7 @@ use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
 
@@ -69,6 +70,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get', [OfferController::class, 'getOffer']);
         Route::post('/store', [OfferController::class, 'postOffer']);
         Route::get('/destroy', [OfferController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => 'chat'], function () {
+        Route::get('/details', [ChatController::class, 'chatDetails']);
+        Route::get('/list', [ChatController::class, 'chatList']);
     });
 
     Route::group(['prefix' => 'order'], function () {
