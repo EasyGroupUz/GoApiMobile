@@ -430,33 +430,47 @@ class ChatController extends Controller implements MessageComponentInterface
         $language = $request->header('language');
         // dd($request->all());
 
-        $id=auth()->id();
+        // $id=auth()->id();
         // $order = Order::find($order_id);
         // dd($order);
         
         $chats= DB::table('yy_chats')
-        ->where('user_from_id', $id)
-        ->Orwhere('user_to_id', $id)
+        // ->where('user_from_id', $id)
+        // ->Orwhere('user_to_id', $id)
         ->distinct('order_id')
         ->orderBy('order_id')
         ->get();
         // dd($chats);
-
+         $data=[];
         foreach ($chats as $key => $chat) {
             $order = Order::find($chat->order_id);
             
             // dd($order);
             $from_to_name=table_translate($order,'city',$language);
-            $personalInfo=PersonalInfo::where('id',User::where('id',$id)->first()->personal_info_id)->first();
+            $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+
+            if(isset($personalInfo->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
+                if(file_exists($avatar)){
+                    $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                }
+                else {
+                    $personalInfo->avatar=null;
+                }
+            }
+
             $list=[
+                'id'=>$chat->id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
                 'name'=>$personalInfo->first_name,
-                'image'=>null,
+                'image'=>$personalInfo->avatar,
 
             ];
+            array_push($data,$list);
         }
+
         // $data=[];
         
         
@@ -469,9 +483,9 @@ class ChatController extends Controller implements MessageComponentInterface
 
 
         return response()->json([
-            'data' => $list,
+            'data' => $data,
             'status' => true,
-            'message' => 'fesfsef',
+            'message' => 'success',
         ], 200);
 
 

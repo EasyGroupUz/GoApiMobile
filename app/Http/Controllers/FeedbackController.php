@@ -18,7 +18,7 @@ class FeedbackController extends Controller
         if (!isset($request['message']) || $request['message'] == '')
             return $this->error('message parameter is missing', 400);
 
-        if (!isset($request['type']) || $request['type'] == '')
+        if (!isset($request['type']) || $request['type'] == '') // 1 - from site, 2 - from app
             return $this->error('type parameter is missing', 400);
 
         $newPersonalInfo = new Feedback();
