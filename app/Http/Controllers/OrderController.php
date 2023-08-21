@@ -244,18 +244,10 @@ class OrderController extends Controller
         }
     }
 
+
     public function create(OrderRequest $request)
     {
         $data = $request->validated();
-        // $token = $request->header()['token'];
-        // $driver = User::where('token', $token)->first();
-
-        // if (!isset($driver)) {
-        //     return [
-        //         "status" => false,
-        //         "message" => "Token not found"
-        //     ];
-        // }
 
         $driver_id = auth()->user()->id;
         $data['driver_id'] = $driver_id;
@@ -263,7 +255,7 @@ class OrderController extends Controller
         $order = new Order();
         $order->create($data);
         
-        if ($data['back_date']) {
+        if (isset($data['back_date'])) {
             $from_id = $data['to_id'];
             $to_id = $data['from_id'];
 
@@ -332,7 +324,6 @@ class OrderController extends Controller
             $n = 0;
             foreach ($model as $key => $value) {
                 $clientArr = [];
-                // dd($value->orderDetails[0]->client);
                 if ($value->orderDetails) {
                     $i = 0;
                     foreach ($value->orderDetails as $keyOD => $valueOD) {
@@ -366,6 +357,29 @@ class OrderController extends Controller
                     $arrDriverInfo['rating'] = $valDriver->rating;
                 }
 
+                $arrCar = [];
+                if ($value->car) {
+                    $valCar = $value->car;
+                    
+                    $arrCarImg = [];
+                    if (!empty($valCar->images)) {
+                        $ci = 0;
+                        foreach (json_decode($valCar->images) as $valueCI) {
+                            $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+                            $ci++;
+                        }
+                    }
+
+                    $arrCar['id'] = $valCar->id;
+                    $arrCar['name'] = $valCar->car->name ?? '';
+                    $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
+                    $arrCar['production_date'] = date('d.m.Y', strtotime($valCar->production_date));
+                    $arrCar['class'] = $valCar->class->name ?? '';
+                    $arrCar['reg_certificate'] = $valCar->reg_certificate;
+                    $arrCar['reg_certificate_img'] = $valCar->reg_certificate_image;
+                    $arrCar['images'] = $arrCarImg;
+                }
+
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
                 $arr[$n]['id'] = $value->id;
@@ -378,6 +392,7 @@ class OrderController extends Controller
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
+                $arr[$n]['car'] = $arrCar;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
 
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
@@ -386,10 +401,12 @@ class OrderController extends Controller
                 $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
                 $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
                 $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
-
+                
                 $arr[$n]['distance_km'] = $distance['km'];
                 $arr[$n]['distance'] = $distance['time'];
                 $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($value->start_date. ' +' . $distance['time']));
+                
+                $arr[$n]['status'] = ($value->status) ? $value->status->name : '';
 
                 $n++;
             }
