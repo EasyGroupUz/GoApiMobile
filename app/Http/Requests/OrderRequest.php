@@ -27,7 +27,7 @@ class OrderRequest extends FormRequest
             'start_date' => 'required|date_format:Y-m-d H:i:s',
             'car_id' => 'required|integer',
             'seats' => 'required|integer',
-            'back_date' => 'nullable|date_format:Y-m-d H:i:s',
+            // 'back_date' => 'nullable|date_format:Y-m-d H:i:s',
             'options' => 'nullable|max:1000',
             // 'options' => 'nullable|json',
             'price' => 'nullable|numeric',
