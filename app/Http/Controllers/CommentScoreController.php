@@ -210,12 +210,12 @@ class CommentScoreController extends Controller
                     $first_name = '';
                 }
                 if(isset($to_user->personalInfo->last_name)){
-                    $last_name = strtoupper($to_user->personalInfo->last_name[0].'. ');
+                    $last_name = mb_strtoupper($to_user->personalInfo->last_name[0].'. ');
                 }else{
                     $last_name = '';
                 }
                 if(isset($to_user->personalInfo->middle_name)){
-                    $middle_name = strtoupper($to_user->personalInfo->middle_name[0].'.');
+                    $middle_name = mb_strtoupper($to_user->personalInfo->middle_name[0].'.');
                 }else{
                     $middle_name = '';
                 }
@@ -229,7 +229,7 @@ class CommentScoreController extends Controller
                 }else{
                     $img_ = '';
                 }
-                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
             }else{
                 $img_ = '';
                 $full_name = '';
@@ -254,12 +254,12 @@ class CommentScoreController extends Controller
                         $user_first_name = '';
                     }
                     if(isset($from_user->personalInfo->last_name)){
-                        $user_last_name = strtoupper($from_user->personalInfo->last_name[0].'. ');
+                        $user_last_name = mb_strtoupper($from_user->personalInfo->last_name[0].'. ');
                     }else{
                         $user_last_name = '';
                     }
                     if(isset($from_user->personalInfo->middle_name)){
-                        $user_middle_name = strtoupper($from_user->personalInfo->middle_name[0].'.');
+                        $user_middle_name = mb_strtoupper($from_user->personalInfo->middle_name[0].'.');
                     }else{
                         $user_middle_name = '';
                     }
@@ -273,7 +273,7 @@ class CommentScoreController extends Controller
                     }else{
                         $user_img = '';
                     }
-                    $user_full_name = $user_first_name.''.strtoupper($user_last_name).''.strtoupper($user_middle_name);
+                    $user_full_name = $user_first_name.''.mb_strtoupper($user_last_name).''.mb_strtoupper($user_middle_name);
                 }else{
                     $user_img = '';
                     $user_full_name = '';
@@ -316,12 +316,12 @@ class CommentScoreController extends Controller
                     $first_name = '';
                 }
                 if(isset($user->personalInfo->last_name)){
-                    $last_name = strtoupper($user->personalInfo->last_name[0].'. ');
+                    $last_name = mb_strtoupper($user->personalInfo->last_name[0].'. ');
                 }else{
                     $last_name = '';
                 }
                 if(isset($user->personalInfo->middle_name)){
-                    $middle_name = strtoupper($user->personalInfo->middle_name[0].'.');
+                    $middle_name = mb_strtoupper($user->personalInfo->middle_name[0].'.');
                 }else{
                     $middle_name = '';
                 }
@@ -335,7 +335,7 @@ class CommentScoreController extends Controller
                 }else{
                     $img_ = '';
                 }
-                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
                 $personal_info = [
                     'id'=>$user->personalInfo->id,
                     'img'=>$img_,
