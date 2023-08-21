@@ -220,6 +220,7 @@ class OrderController extends Controller
 
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
+            $arr['isYour'] = ($order->driver_id == auth()->id()) ? true : false;
             $arr['from'] = ($order->from) ? $order->from->name : '';
             $arr['from_lng'] = ($order->from) ? $order->from->lng : '';
             $arr['from_lat'] = ($order->from) ? $order->from->lat : '';

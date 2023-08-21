@@ -16,6 +16,6 @@ class Feedback extends Model
         'name',
         'phone',
         'message',
-        'type'
+        'type' // 1 - from site, 2 - from app
     ];
 }
