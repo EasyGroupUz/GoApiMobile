@@ -441,22 +441,35 @@ class ChatController extends Controller implements MessageComponentInterface
         ->orderBy('order_id')
         ->get();
         // dd($chats);
-
+         $data=[];
         foreach ($chats as $key => $chat) {
             $order = Order::find($chat->order_id);
             
             // dd($order);
             $from_to_name=table_translate($order,'city',$language);
             $personalInfo=PersonalInfo::where('id',User::where('id',$id)->first()->personal_info_id)->first();
+
+            if(isset($personalInfo->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
+                if(file_exists($avatar)){
+                    $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                }
+                else {
+                    $personalInfo->avatar=null;
+                }
+            }
+
             $list=[
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
                 'name'=>$personalInfo->first_name,
-                'image'=>null,
+                'image'=>$personalInfo->avatar,
 
             ];
+            array_push($data,$list);
         }
+
         // $data=[];
         
         
@@ -469,7 +482,7 @@ class ChatController extends Controller implements MessageComponentInterface
 
 
         return response()->json([
-            'data' => $list,
+            'data' => $data,
             'status' => true,
             'message' => 'fesfsef',
         ], 200);
