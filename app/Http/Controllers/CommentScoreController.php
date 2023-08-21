@@ -209,12 +209,12 @@ class CommentScoreController extends Controller
                     $first_name = '';
                 }
                 if(isset($to_user->personalInfo->last_name)){
-                    $last_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->last_name[0].'. '):'';
+                    $last_name = strtoupper($to_user->personalInfo->last_name[0].'. ');
                 }else{
                     $last_name = '';
                 }
                 if(isset($to_user->personalInfo->middle_name)){
-                    $middle_name = $to_user->personalInfo?strtoupper($to_user->personalInfo->middle_name[0].'.'):'';
+                    $middle_name = strtoupper($to_user->personalInfo->middle_name[0].'.');
                 }else{
                     $middle_name = '';
                 }
@@ -265,7 +265,7 @@ class CommentScoreController extends Controller
                     if(isset($from_user->personalInfo->avatar) && $from_user->personalInfo->avatar != ''){
                         $avatar = storage_path('app/public/avatar/'.$from_user->personalInfo->avatar??'no');
                         if(file_exists($avatar)){
-                            $user_img = $from_user->personalInfo?asset('storage/avatar/'.$from_user->personalInfo->avatar):'';
+                            $user_img = asset('storage/avatar/'.$from_user->personalInfo->avatar);
                         }else{
                             $user_img = '';
                         }
