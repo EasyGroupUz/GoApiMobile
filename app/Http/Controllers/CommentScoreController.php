@@ -108,7 +108,7 @@ class CommentScoreController extends Controller
             return $this->error(translate_api('Order is not exist', $language), 400);
         }
         $comment->save();
-        return $this->success(translate_api('Success', $language), 400);
+        return $this->success(translate_api('Success', $language), 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
     }
     /**
      * @OA\Get(
@@ -140,6 +140,7 @@ class CommentScoreController extends Controller
      */
     public function getComments(Request $request)
     {
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $user = Auth::user();
         $personal_info = '';
@@ -283,7 +284,8 @@ class CommentScoreController extends Controller
                         "user"=>'deleted',
                         "date" => $date[0],
                         "rating" => $getComment->score,
-                        "comment" => $getComment->text
+                        "comment" => $getComment->text,
+                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }else{
                     $comments_list[] = [
@@ -292,7 +294,8 @@ class CommentScoreController extends Controller
                         "full_name" => $user_full_name,
                         "date" => $date[0],
                         "rating" => $getComment->score,
-                        "comment" => $getComment->text
+                        "comment" => $getComment->text,
+                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }
             }
