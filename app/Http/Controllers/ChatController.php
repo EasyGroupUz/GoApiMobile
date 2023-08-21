@@ -430,13 +430,13 @@ class ChatController extends Controller implements MessageComponentInterface
         $language = $request->header('language');
         // dd($request->all());
 
-        $id=auth()->id();
+        // $id=auth()->id();
         // $order = Order::find($order_id);
         // dd($order);
         
         $chats= DB::table('yy_chats')
-        ->where('user_from_id', $id)
-        ->Orwhere('user_to_id', $id)
+        // ->where('user_from_id', $id)
+        // ->Orwhere('user_to_id', $id)
         ->distinct('order_id')
         ->orderBy('order_id')
         ->get();
@@ -447,7 +447,7 @@ class ChatController extends Controller implements MessageComponentInterface
             
             // dd($order);
             $from_to_name=table_translate($order,'city',$language);
-            $personalInfo=PersonalInfo::where('id',User::where('id',$id)->first()->personal_info_id)->first();
+            $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
 
             if(isset($personalInfo->avatar)){
                 $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
