@@ -92,7 +92,7 @@ class MediaHistoryController extends Controller
                 'url_big'=>$url_big_array,
                 'is_read'=>$media->is_read,
                 'count_user'=>count($media->mediaUser),
-                'media_user'=>$mediaUser??'',
+                'media_user'=>$mediaUser??[],
                 'expire_date'=>$media->expire_date,
                 'created_at'=>$media->created_at??'',
                 'updated_at'=>$media->updated_at??'',
