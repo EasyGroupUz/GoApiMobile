@@ -15,4 +15,8 @@ class MediaHistory extends Model
         'url_small',
         'url_big'
     ];
+
+    public function mediaUser(){
+        return $this->hasMany(MediaHistoryUser::class,'media_history_id','id');
+    }
 }

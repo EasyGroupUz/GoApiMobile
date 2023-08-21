@@ -12,6 +12,7 @@ use App\Http\Controllers\ComplainController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
 
@@ -71,6 +72,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/destroy', [OfferController::class, 'destroy']);
     });
 
+    Route::group(['prefix' => 'chat'], function () {
+        Route::get('/details', [ChatController::class, 'chatDetails']);
+        Route::get('/list', [ChatController::class, 'chatList']);
+    });
+
     Route::group(['prefix' => 'order'], function () {
         Route::get('/history', [OrderController::class, 'history']);
         Route::get('/index', [OrderController::class, 'index']);
@@ -108,6 +114,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
+        Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
         Route::get('/history/user', [MediaHistoryController::class, 'getHistoryUser']);
         Route::post('/history/user', [MediaHistoryController::class, 'postHistoryUser']);
     });
