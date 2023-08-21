@@ -485,7 +485,7 @@ class ChatController extends Controller implements MessageComponentInterface
         return response()->json([
             'data' => $data,
             'status' => true,
-            'message' => 'fesfsef',
+            'message' => 'success',
         ], 200);
 
 
