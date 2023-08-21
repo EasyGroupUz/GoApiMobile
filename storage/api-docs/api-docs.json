@@ -94,6 +94,48 @@
                 }
             }
         },
+        "/api/phone-update/verify": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Confirm with your phone and with your verify code",
+                "operationId": "resetLoginToken",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "phone_number": {
+                                        "description": "write your phone",
+                                        "type": "integer"
+                                    },
+                                    "verify_code": {
+                                        "description": "write your verify code",
+                                        "type": "integer"
+                                    },
+                                    "device_type": {
+                                        "description": "write your device type",
+                                        "type": "string"
+                                    },
+                                    "device_id": {
+                                        "description": "write your device id",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/api/set-name-surname": {
             "post": {
                 "tags": [
