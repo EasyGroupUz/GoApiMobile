@@ -51,4 +51,8 @@ class User extends Authenticatable
     public function userVerify(){
         return $this->hasOne(UserVerify::class, 'user_id', 'id');
     }
+
+    public function driver(){
+        return $this->hasOne(Driver::class, 'user_id', 'id');
+    }
 }

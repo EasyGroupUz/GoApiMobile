@@ -209,6 +209,25 @@ class CommentScoreController extends Controller
                 }else{
                     $first_name = '';
                 }
+                if(isset($to_user->driver->doc_status)){
+                    switch ($to_user->driver->doc_status){
+                        case 1:
+                            $doc_status = "Not accepted";
+                            break;
+                        case 2:
+                            $doc_status = "Accepted";
+                            break;
+                        case 3:
+                            $doc_status = "Expectations";
+                            break;
+                        case 4:
+                            $doc_status = "Cancelled";
+                            break;
+                        default;
+                    }
+                }else{
+                    $doc_status = "Not accepted";
+                }
                 if(isset($to_user->personalInfo->last_name)){
                     $last_name = mb_strtoupper($to_user->personalInfo->last_name[0].'. ');
                 }else{
@@ -238,6 +257,7 @@ class CommentScoreController extends Controller
                 'user_id'=>$to_user->id,
                 'img'=>$img_,
                 'full_name'=>$full_name,
+                'doc_status'=>$doc_status,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
             ];
@@ -325,6 +345,25 @@ class CommentScoreController extends Controller
                 }else{
                     $middle_name = '';
                 }
+                if(isset($to_user->driver->doc_status)){
+                    switch ($to_user->driver->doc_status){
+                        case 1:
+                            $doc_status = "Not accepted";
+                            break;
+                        case 2:
+                            $doc_status = "Accepted";
+                            break;
+                        case 3:
+                            $doc_status = "Expectations";
+                            break;
+                        case 4:
+                            $doc_status = "Cancelled";
+                            break;
+                        default;
+                    }
+                }else{
+                    $doc_status = "Not accepted";
+                }
                 if(isset($user->personalInfo->avatar) && $user->personalInfo->avatar != ''){
                     $avatar = storage_path('app/public/avatar/'.$user->personalInfo->avatar??'no');
                     if(file_exists($avatar)){
@@ -340,8 +379,9 @@ class CommentScoreController extends Controller
                     'user_id'=>$user->id,
                     'img'=>$img_,
                     'full_name'=>$full_name,
+                    'doc_status'=>$doc_status,
                     'rating'=>'no score',
-                    'comment_count'=> null
+                    'comment_count'=> ''
                 ];
             }else{
                 $personal_info = [];
