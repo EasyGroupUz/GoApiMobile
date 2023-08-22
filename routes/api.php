@@ -13,9 +13,10 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
-
+use App\Http\Controllers\WishController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,8 @@ use App\Http\Controllers\FeedbackController;
 //
 
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
+Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
+Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
