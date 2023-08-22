@@ -341,15 +341,15 @@ class CommentScoreController extends Controller
                     'img'=>$img_,
                     'full_name'=>$full_name,
                     'rating'=>'no score',
-                    'comment_count'=> 0
+                    'comment_count'=> null
                 ];
             }else{
                 $personal_info = [];
             }
             return $this->success(translate_api('No comment', $language), 400, [
                 'personal_info'=>$personal_info,
-                'ratings_list'=> 0,
-                'comments_list'=> 0,
+                'ratings_list'=> '',
+                'comments_list'=> '',
             ]);
         }
     }
