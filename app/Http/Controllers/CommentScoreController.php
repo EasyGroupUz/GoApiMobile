@@ -142,7 +142,7 @@ class CommentScoreController extends Controller
     {
         date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
-        $user = Auth::user();
+        $user = User::find($request->user_id);
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
@@ -159,7 +159,7 @@ class CommentScoreController extends Controller
                             case 1:
                                 $ratings_list_1[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score,
+                                    "rating" => $com->score??'',
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -167,7 +167,7 @@ class CommentScoreController extends Controller
                             case 2:
                                 $ratings_list_2[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score,
+                                    "rating" => $com->score??'',
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -175,7 +175,7 @@ class CommentScoreController extends Controller
                             case 3:
                                 $ratings_list_3[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score,
+                                    "rating" => $com->score??'',
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -183,7 +183,7 @@ class CommentScoreController extends Controller
                             case 4:
                                 $ratings_list_4[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score,
+                                    "rating" => $com->score??'',
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -191,7 +191,7 @@ class CommentScoreController extends Controller
                             case 5:
                                 $ratings_list_5[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score,
+                                    "rating" => $com->score??'',
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -283,18 +283,18 @@ class CommentScoreController extends Controller
                     $comments_list[] = [
                         "user"=>'deleted',
                         "date" => $date[0],
-                        "rating" => $getComment->score,
-                        "comment" => $getComment->text,
+                        "rating" => $getComment->score??'',
+                        "comment" => $getComment->text??'',
                         "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }else{
                     $comments_list[] = [
                         'id'=>$from_user->id,
                         "img" => $user_img,
-                        "full_name" => $user_full_name,
+                        "full_name" => $user_full_name??'',
                         "date" => $date[0],
-                        "rating" => $getComment->score,
-                        "comment" => $getComment->text,
+                        "rating" => $getComment->score??'',
+                        "comment" => $getComment->text??'',
                         "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }
@@ -337,19 +337,19 @@ class CommentScoreController extends Controller
                 }
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
                 $personal_info = [
-                    'id'=>$user->personalInfo->id,
+                    'user_id'=>$user->id,
                     'img'=>$img_,
                     'full_name'=>$full_name,
                     'rating'=>'no score',
-                    'comment_count'=> 0
+                    'comment_count'=> null
                 ];
             }else{
                 $personal_info = [];
             }
             return $this->success(translate_api('No comment', $language), 400, [
                 'personal_info'=>$personal_info,
-                'ratings_list'=> 0,
-                'comments_list'=> 0,
+                'ratings_list'=> '',
+                'comments_list'=> '',
             ]);
         }
     }
