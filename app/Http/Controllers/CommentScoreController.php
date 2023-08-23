@@ -254,7 +254,7 @@ class CommentScoreController extends Controller
                 $full_name = '';
             }
             $personal_info = [
-                'user_id'=>$to_user->id,
+                'user_token'=>$to_user->token,
                 'img'=>$img_,
                 'full_name'=>$full_name,
                 'doc_status'=>$doc_status,
@@ -376,7 +376,7 @@ class CommentScoreController extends Controller
                 }
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
                 $personal_info = [
-                    'user_id'=>$user->id,
+                    'user_token'=>$user->token,
                     'img'=>$img_,
                     'full_name'=>$full_name,
                     'doc_status'=>$doc_status,
