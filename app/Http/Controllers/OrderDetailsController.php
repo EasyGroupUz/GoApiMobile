@@ -84,6 +84,7 @@ class OrderDetailsController extends Controller
 
 
             $order_detail = [
+                'id'=>$order_detail->id,
                 'seats_count'=>$order_detail->seats_count,
                 'start_date'=>$order_detail->start_date,
                 'from_id'=>$order_detail->from_id,
