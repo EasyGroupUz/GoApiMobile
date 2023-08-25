@@ -37,7 +37,7 @@ Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
 Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
     Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
     Route::post('/phone-update', [AuthController::class, 'PhoneUpdate']);
     Route::post('/phone-update/verify', [AuthController::class, 'resetLoginToken']);
