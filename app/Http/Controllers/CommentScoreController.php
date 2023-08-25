@@ -112,7 +112,7 @@ class CommentScoreController extends Controller
             $comment->save();
             return $this->success(translate_api('Success', $language), 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
         }else{
-            $this->error(translate_api('Your account was deleted', $language), 400);
+            return $this->error(translate_api('Your account was deleted', $language), 400);
         }
     }
     /**
