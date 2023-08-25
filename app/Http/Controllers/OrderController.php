@@ -275,9 +275,13 @@ class OrderController extends Controller
         if (!isset($request->id))
             return $this->error('id parameter is missing', 400);
 
-        $id = $request->id;
+        $car = Cars::find($request->car_id); 
+        if (!isset($car))
+            return $this->error('car_id parameter is not correct. Car not found', 400);
 
+        $id = $request->id;
         $order = Order::find($id);
+
         if (!isset($order))
             return $this->error('id parameter is not correct. Order not found', 400);
 
