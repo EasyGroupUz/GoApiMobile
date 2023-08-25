@@ -66,7 +66,7 @@ class CommentScoreController extends Controller
         $language = $request->header('language');
         $user = Auth::user();
         $comment = new CommentScore();
-        if(isset($user->deleted_at)){
+        if(!isset($user->deleted_at)){
             if(isset($request->to_user_id)){
                 $to_user = User::find($request->to_user_id);
                 if(isset($to_user->deleted_at)){
