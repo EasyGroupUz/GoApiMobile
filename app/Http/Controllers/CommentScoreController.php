@@ -66,49 +66,54 @@ class CommentScoreController extends Controller
         $language = $request->header('language');
         $user = Auth::user();
         $comment = new CommentScore();
-        if(isset($request->client_id)){
-            $comment->client_id = $request->client_id;
-            $client = User::find($request->client_id);
-            if(!isset($client->id)){
-                return $this->error(translate_api('Client is not exist', $language), 400);
+        if(isset($user->deleted_at)){
+            if(isset($request->to_user_id)){
+                $to_user = User::find($request->to_user_id);
+                if(isset($to_user->deleted_at)){
+                    return $this->error(translate_api('This user was deleted', $language), 400);
+                }
+                if($user->id == $request->to_user_id){
+                    return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
+                }
+                if(isset($to_user->id)){
+                    $driver = Driver::where('user_id', $to_user->id)->first();
+                    if(isset($driver->id)){
+                        $comment->type = 1;
+                        $comment->driver_id = $request->to_user_id;
+                        $comment->client_id = $user->id;
+                        $comment->to_whom = $request->to_user_id;
+                    }else{
+                        $comment->client_id = $request->to_user_id;
+                        $comment->to_whom = $request->to_user_id;
+                        $comment->driver_id = $user->id;
+                    }
+                }else{
+                    return $this->error(translate_api('To user id is not exist', $language), 400);
+                }
             }
-        }
-        if(isset($request->driver_id)){
-            $comment->driver_id = $request->driver_id;
-            $driver = User::find($request->driver_id);
-            if(!isset($driver->id)){
-                return $this->error(translate_api('Driver is not exist', $language), 400);
+            if(isset($request->order_id)){
+                $comment->order_id = $request->order_id;
+                $order = Order::find($request->order_id);
+                if(!isset($order->id)){
+                    return $this->error(translate_api('Order is not exist', $language), 400);
+                }
             }
-        }
-        if(isset($request->order_id)){
-            $comment->order_id = $request->order_id;
+            if(isset($request->text)){
+                $comment->text = $request->text;
+            }
+            if(isset($request->score)){
+                $comment->score = $request->score;
+            }
+            $comment->date = date("Y-m-d");
             $order = Order::find($request->order_id);
-            if(!isset($order->id)){
+            if(!isset($order)){
                 return $this->error(translate_api('Order is not exist', $language), 400);
             }
-        }
-        if(isset($request->text)){
-            $comment->text = $request->text;
-        }
-        if(isset($request->score)){
-            $comment->score = $request->score;
-        }
-        $comment->date = date("Y-m-d");
-        if($user->id == $request->client_id){
-            $comment->to_whom = $request->driver_id;
-            $comment->type = 1;
-        }elseif($user->id == $request->driver_id){
-            $comment->to_whom = $request->client_id;
-            $comment->type = 0;
+            $comment->save();
+            return $this->success(translate_api('Success', $language), 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
         }else{
-            return $this->error(translate_api('one of client id or driver id must be yours', $language), 400);
+            $this->error(translate_api('Your account was deleted', $language), 400);
         }
-        $order = Order::find($request->order_id);
-        if(!isset($order)){
-            return $this->error(translate_api('Order is not exist', $language), 400);
-        }
-        $comment->save();
-        return $this->success(translate_api('Success', $language), 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
     }
     /**
      * @OA\Get(
@@ -142,14 +147,17 @@ class CommentScoreController extends Controller
     {
         date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
-        $user = User::find($request->user_id);
+        $user = User::where('deleted_at', NULL)->where('id', $request->user_id)->first();
+        if(!isset($user)){
+            return $this->error(translate_api('This user is not exist', $language), 400);
+        }
         $personal_info = '';
         $ratings_list = [];
         $comments_list = [];
-        $comment = CommentScore::where('to_whom', $request->user_id)->first();
+        $comment = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->first();
         if(isset($comment)){
-            $getComments = CommentScore::where('to_whom', $request->user_id)->get();
-            $comments = CommentScore::where('to_whom', $request->user_id)->get()->groupBy('score');
+            $getComments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get();
+            $comments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get()->groupBy('score');
             $average_score = 0;
             foreach ($comments as $key => $comm){
                 if(isset($key) && $key>0){
@@ -202,7 +210,7 @@ class CommentScoreController extends Controller
                     }
                 }
             }
-            $to_user = User::find($comment->to_whom);
+            $to_user = User::where('id', $comment->to_whom)->where('deleted_at', NULL)->first();
             if(isset($to_user->personalInfo)){
                 if(isset($to_user->personalInfo->first_name)){
                     $first_name = $to_user->personalInfo->first_name.' ';
@@ -263,9 +271,9 @@ class CommentScoreController extends Controller
             ];
             foreach ($getComments as $getComment){
                 if($getComment->to_whom == $getComment->client_id){
-                    $from_user = User::find($getComment->driver_id);
+                    $from_user = User::where('id', $getComment->driver_id)->where('deleted_at', NULL)->first();
                 }else{
-                    $from_user = User::find($getComment->client_id);
+                    $from_user = User::where('id', $getComment->client_id)->where('deleted_at', NULL)->first();
                 }
                 if(isset($from_user->personalInfo)){
                     if(isset($from_user->personalInfo->first_name)){
