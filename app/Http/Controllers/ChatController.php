@@ -12,12 +12,12 @@ use Ratchet\ConnectionInterface;
 // use Modules\ForTheBuilder\Entities\Constants;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
-use App\Models\Role;
+// use App\Models\Role;
 use App\Models\Chat;
 use App\Models\PersonalInfo;
 // use App\Models\User;
 use App\Models\Order;
-use App\Models\Client;
+// use App\Models\Client;
 use Auth;
 use Carbon\Carbon;
 
@@ -66,28 +66,60 @@ class ChatController extends Controller implements MessageComponentInterface
 
         $data = json_decode($msg);
         // dd($data);
+        // from_user_id
+        // order_id
+        // chat_id
+
+
         if($data->type == 'request_connected_chat_user')
         {
-                $users = User::where('id','!=', $data->from_user_id)->get();
-                $sub_data = array();
-                foreach ($users as $user_data) {
-                    $user_role_name=Role::where('id',$user_data->role_id)->first()->name;
-        
-                    $sub_data[] = array(
-                        'id'    =>  $user_data->id,
-                        'name'  =>  $user_data->first_name." ". $user_data->last_name,
-                        'user_role_name'=>$user_role_name,
-                        'first_name'=>$user_data->first_name,
-                        'user_image'    =>  $user_data->avatar,
-                    );
+            $chat = Chat::find($data->id);
+            $order = Order::find($chat->order_id);
 
+            $userID = ($chat->from_user_id == $data->from_user_id) ? $order->driver_id : $chat->from_user_id;
+            $personalInfo = User::find($userID)->personalInfo;
+
+            if ($personalInfo && isset($personalInfo->avatar)) {
+                $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+                if (file_exists($avatarPath)) {
+                    $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+                } else {
+                    $personalInfo->avatar = null;
                 }
+            }
+
+            $from_to_name = table_translate($order, 'city', $language);
+
+            $list = [
+                'id' => $chat->id,
+                'start_date' => $order->start_date,
+                'from_name' => $from_to_name['from_name'],
+                'to_name' => $from_to_name['to_name'],
+                'name' => $personalInfo->first_name ?? null,
+                'image' => $personalInfo->avatar ?? null
+            ];
+                
+                
+               
+                // $sub_data = array();
+                // foreach ($users as $user_data) {
+                //     $user_role_name=Role::where('id',$user_data->role_id)->first()->name;
+        
+                //     $sub_data[] = array(
+                //         'id'    =>  $user_data->id,
+                //         'name'  =>  $user_data->first_name." ". $user_data->last_name,
+                //         'user_role_name'=>$user_role_name,
+                //         'first_name'=>$user_data->first_name,
+                //         'user_image'    =>  $user_data->avatar,
+                //     );
+
+                // }
 
                 foreach($this->clients as $client)
                 {
                         $send_data['response_connected_chat_user'] = true;
     
-                        $send_data['data'] = $sub_data;
+                        $send_data['data'] = $list;
     
                         $client->send(json_encode($send_data));
                 }
@@ -208,114 +240,7 @@ class ChatController extends Controller implements MessageComponentInterface
                 }
 
         }
-        if ($data->type=='request_send_group_chat_message') {
-
-
-
-            // $receiver_connection_id = User::select('connection_id','avatar','first_name','last_name','created_at')->where('id', $data->to_user_id)->get();
-
-            $sender_connection = User::select('avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->first();
-            
-            $chat = new Chat;
-
-            $chat->user_from_id = $data->from_user_id;
-            
-            $chat->text = $data->message;
-
-            $chat->save();
-
-            $chat_message_id = $chat->id;
-
-            foreach($this->clients as $client)
-            {
-
-                    $send_data['chat_message_id'] = $chat_message_id;
-                    
-                    $send_data['group_message'] = $data->message;
-
-                    $send_data['from_user_id'] = $data->from_user_id;
-
-                    $send_data['sender_connection'] = $sender_connection;
-
-                    $send_data['time'] = date('H:i', strtotime($chat->created_at));
-
-
-                    $client->send(json_encode($send_data));
-            }
-        }
-        if ($data->type=='request_connected_group_chat_user_history') {
-
-            // $chat_data = Chat::select('id', 'user_from_id', 'user_to_id', 'text')
-            //                         ->where(function($query) use ($data){
-            //                             $query->where('user_from_id','!=', null)->where('user_to_id',null);
-            //                         })->orderBy('id', 'ASC')->get();
-            
-
-            
-                $connect_for=Constants::FOR_1;
-                $connect_new=Constants::NEW_1;
-
-                $chat_data = DB::table($connect_for.'.chat as dt1')
-                ->join('icstroyc_newhouse.users as dt2', 'dt2.id', '=', 'dt1.user_from_id')
-                ->where('dt1.user_to_id',null)
-                ->where('dt1.deal_id',null)
-                ->select('dt1.id as chat_id','dt1.user_from_id','dt1.text','dt2.first_name','dt2.last_name','dt2.avatar',DB::raw('DATE_FORMAT(dt1.created_at, "%H:%i") as time'))
-                ->orderBy('dt1.id', 'ASC')->get();
-
-                $send_data['group_chat_history'] = $chat_data;
-
-                $receiver_connection_id = User::select('connection_id')->where('id', $data->from_user_id)->get();
-
-                foreach($this->clients as $client)
-                {
-                    if($client->resourceId == $receiver_connection_id[0]->connection_id)
-                    {
-                        $client->send(json_encode($send_data));
-                    }
-                }
-
-
-        }
-
-        if($data->type == 'deal_request_send_message')
-        {
-            
-            $sender_connection = User::select('avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->first();
-            
-            $chat = new Chat;
-
-            $chat->user_from_id = $data->from_user_id;
-            
-            $chat->text = $data->message;
-
-            $chat->deal_id = $data->deal_id;
-
-            $chat->save();
-
-            $chat_message_id = $chat->id;
-
-            foreach($this->clients as $client)
-            {
-
-                    $send_data['chat_message_id'] = $chat_message_id;
-                    
-                    $send_data['deal_chat_message'] = $data->message;
-
-                    $send_data['from_user_id'] = $data->from_user_id;
-
-                    $send_data['from_user_id'] = $data->from_user_id;
-
-
-                    $send_data['sender_connection'] = $sender_connection;
-
-                    $send_data['time'] = date('Y-m-d H:i:s', strtotime($chat->created_at));
-
-
-                    $client->send(json_encode($send_data));
-            }
-
-
-        }
+        
 
 
 
@@ -325,37 +250,7 @@ class ChatController extends Controller implements MessageComponentInterface
 
         $this->clients->detach($conn);
 
-        $querystring = $conn->httpRequest->getUri()->getQuery();
-
-        parse_str($querystring, $queryarray);
-
-        if(isset($queryarray['token']))
-        {
-            User::where('token', $queryarray['token'])->update([ 'connection_id' => 0, 'user_status' => 'Offline' ]);
-
-            $user_id = User::select('id', 'updated_at')->where('token', $queryarray['token'])->get();
-
-            $data['id'] = $user_id[0]->id;
-
-            $updated_at = $user_id[0]->updated_at;
-
-            // if(date('Y-m-d') == date('Y-m-d', strtotime($updated_at))) //Same Date, so display only Time
-            // {
-            //     $data['last_seen'] = 'Last Seen at ' . date('H:i');
-            // }
-            // else
-            // {
-            //     $data['last_seen'] = 'Last Seen at ' . date('d/m/Y H:i');
-            // }
-
-            foreach($this->clients as $client)
-            {
-                if($client->resourceId != $conn->resourceId)
-                {
-                    $client->send(json_encode($data));
-                }
-            }
-        }
+        echo "Connection {$conn->resourceId} has disconnected\n";
 
     }
 

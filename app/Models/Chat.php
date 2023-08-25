@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Chat extends Model
 {
     // use HasFactory;
-    protected $connection = 'mysql2';
-    protected $table = 'chat';
+    // protected $connection = 'mysql2';
+    protected $table = 'yy_chat';
     protected $fillable = [
         'user_from_id',
         'user_to_id',
-        'deal_id',
+        'order_id',
         'text'
     ];
 
