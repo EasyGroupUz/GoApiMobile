@@ -23,9 +23,15 @@ class Constants {
    const CANCEL = 8;
 
    // Offer    create_type  and cancel_type
-   const  ORDER_DETAIL= 0;
+   const ORDER_DETAIL= 0;
    const ORDER = 1;
 
    const MIN_DESTINATION_PRICE = 300;
    const MAX_DESTINATION_PRICE = 500;
+
+   // Driver doc_status
+   const NOT_ACCEPT = 1;
+   const ACCEPTED = 2;
+   const WAITING = 3;
+   const CENCELED = 4;
 }
