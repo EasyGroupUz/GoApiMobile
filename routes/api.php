@@ -101,6 +101,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     
     Route::group(['prefix' => 'notification'], function () {
         Route::get('/index', [NotificationController::class, 'index']);
+        Route::post('/read', [NotificationController::class, 'read']);
     });
 
     Route::group(['prefix' => 'comment'], function () {
