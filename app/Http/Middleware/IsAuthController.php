@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class IsAuthController
@@ -15,22 +16,11 @@ class IsAuthController
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(isset($request->phone_number) && isset($request->Bearer_token)){
-            $model = UserVerify::where('phone_number', $request->phone_number)->first();
-            if(isset($model->id)){
-                if($model->verify_code == $request->verify_code){
-                    return $next($request);
-                }else{
-                    $message = 'Token error. re-enter the token';
-                }
-            }else{
-                $message = 'Enter your phone to authentificate';
-            }
+        date_default_timezone_set("Asia/Tashkent");
+        if(isset(Auth::user()->deleted_at)){
+            return response()->json('Your account had been deleted', 401);
+        }else{
+            return $next($request);
         }
-        $response = [
-            'Status'=>false,
-            'Message'=>$message
-        ];
-        return response()->json($response);
     }
 }
