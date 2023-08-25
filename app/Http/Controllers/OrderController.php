@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Options;
 use App\Models\Offer;
 use App\Models\OrderDetail;
+use App\Models\Cars;
 use App\Models\PersonalInfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
