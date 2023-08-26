@@ -346,7 +346,7 @@ class CarsController extends Controller
     public function destroy(Request $request)
     {
         $language = $request->header('language');
-        $model = Cars::where('id', $request->id)->whereNotNull('deleted_at')->first();
+        $model= Cars::find($request->id);
         // if(isset($model->id)){
         //     if(isset($model->reg_certificate_image)){
         //         $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
