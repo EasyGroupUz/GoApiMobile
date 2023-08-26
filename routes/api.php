@@ -114,7 +114,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::post('/store-reason', [ComplainController::class, 'storeReason']);
         Route::get('/get-reason', [ComplainController::class, 'getReason']);
         Route::get('/get-complain', [ComplainController::class, 'getComplain']);
-        Route::get('/destroy', [ComplainController::class, 'destroy']);
+        Route::post('/destroy', [ComplainController::class, 'destroy']);
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);

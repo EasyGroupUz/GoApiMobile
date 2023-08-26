@@ -29,6 +29,18 @@ class Order extends Model
         'booking_place'
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+     
+        self::deleted(function($model) {
+            $orderDetails = OrderDetail::where('order_id', $model->id)->first();
+
+            if ($orderDetails)
+                $orderDetails->delete();
+        });
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(Status::class);
