@@ -39,20 +39,20 @@ class OfferController extends Controller
             'price'=>'required|integer',
             'comment'=>'required|string',
         ]);
-        $offer = new Offer();
         $order_detail = OrderDetail::find($field['order_detail_id']);
         $order = Order::find($field['order_id']);
-        if(!isset($order_detail)){
+        if(!isset($order_detail)  ){
             return $this->error(translate_api('Order detail not found', $language), 400);
+        }
+        if ($order_detail->client_id != auth()->id()) {
+            return $this->error(translate_api('this order detail is not yours', $language), 400);
         }
         if(!isset($order)){
             return $this->error(translate_api('Order not found', $language), 400);
         }
+        $offer = new Offer();
         $id=auth()->id();
         $create_type=$id = ($order_detail->client_id) ? 0 : 1;
-        // dd($create_type);
-        // $offer->driver_id = $order->driver_id;
-        // $offer->client_id = $order_detail->client_id;
         $offer->order_id = $order->id;
         $offer->order_detail_id = $order_detail->id;
         $offer->price = $field['price'];
