@@ -145,9 +145,6 @@ class UserController extends Controller
         $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo->id)){
-            if(!isset($model->personalInfo->deleted_at)){
-                $model->personalInfo->deleted_at = NULL;
-            }
             $personal_info = $model->personalInfo;
         }else{
             $personal_info = new PersonalInfo();
@@ -240,7 +237,7 @@ class UserController extends Controller
                     unlink($avatar);
                 }
             }
-            $model->personalInfo->delete_at = date("Y-m-d H:i:s");
+            $model->personalInfo->deleted_at = date("Y-m-d H:i:s");
             $model->personalInfo->save();
         }
         $driver = Driver::where('user_id', $model->id)->where('deleted_at', NULL)->first();
@@ -261,13 +258,17 @@ class UserController extends Controller
     public function getUser(Request $request){
         $language = $request->header('language');
         $user = User::where('id', $request->id)->first();
-        if(isset($user->id)) {
+        if(!isset($user->deleted_at)) {
             return response()->json([
                 'users' => $user,
                 'sms_token' => $user->userVerify ? $user->userVerify->verify_code : ''
             ]);
         }else{
-            return $this->error(translate_api('This user had been deleted', $language), 201);
+            return response()->json([
+                'status' => 'deleted',
+                'users' => $user,
+                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : ''
+            ]);
         }
     }
 }

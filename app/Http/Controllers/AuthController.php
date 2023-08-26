@@ -187,14 +187,21 @@ class AuthController extends Controller
                     $new_user = new User();
                     $old_user = User::orderBy('created_at', 'DESC')->first();
                     if(isset($old_user) && isset($old_user->personal_account)){
-                        if(isset($old_user->personal_account->deleted_at)){
-                            $old_user->personal_account->deleted_at = NULL;
-                        }
                         $new_user->personal_account = $old_user->personal_account+1;
                     }else{
                         $new_user->personal_account = 1000000;
                     }
-                    $personal_info = new PersonalInfo();
+                    if(!isset($model->user->personalInfo)){
+                        $personal_info = new PersonalInfo();
+                        $personal_info->phone_number = (int)$fields['phone_number'];
+                        $personal_info->save();
+                        $model->user->personal_info_id = $personal_info->id;
+                    }else{
+                        if(isset($model->user->personalInfo->deleted_at)){
+                            $model->user->personalInfo->deleted_at = NULL;
+                        }
+                        $personal_info = $model->user->personalInfo;
+                    }
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
