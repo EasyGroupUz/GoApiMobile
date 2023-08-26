@@ -338,7 +338,8 @@ class ChatController extends Controller implements MessageComponentInterface
         // dd($chats);
          $data=[];
         foreach ($chats as $key => $chat) {
-            $order = Order::find($chat->order_id);
+            $order = Order::where('id',$chat->order_id)->first();
+            // $order = Order::find();
             
             dd($order); 
             $from_to_name=table_translate($order,'city',$language);
