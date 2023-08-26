@@ -231,18 +231,18 @@ class UserController extends Controller
         date_default_timezone_set("Asia/Tashkent");
         $model = Auth::user();
         if(isset($model->personalInfo)){
-            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
-                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
-                if(file_exists($avatar)){
-                    unlink($avatar);
-                }
-            }
+//            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+//                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
+//                if(file_exists($avatar)){
+//                    unlink($avatar);
+//                }
+//            }
             $model->personalInfo->deleted_at = date("Y-m-d H:i:s");
             $model->personalInfo->save();
         }
         $driver = Driver::where('user_id', $model->id)->where('deleted_at', NULL)->first();
         if(isset($driver->id)){
-            $driver->deleted_at = date("Y-m-d", strtotime('now'));
+            $driver->deleted_at = date("Y-m-d H:i:s");
             $driver->save();
         }
         $user_verify = UserVerify::where('user_id', $model->id)->where('deleted_at', NULL)->first();
