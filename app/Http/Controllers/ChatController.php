@@ -335,7 +335,7 @@ class ChatController extends Controller implements MessageComponentInterface
         ->distinct('order_id')
         ->orderBy('order_id')
         ->get();
-        // dd($chats);
+        dd($chats);
          $data=[];
         foreach ($chats as $key => $chat) {
             $order = Order::find($chat->order_id);
