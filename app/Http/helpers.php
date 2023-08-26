@@ -64,27 +64,30 @@ if (!function_exists('table_translate')) {
                 $from_name = DB::table('yy_cities as dt1')
                 ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('dt1.id', $key->from_id)
-                ->orWhere('dt2.lang', $lang)
+                // ->orWhere('dt2.lang', $lang)
                 ->select('dt1.name as city_name', 'dt2.name as city_translation_name')
                 ->first();
+                // dd($from_name);
                 // $name_from=$from_name->city_name;
                 $name_from = ($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name;
                 
-        
-                $from_name = DB::table('yy_cities as dt1')
+                // dd($key->to_id);
+                $to_name = DB::table('yy_cities as dt1')
                 ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('dt1.id', $key->to_id)
-                ->orWhere('dt2.lang', $lang)
+                // ->orWhere('dt2.lang', $lang)
                 ->select('dt1.name as city_name', 'dt2.name as city_translation_name')
                 ->first();
-                $name_to=$from_name->city_name;
-                $name_to = ($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name;
+                // dd($to_name);
+                $name_to=$to_name->city_name;
+                // dd($name_to);
+                $name_to = ($to_name->city_translation_name) ? $to_name->city_translation_name : $to_name->city_name;
         
                 $from_to=[
                     'from_name'=>$name_from,
                     'to_name'=>$name_to,
                 ];
-
+                // dd($from_to);
                 return $from_to;
                 break;
 
