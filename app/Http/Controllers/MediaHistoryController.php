@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MediaHistoryUser;
 use App\Models\MediaHistory;
+use App\Models\PersonalInfo;
 use App\Models\User;
 
 class MediaHistoryController extends Controller
@@ -54,25 +55,27 @@ class MediaHistoryController extends Controller
             }
             if(isset($media->mediaUser)){
                 foreach ($media->mediaUser as $media_user){
-                    if(isset($media_user->user->personalInfo->first_name)){
-                        $first_name = $media_user->user->personalInfo->first_name.' ';
+                    $user = User::withTrashed()->find($media_user->user_id);
+                    $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+                    if(isset($personal_info->first_name)){
+                        $first_name = $personal_info->first_name.' ';
                     }else{
                         $first_name = '';
                     }
-                    if(isset($media_user->user->personalInfo->last_name)){
-                        $last_name = strtoupper($media_user->user->personalInfo->last_name[0].'. ');
+                    if(isset($personal_info->last_name)){
+                        $last_name = strtoupper($personal_info->last_name[0].'. ');
                     }else{
                         $last_name = '';
                     }
-                    if(isset($media_user->user->personalInfo->middle_name)){
-                        $middle_name = strtoupper($media_user->user->personalInfo->middle_name[0].'.');
+                    if(isset($personal_info->middle_name)){
+                        $middle_name = strtoupper($personal_info->middle_name[0].'.');
                     }else{
                         $middle_name = '';
                     }
-                    if(isset($media_user->user->personalInfo->avatar) && $media_user->user->personalInfo->avatar != ''){
-                        $avatar = storage_path('app/public/avatar/'.$media_user->user->personalInfo->avatar??'no');
+                    if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+                        $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
                         if(file_exists($avatar)){
-                            $img_ = asset('storage/avatar/'.$media_user->user->personalInfo->avatar);
+                            $img_ = asset('storage/avatar/'.$personal_info->avatar);
                         }else{
                             $img_ = '';
                         }
@@ -80,10 +83,18 @@ class MediaHistoryController extends Controller
                         $img_ = '';
                     }
                     $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
-                    $mediaUser[] = [
-                        'id'=>$media_user->id,
-                        'full_name'=>$full_name,
-                    ];
+                    if(isset($personal_info->deleted_at)) {
+                        $mediaUser[] = [
+                            'id' => $media_user->id,
+                            'full_name' => $full_name,
+                            'status'=>'deleted'
+                        ];
+                    }else{
+                        $mediaUser[] = [
+                            'id' => $media_user->id,
+                            'full_name' => $full_name,
+                        ];
+                    }
                 }
             }
             $data[] = [
@@ -98,6 +109,82 @@ class MediaHistoryController extends Controller
                 'updated_at'=>$media->updated_at??'',
             ];
         }
+        if($data != null){
+            return $this->success('Success', 200, $data);
+        }else{
+            return $this->error('No media history', 400);
+        }
+    }
+
+
+    public function getMediaHistory(Request $request){
+        $media = MediaHistory::select('id', 'url_small', 'url_big', 'is_read', 'expire_date', 'created_at', 'updated_at')->find($request->id);
+        if(isset($media->url_small)){
+            $media->url_small = 'http://admin.easygo.uz/storage/thumb/'.$media->url_small;
+            $url_small = $media->url_small;
+        }
+        $url_big_array = [];
+        if(isset($media->url_big)){
+            $url_bigs = json_decode($media->url_big);
+            foreach ($url_bigs as $url_big){
+                $url_big_array[] = 'http://admin.easygo.uz/storage/media/'.$url_big;
+            }
+        }
+        if(isset($media->mediaUser)){
+            foreach ($media->mediaUser as $media_user){
+                $user = User::withTrashed()->find($media_user->user_id);
+                $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+                if(isset($personal_info->first_name)){
+                    $first_name = $personal_info->first_name.' ';
+                }else{
+                    $first_name = '';
+                }
+                if(isset($personal_info->last_name)){
+                    $last_name = strtoupper($personal_info->last_name[0].'. ');
+                }else{
+                    $last_name = '';
+                }
+                if(isset($personal_info->middle_name)){
+                    $middle_name = strtoupper($personal_info->middle_name[0].'.');
+                }else{
+                    $middle_name = '';
+                }
+                if(isset($personal_info->avatar) && $personal_info->avatar != ''){
+                    $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
+                    if(file_exists($avatar)){
+                        $img_ = asset('storage/avatar/'.$personal_info->avatar);
+                    }else{
+                        $img_ = '';
+                    }
+                }else{
+                    $img_ = '';
+                }
+                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                if(isset($personal_info->deleted_at)) {
+                    $mediaUser[] = [
+                        'id' => $media_user->id,
+                        'full_name' => $full_name,
+                        'status'=>'deleted'
+                    ];
+                }else{
+                    $mediaUser[] = [
+                        'id' => $media_user->id,
+                        'full_name' => $full_name,
+                    ];
+                }
+            }
+        }
+        $data = [
+            'id' =>$media->id,
+            'url_small'=>$url_small??'',
+            'url_big'=>$url_big_array,
+            'is_read'=>$media->is_read,
+            'count_user'=>count($media->mediaUser),
+            'media_user'=>$mediaUser??[],
+            'expire_date'=>$media->expire_date,
+            'created_at'=>$media->created_at??'',
+            'updated_at'=>$media->updated_at??'',
+        ];
         if($data != null){
             return $this->success('Success', 200, $data);
         }else{
