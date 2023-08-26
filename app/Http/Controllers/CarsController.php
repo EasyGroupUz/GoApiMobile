@@ -347,34 +347,38 @@ class CarsController extends Controller
     {
         $language = $request->header('language');
         $model= Cars::find($request->id);
-        if(isset($model->id)){
-            if(isset($model->reg_certificate_image)){
-                $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
-                if(file_exists($sms_avatar)){
-                    unlink($sms_avatar);
-                }
-            }
-            if(isset($model->images)){
-                $images_array = json_decode($model->images);
-                if(gettype($images_array) == 'string'){
-                    $str_images = str_replace('[', '', $images_array);
-                    $str_images_1 = str_replace(']', '', $str_images);
-                    $images_array = str_replace("\"", '', $str_images_1);
-                    $images_array = explode(',', $images_array);
-                }
-                if(isset($images_array) && count($images_array)>0){
-                    foreach ($images_array as $image){
-                        $sms_image = storage_path('app/public/cars/'.$image);
-                        if(file_exists($sms_image)){
-                            unlink($sms_image);
-                        }
-                    }
-                }
-            }
-        }else{
+        // if(isset($model->id)){
+        //     if(isset($model->reg_certificate_image)){
+        //         $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
+        //         if(file_exists($sms_avatar)){
+        //             unlink($sms_avatar);
+        //         }
+        //     }
+        //     if(isset($model->images)){
+        //         $images_array = json_decode($model->images);
+        //         if(gettype($images_array) == 'string'){
+        //             $str_images = str_replace('[', '', $images_array);
+        //             $str_images_1 = str_replace(']', '', $str_images);
+        //             $images_array = str_replace("\"", '', $str_images_1);
+        //             $images_array = explode(',', $images_array);
+        //         }
+        //         if(isset($images_array) && count($images_array)>0){
+        //             foreach ($images_array as $image){
+        //                 $sms_image = storage_path('app/public/cars/'.$image);
+        //                 if(file_exists($sms_image)){
+        //                     unlink($sms_image);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }else{
+        //     return $this->error(translate_api('Failed car not found', $language), 400);
+        // }
+        if(!isset($model)) {
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
-        $model->deleted_at = date("Y-m-d H:i:s");
+        
+        $model->delete();
         return $this->success(translate_api('Success', $language), 201);
     }
 }

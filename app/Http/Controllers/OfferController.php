@@ -39,20 +39,20 @@ class OfferController extends Controller
             'price'=>'required|integer',
             'comment'=>'required|string',
         ]);
-        $offer = new Offer();
         $order_detail = OrderDetail::find($field['order_detail_id']);
         $order = Order::find($field['order_id']);
-        if(!isset($order_detail)){
+        if(!isset($order_detail)  ){
             return $this->error(translate_api('Order detail not found', $language), 400);
+        }
+        if ($order_detail->client_id != auth()->id()) {
+            return $this->error(translate_api('this order detail is not yours', $language), 400);
         }
         if(!isset($order)){
             return $this->error(translate_api('Order not found', $language), 400);
         }
+        $offer = new Offer();
         $id=auth()->id();
         $create_type=$id = ($order_detail->client_id) ? 0 : 1;
-        // dd($create_type);
-        // $offer->driver_id = $order->driver_id;
-        // $offer->client_id = $order_detail->client_id;
         $offer->order_id = $order->id;
         $offer->order_detail_id = $order_detail->id;
         $offer->price = $field['price'];
@@ -76,25 +76,50 @@ class OfferController extends Controller
 
     public function getOffer(Request $request){
         $language = $request->header('language');
-        // $offer = Offer::select('order_id',
-        //     'order_detail_id', 'price', 'status', 'comment')
-        //     ->where('')
-        //     ->get()
-        //     ->toArray();
-        // dd(auth()->id());
-        $offer = DB::table('yy_offers as dt1')
+        $offers = DB::table('yy_offers as dt1')
         ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
         ->Leftjoin('yy_orders as dt3', 'dt3.id', '=', 'dt1.order_id')
         ->Leftjoin('yy_statuses as dt4', 'dt4.type_id', '=', 'dt1.status')
+        ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
+        ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
         ->where('dt3.driver_id', auth()->id())
         ->orWhere('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt4.name as status',)
-        ->get()
-        ->toArray();
+        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name')
+        ->get();
+        // ->toArray();
         // dd($offer);
 
-        if(count($offer)>0){
-            return $this->success('Success', 200, $offer);
+        $data=[];
+        foreach ($offers as $key => $offer) {
+            // dd($offer);
+            $from_to_name=table_translate($offer,'city',$language);
+
+            $list=[
+                'offer_id'=>$offer->offer_id,
+                'order_id'=>$offer->order_id,
+                'order_detail_id'=>$offer->order_detail_id,
+                'start_date'=>$offer->start_date,
+                'status'=>$offer->status,
+                'rating'=>$offer->rating,
+                'from_name' => $from_to_name['from_name'],
+                'to_name' => $from_to_name['to_name'],
+                'full_name'=> $offer->first_name.' '.$offer->middle_name . ' ' .$offer->last_name
+            ];
+            array_push($data , $list);
+        }
+        // dd($data);
+        // $data=$data->toArray();
+        // foreach ($offers as $key => $offer) {
+        //     $data
+            
+
+        // }
+
+
+        
+
+        if($data){
+            return $this->success('Success', 200, $data);
         }else{
             return $this->error(translate_api('Offer not found', $language), 400);
         }
