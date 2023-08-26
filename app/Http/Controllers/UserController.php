@@ -56,7 +56,7 @@ class UserController extends Controller
             $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
             $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
             $middle_name = $model->personalInfo->middle_name?strtoupper($model->personalInfo->middle_name[0].'.'):'';
-           
+
             if(isset($model->personalInfo->avatar)){
                 $avatar = storage_path('app/public/avatar/'.$model->personalInfo->avatar);
                 if(file_exists($avatar)){
@@ -145,6 +145,9 @@ class UserController extends Controller
         $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo->id)){
+            if(!isset($model->personalInfo->deleted_at)){
+                $model->personalInfo->deleted_at = NULL;
+            }
             $personal_info = $model->personalInfo;
         }else{
             $personal_info = new PersonalInfo();
@@ -228,6 +231,7 @@ class UserController extends Controller
      * )
      */
     public function delete(Request $request){
+        date_default_timezone_set("Asia/Tashkent");
         $model = Auth::user();
         if(isset($model->personalInfo)){
             if(isset($personal_info->avatar) && $personal_info->avatar != ''){
@@ -236,25 +240,34 @@ class UserController extends Controller
                     unlink($avatar);
                 }
             }
-            $model->personalInfo->delete();
+            $model->personalInfo->delete_at = date("Y-m-d H:i:s");
+            $model->personalInfo->save();
         }
-        $driver = Driver::where('user_id', $model->id)->first();
+        $driver = Driver::where('user_id', $model->id)->where('deleted_at', NULL)->first();
         if(isset($driver->id)){
             $driver->deleted_at = date("Y-m-d", strtotime('now'));
+            $driver->save();
         }
-        $user_verify = UserVerify::where('user_id', $model->id)->first();
+        $user_verify = UserVerify::where('user_id', $model->id)->where('deleted_at', NULL)->first();
         if(isset($user_verify->id)){
-            $user_verify->delete();
+            $user_verify->deleted_at = date("Y-m-d H:i:s");
+            $user_verify->save();
         }
-        $model->delete();
+        $model->deleted_at = date("Y-m-d H:i:s");
+        $model->save();
         return $this->success('Success', 201);
     }
     
     public function getUser(Request $request){
-        $user = User::find($request->id);
-        return response()->json([
-            'users' => $user,
-            'sms_token' => $user->userVerify?$user->userVerify->verify_code:''
-        ]);
+        $language = $request->header('language');
+        $user = User::where('id', $request->id)->first();
+        if(isset($user->id)) {
+            return response()->json([
+                'users' => $user,
+                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : ''
+            ]);
+        }else{
+            return $this->error(translate_api('This user had been deleted', $language), 201);
+        }
     }
 }

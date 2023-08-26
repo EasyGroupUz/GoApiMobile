@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cars;
 use App\Models\CarList;
@@ -373,7 +374,7 @@ class CarsController extends Controller
         }else{
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
-        $model->delete();
+        $model->deleted_at = date("Y-m-d H:i:s");
         return $this->success(translate_api('Success', $language), 201);
     }
 }

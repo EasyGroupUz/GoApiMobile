@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\DirectionHistory;
@@ -36,9 +37,6 @@ use App\Models\DirectionHistory;
 class Controller extends BaseController
 {
 
-    public function __construct(){
-        date_default_timezone_set("Asia/Tashkent");
-    }
 
     use AuthorizesRequests, ValidatesRequests;
 
