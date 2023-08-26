@@ -46,6 +46,7 @@ class ComplainController extends Controller
     {
         $language = $request->header('language');
         $reasons_id = $request->reasons_id;
+        $reason = [];
         foreach ($reasons_id as $reason_id){
             $complainReason = ComplainReason::find($reason_id);
             if(isset($complainReason->text)){
@@ -56,22 +57,29 @@ class ComplainController extends Controller
         if(!isset($order_detail)){
             return $this->error(translate_api("Order detail not found", $language), 400);
         }
+
         $order = Order::find($request->order_id);
         if(!isset($order)){
             return $this->error(translate_api("Order not found", $language), 400);
         }
+        
         $complain = new Complain();
         $complain->complain_reason = json_encode($reason);
         if(!isset($request->text)){
             return $this->error('text is not entered', 400);
         }
+        
         if(!isset($request->type)){
             return $this->error('type is not entered', 400);
         }
+        
+        $complain->order_id = $request->order_id;
+        $complain->order_detail_id = $request->order_detail_id;
         $complain->text = $request->text;
         $complain->type = $request->type;
         $complain->save();
-        return $this->error(translate_api("success", $language), 200);
+
+        return $this->success(translate_api("success", $language), 200);
     }
 
     public function destroy(Request $request){
