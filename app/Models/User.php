@@ -31,6 +31,7 @@ class User extends Authenticatable
         'device_type',
         'device_id',
         'created_at',
+        'deleted_at',
     ];
 
     public function personalInfo()

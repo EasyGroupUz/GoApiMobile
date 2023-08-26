@@ -7,6 +7,7 @@ use App\Models\ClassList;
 use App\Models\ColorList;
 // use Modules\ForTheBuilder\Entities\Language;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 

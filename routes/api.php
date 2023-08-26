@@ -37,7 +37,7 @@ Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
 Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
-Route::group(['middleware' => ['auth:sanctum']], function () {
+Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
     Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
     Route::post('/phone-update', [AuthController::class, 'PhoneUpdate']);
     Route::post('/phone-update/verify', [AuthController::class, 'resetLoginToken']);
@@ -59,7 +59,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/store', [CarsController::class, 'store']);
         Route::post('/update/{id}', [CarsController::class, 'update']);
         Route::post('/card-list', [CarsController::class, 'cardList']);
-        Route::get('/destroy', [CarsController::class, 'destroy']);
+        Route::post('/destroy', [CarsController::class, 'destroy']);
     });
 
     Route::group(['prefix' => 'user'], function () {
@@ -101,6 +101,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     
     Route::group(['prefix' => 'notification'], function () {
         Route::get('/index', [NotificationController::class, 'index']);
+        Route::post('/read', [NotificationController::class, 'read']);
     });
 
     Route::group(['prefix' => 'comment'], function () {
@@ -113,7 +114,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/store-reason', [ComplainController::class, 'storeReason']);
         Route::get('/get-reason', [ComplainController::class, 'getReason']);
         Route::get('/get-complain', [ComplainController::class, 'getComplain']);
-        Route::get('/destroy', [ComplainController::class, 'destroy']);
+        Route::post('/destroy', [ComplainController::class, 'destroy']);
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);

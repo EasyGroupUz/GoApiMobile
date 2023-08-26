@@ -60,6 +60,9 @@ class AuthController extends Controller
             $user_verify = new UserVerify();
             $user_verify->phone_number = (int)$request->phone;
             $user_verify->status_id = 1;
+        }elseif(isset($user_verify->deleted_at)){
+            $user_verify->status_id = 1;
+            $user_verify->deleted_at = NULL;
         }
         $token_options = [
             'multipart' => [
@@ -174,8 +177,11 @@ class AuthController extends Controller
              'device_type'=>'nullable',
              'device_id'=>'nullable',
         ]);
-        $model = UserVerify::where('phone_number',(int)$fields['phone_number'])->first();
+        $model = UserVerify::where('phone_number', (int)$fields['phone_number'])->first();
         if(isset($model->id)){
+            if(isset($model->deleted_a)){
+                $model->deleted_at = NULL;
+            }
             if($model->verify_code == $fields['verify_code']){
                 if(!isset($model->user->id)){
                     $new_user = new User();
@@ -185,7 +191,20 @@ class AuthController extends Controller
                     }else{
                         $new_user->personal_account = 1000000;
                     }
-                    $personal_info = new PersonalInfo();
+                    if(!isset($model->user->personalInfo)){
+                        $personal_info = new PersonalInfo();
+                        $personal_info->phone_number = (int)$fields['phone_number'];
+                        $personal_info->save();
+                        $model->user->personal_info_id = $personal_info->id;
+                    }else{
+                        if(isset($model->user->personalInfo->deleted_at)){
+                            $model->user->personalInfo->deleted_at = NULL;
+                        }
+                        $personal_info = $model->user->personalInfo;
+                    }
+                    $personal_info->phone_number = (int)$fields['phone_number'];
+                    $personal_info->save();
+                    $new_user->personal_info_id = $personal_info->id;
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
@@ -203,12 +222,19 @@ class AuthController extends Controller
                     $message = 'Success';
                     return $this->success($message, 201, ['token'=>$token]);
                 }else{
+                    if(isset($model->user->deleted_at)){
+                        $model->user->deleted_at = NULL;
+                    }
                     $model->user->email = $model->phone_number;
                     if(!isset($model->user->personalInfo)){
                         $personal_info = new PersonalInfo();
                         $personal_info->phone_number = (int)$fields['phone_number'];
                         $personal_info->save();
                         $model->user->personal_info_id = $personal_info->id;
+                    }else{
+                        if(isset($model->user->personalInfo->deleted_at)){
+                            $model->user->personalInfo->deleted_at = NULL;
+                        }
                     }
                     $model->user->password = Hash::make($model->verify_code);
                     $token = $model->user->createToken('myapptoken')->plainTextToken;
@@ -257,7 +283,7 @@ class AuthController extends Controller
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            $message = 'Failed your token didn\'t match';
+            $message = 'Failed your phone didn\'t match';
             $token = 'no token';
             return $this->error(translate_api($message, $language), 400);
         }
@@ -315,39 +341,25 @@ class AuthController extends Controller
             'device_id'=>'nullable',
         ]);
         $user = Auth::user();
-        if(isset($user->personalInfo->phone_history)){
-            $phone_history = json_decode($user->personalInfo->phone_history);
-            if(end($phone_history) != $fields['phone_number']){
-                return $this->error(translate_api('Failed phone number is not correct', $language), 400);
-            }
-            if($user->userVerify->verify_code == $fields['verify_code']){
-                $user->email = $fields['phone_number'];
-                if(!isset($user->personalInfo)){
-                    $personal_info = new PersonalInfo();
-                    $personal_info->phone_number = (int)$fields['phone_number'];
-                    $personal_info->save();
-                    $user->personal_info_id = $personal_info->id;
+        if(isset($user->deleted_at)){
+            if(isset($user->personalInfo->phone_history)){
+                $phone_history = json_decode($user->personalInfo->phone_history);
+                if(end($phone_history) != $fields['phone_number']){
+                    return $this->error(translate_api('Failed phone number is not correct', $language), 400);
                 }
-                $user->password = Hash::make($user->userVerify->verify_code);
-                $token = $user->createToken('myapptoken')->plainTextToken;
-                $user->token = $token;
-                if($fields['device_id'] != null && $fields['device_id'] != ''){
-                    if($user->device_id == null || $user->device_id == ''){
-                        if($user->device_type == null || $user->device_type == ''){
-                            if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                $user->device_type = json_encode([$fields['device_type']]);
-                            }
-                        }else{
-                            $device_type = json_decode($user->device_type);
-                            if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
-                            }
-                        }
-                        $user->device_id = json_encode([$fields['device_id']]);
-                    }else{
-                        $device_id = json_decode($user->device_id);
-                        if(!in_array($fields['device_id'], $device_id)){
-                            $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
+                if($user->userVerify->verify_code == $fields['verify_code']){
+                    $user->email = $fields['phone_number'];
+                    if(!isset($user->personalInfo)){
+                        $personal_info = new PersonalInfo();
+                        $personal_info->phone_number = (int)$fields['phone_number'];
+                        $personal_info->save();
+                        $user->personal_info_id = $personal_info->id;
+                    }
+                    $user->password = Hash::make($user->userVerify->verify_code);
+                    $token = $user->createToken('myapptoken')->plainTextToken;
+                    $user->token = $token;
+                    if($fields['device_id'] != null && $fields['device_id'] != ''){
+                        if($user->device_id == null || $user->device_id == ''){
                             if($user->device_type == null || $user->device_type == ''){
                                 if($fields['device_type'] != null && $fields['device_type'] != ''){
                                     $user->device_type = json_encode([$fields['device_type']]);
@@ -358,27 +370,46 @@ class AuthController extends Controller
                                     $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
                                 }
                             }
+                            $user->device_id = json_encode([$fields['device_id']]);
+                        }else{
+                            $device_id = json_decode($user->device_id);
+                            if(!in_array($fields['device_id'], $device_id)){
+                                $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
+                                if($user->device_type == null || $user->device_type == ''){
+                                    if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                        $user->device_type = json_encode([$fields['device_type']]);
+                                    }
+                                }else{
+                                    $device_type = json_decode($user->device_type);
+                                    if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                        $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
+                                    }
+                                }
+                            }
                         }
                     }
+                    if($user->rating == null || $user->rating == ''){
+                        $user->rating = 4.5;
+                    }
+                    $user->userVerify->phone_number = $fields['phone_number'];
+                    $user->userVerify->save();
+                    $user->save();
+                    $message = 'Success';
+                    return $this->success($message, 201, ['token'=>$token]);
+                }else{
+                    $message = 'Failed your token didn\'t match';
+                    $token = 'no token';
+                    return $this->error(translate_api($message, $language), 400);
                 }
-                if($user->rating == null || $user->rating == ''){
-                    $user->rating = 4.5;
-                }
-                $user->userVerify->phone_number = $fields['phone_number'];
-                $user->userVerify->save();
-                $user->save();
-                $message = 'Success';
-                return $this->success($message, 201, ['token'=>$token]);
             }else{
                 $message = 'Failed your token didn\'t match';
                 $token = 'no token';
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            $message = 'Failed your token didn\'t match';
-            $token = 'no token';
-            return $this->error(translate_api($message, $language), 400);
+            return $this->error(translate_api('Your account had been deleted. Login again', $language), 400);
         }
+
     }
 
 
@@ -420,19 +451,23 @@ class AuthController extends Controller
     public function Set_name_surname(Request $request) {
         $language = $request->header('language');
         $auth_user = Auth::user();
-        if(!isset($auth_user->personalInfo)){
-            $personal_info = new PersonalInfo();
-            $personal_info->first_name = $request->first_name;
-            $personal_info->last_name = $request->last_name;
+        if(isset($auth_user->deleted_at)){
+            if(!isset($auth_user->personalInfo)){
+                $personal_info = new PersonalInfo();
+                $personal_info->first_name = $request->first_name;
+                $personal_info->last_name = $request->last_name;
+            }else{
+                $personal_info = $auth_user->personalInfo;
+                $personal_info->first_name = $request->first_name;
+                $personal_info->last_name = $request->last_name;
+            }
+            $personal_info->save();
+            $auth_user->personal_info_id = $personal_info->id;
+            $auth_user->save();
+            return $this->success('Success', 201);
         }else{
-            $personal_info = $auth_user->personalInfo;
-            $personal_info->first_name = $request->first_name;
-            $personal_info->last_name = $request->last_name;
+                return $this->error(translate_api('Your account had been deleted. Login again', $language), 400);
         }
-        $personal_info->save();
-        $auth_user->personal_info_id = $personal_info->id;
-        $auth_user->save();
-        return $this->success('Success', 201);
     }
 
     /**
@@ -465,6 +500,7 @@ class AuthController extends Controller
     }
 
     public function PhoneUpdate(Request $request){
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $user = Auth::user();
         $fields = $request->validate([
@@ -474,12 +510,18 @@ class AuthController extends Controller
         $eskiz_token = EskizToken::first();
         $user_verify = UserVerify::where('user_id', $user->id)->first();
         $random = rand(100000, 999999);
-        $user_verify_phone = UserVerify::where('phone_number', (int)$fields['phone'])->first();
+        $user_verify_phone = UserVerify::where('phone_number', (int)$fields['phone'])->where('deleted_at', NULL)->first();
         if(isset($user_verify_phone->phone_number) && $user_verify_phone->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400);
         }
         if(isset($user_verify_phone->phone_number) && $user_verify->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number ", $language), 400);
+        }
+        if(!isset($user_verify->deleted_at)){
+            $user_verify->deleted_at = NULL;
+        }
+        if(!isset($user_verify->id)){
+            $user_verify = new UserVerify();
         }
         $user_verify->phone_number = (int)$fields['phone'];
         $token_options = [
