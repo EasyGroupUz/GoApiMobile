@@ -347,6 +347,7 @@ class CarsController extends Controller
     {
         $language = $request->header('language');
         $model= Cars::find($request->id);
+        $model->deleted_at = date('Y-m-d H:i:s');
         // if(isset($model->id)){
         //     if(isset($model->reg_certificate_image)){
         //         $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
