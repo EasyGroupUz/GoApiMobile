@@ -28,7 +28,6 @@ class CarsController extends Controller
             ->where('dt1.user_id', auth()->id())->where('dt2.deleted_at', NULL)
             ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
-        $car_array = null;
         foreach ($cars as $car){
             $images_array = json_decode($car->images);
             if(gettype($images_array) == 'string'){
@@ -57,7 +56,7 @@ class CarsController extends Controller
             ];
             $images_ = [];
         }
-        if($car_array != null){
+        if(isset($car_array)){
             return $this->success('Success', 200, $car_array);
         }else{
             return $this->success('Success', 400);

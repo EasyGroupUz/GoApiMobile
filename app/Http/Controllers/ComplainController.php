@@ -27,7 +27,7 @@ class ComplainController extends Controller
             ];
         }
         if($getComplain != null){
-            return $this->success('Success', 200, $getComplain);
+            return $this->success('Success', 200);
         }else{
             return $this->error('No complains', 400);
         }
