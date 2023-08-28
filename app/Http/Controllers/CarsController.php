@@ -26,9 +26,8 @@ class CarsController extends Controller
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.user_id', auth()->id())->where('dt2.deleted_at', NULL)
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.updated_at', 'dt2.deleted_at')
             ->get()->toArray();
-        $car_array = null;
         foreach ($cars as $car){
             $images_array = json_decode($car->images);
             if(gettype($images_array) == 'string'){
@@ -57,10 +56,10 @@ class CarsController extends Controller
             ];
             $images_ = [];
         }
-        if($car_array != null){
+        if(isset($car_array)){
             return $this->success('Success', 200, $car_array);
         }else{
-            return $this->success(translate_api('No my cars', $language), 400);
+            return $this->success('Success', 400);
         }
     }
 
@@ -118,7 +117,7 @@ class CarsController extends Controller
         }
 
         if(count($class_lists)>0 && count($color_lists)>0 && count($carList)>0){
-            return $this->success(translate_api('Success', $language), 200, [
+            return $this->success('Success', 200, [
                 "class_list"=>$class_lists??[],
                 "color_list"=>$color_lists??[],
                 "car_list"=>$carList??[],
@@ -251,7 +250,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 
 
@@ -336,7 +335,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 
     /**
@@ -377,6 +376,6 @@ class CarsController extends Controller
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
         $model->delete();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 }

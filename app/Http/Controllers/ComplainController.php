@@ -27,7 +27,7 @@ class ComplainController extends Controller
             ];
         }
         if($getComplain != null){
-            return $this->success('Success', 200, $getComplain);
+            return $this->success('Success', 200);
         }else{
             return $this->error('No complains', 400);
         }
@@ -79,7 +79,7 @@ class ComplainController extends Controller
         $complain->type = $request->type;
         $complain->save();
 
-        return $this->success(translate_api("success", $language), 200);
+        return $this->success("success", 200);
     }
 
     public function destroy(Request $request){
@@ -87,7 +87,7 @@ class ComplainController extends Controller
         $model = Complain::find($request->id);
         if(isset($model->id)){
             $model->delete();
-            return $this->success(translate_api("Success", $language), 200);
+            return $this->success("Success", 200);
         }else{
             return $this->error(translate_api("Complain not found", $language), 400);
         }

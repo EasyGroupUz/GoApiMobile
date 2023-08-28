@@ -110,7 +110,7 @@ class CommentScoreController extends Controller
                 return $this->error(translate_api('Order is not exist', $language), 400);
             }
             $comment->save();
-            return $this->success(translate_api('Success', $language), 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
+            return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
         }else{
             return $this->error(translate_api('Your account was deleted', $language), 400);
         }
@@ -327,7 +327,7 @@ class CommentScoreController extends Controller
                     ];
                 }
             }
-            return $this->success(translate_api('Success', $language), 400, [
+            return $this->success('Success', 400, [
                 'personal_info'=>$personal_info,
                 'ratings_list_1'=>$ratings_list_1??[],
                 'ratings_list_2'=>$ratings_list_2??[],

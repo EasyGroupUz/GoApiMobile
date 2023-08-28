@@ -493,7 +493,7 @@ class AuthController extends Controller
      */
     public function Logout() {
         auth()->user()->tokens()->delete();
-        return $this->success('Logged out', 200);
+        return $this->success('Success', 200);
     }
 
     public function PhoneUpdate(Request $request){
