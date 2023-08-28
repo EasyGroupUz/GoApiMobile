@@ -25,7 +25,7 @@ class CarsController extends Controller
             ->leftJoin('yy_cars as dt2', 'dt2.driver_id', '=', 'dt1.id')
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
-            ->where('dt1.user_id', auth()->id())
+            ->where('dt1.user_id', auth()->id())->where('dt2.deleted_at', NULL)
             ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt1.created_at', 'dt1.updated_at')
             ->get()->toArray();
         $car_array = null;
@@ -43,7 +43,6 @@ class CarsController extends Controller
                 }
             }
             $color_table = table_translate($car, 'color', $language);
-//            return response($color_name);
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
