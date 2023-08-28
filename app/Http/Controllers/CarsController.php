@@ -347,7 +347,6 @@ class CarsController extends Controller
     {
         $language = $request->header('language');
         $model= Cars::find($request->id);
-        $model->deleted_at = date('Y-m-d H:i:s');
         // if(isset($model->id)){
         //     if(isset($model->reg_certificate_image)){
         //         $sms_avatar = storage_path('app/public/cars/'.$model->reg_certificate_image);
@@ -378,7 +377,6 @@ class CarsController extends Controller
         if(!isset($model)) {
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
-        
         $model->delete();
         return $this->success(translate_api('Success', $language), 201);
     }
