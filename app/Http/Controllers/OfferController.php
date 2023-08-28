@@ -30,14 +30,14 @@ class OfferController extends Controller
         // if(!isset($request->create_type)){
         //     return $this->error(translate_api('price is not entered', $language), 400);
         // }
-        if(!isset($request->comment)){
-            return $this->error(translate_api('comment is not entered', $language), 400);
-        }
+        // if(!isset($request->comment)){
+        //     return $this->error(translate_api('comment is not entered', $language), 400);
+        // }
         $field = $request->validate([
             'order_id'=>'required|integer',
             'order_detail_id'=>'required|integer',
             'price'=>'required|integer',
-            'comment'=>'required|string',
+            'comment'=>'nullable|string',
         ]);
         $offer = new Offer();
         $order_detail = OrderDetail::find($field['order_detail_id']);
@@ -49,7 +49,7 @@ class OfferController extends Controller
             return $this->error(translate_api('Order not found', $language), 400);
         }
         $id=auth()->id();
-        $create_type=$id = ($order_detail->client_id) ? 0 : 1;
+        $create_type = ($order_detail->client_id) ? 0 : 1;
         // dd($create_type);
         // $offer->driver_id = $order->driver_id;
         // $offer->client_id = $order_detail->client_id;
