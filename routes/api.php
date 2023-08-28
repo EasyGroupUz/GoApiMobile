@@ -59,7 +59,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/store', [CarsController::class, 'store']);
         Route::post('/update/{id}', [CarsController::class, 'update']);
         Route::post('/card-list', [CarsController::class, 'cardList']);
-        Route::post('/destroy', [CarsController::class, 'destroy']);
+        Route::get('/destroy', [CarsController::class, 'destroy']);
     });
 
     Route::group(['prefix' => 'user'], function () {
