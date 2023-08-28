@@ -54,7 +54,7 @@ class AuthController extends Controller
         ]);
         $client = new Client();
         $eskiz_token = EskizToken::first();
-        $user_verify = UserVerify::where('phone_number', (int)$fields['phone'])->first();
+        $user_verify = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone'])->first();
         $random = rand(100000, 999999);
         if(!isset($user_verify->id)){
             $user_verify = new UserVerify();
@@ -177,34 +177,32 @@ class AuthController extends Controller
              'device_type'=>'nullable',
              'device_id'=>'nullable',
         ]);
-        $model = UserVerify::where('phone_number', (int)$fields['phone_number'])->first();
+        $model = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone_number'])->first();
         if(isset($model->id)){
-            if(isset($model->deleted_a)){
+            if(isset($model->deleted_at)){
                 $model->deleted_at = NULL;
             }
             if($model->verify_code == $fields['verify_code']){
-                if(!isset($model->user->id)){
+                $user = User::withTrashed()->find($model->user_id);
+                if(!isset($user->id)){
                     $new_user = new User();
-                    $old_user = User::orderBy('created_at', 'DESC')->first();
+                    $old_user = User::withTrashed()->orderBy('created_at', 'DESC')->first();
                     if(isset($old_user) && isset($old_user->personal_account)){
                         $new_user->personal_account = $old_user->personal_account+1;
                     }else{
                         $new_user->personal_account = 1000000;
                     }
-                    if(!isset($model->user->personalInfo)){
+                    $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+                    if(!isset($personal_info->id)){
                         $personal_info = new PersonalInfo();
                         $personal_info->phone_number = (int)$fields['phone_number'];
                         $personal_info->save();
-                        $model->user->personal_info_id = $personal_info->id;
+                        $user->personal_info_id = $personal_info->id;
                     }else{
-                        if(isset($model->user->personalInfo->deleted_at)){
-                            $model->user->personalInfo->deleted_at = NULL;
+                        if(isset($personal_info->deleted_at)){
+                            $personal_info->deleted_at = NULL;
                         }
-                        $personal_info = $model->user->personalInfo;
                     }
-                    $personal_info->phone_number = (int)$fields['phone_number'];
-                    $personal_info->save();
-                    $new_user->personal_info_id = $personal_info->id;
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
@@ -222,69 +220,69 @@ class AuthController extends Controller
                     $message = 'Success';
                     return $this->success($message, 201, ['token'=>$token]);
                 }else{
-                    if(isset($model->user->deleted_at)){
-                        $model->user->deleted_at = NULL;
+                    if(isset($user->deleted_at)){
+                        $user->deleted_at = NULL;
                     }
-                    $model->user->email = $model->phone_number;
-                    if(!isset($model->user->personalInfo)){
+                    $user->email = $model->phone_number;
+
+                    $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+                    if(!isset($personal_info->id)){
                         $personal_info = new PersonalInfo();
                         $personal_info->phone_number = (int)$fields['phone_number'];
-                        $personal_info->save();
-                        $model->user->personal_info_id = $personal_info->id;
+                        $user->personal_info_id = $personal_info->id;
                     }else{
-                        if(isset($model->user->personalInfo->deleted_at)){
-                            $model->user->personalInfo->deleted_at = NULL;
+                        if(isset($personal_info->deleted_at)){
+                            $personal_info->deleted_at = NULL;
                         }
                     }
-                    $model->user->password = Hash::make($model->verify_code);
-                    $token = $model->user->createToken('myapptoken')->plainTextToken;
-                    $model->user->token = $token;
+                    $personal_info->save();
+                    $user->password = Hash::make($model->verify_code);
+                    $token = $user->createToken('myapptoken')->plainTextToken;
+                    $user->token = $token;
                     if($fields['device_id'] != null && $fields['device_id'] != ''){
-                        if($model->user->device_id == null || $model->user->device_id == ''){
-                            if($model->user->device_type == null || $model->user->device_type == ''){
+                        if($user->device_id == null || $user->device_id == ''){
+                            if($user->device_type == null || $user->device_type == ''){
                                 if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                    $model->user->device_type = json_encode([$fields['device_type']]);
+                                    $user->device_type = json_encode([$fields['device_type']]);
                                 }
                             }else{
-                                $device_type = json_decode($model->user->device_type);
+                                $device_type = json_decode($user->device_type);
                                 if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                    $model->user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
+                                    $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
                                 }
                             }
-                            $model->user->device_id = json_encode([$fields['device_id']]);
+                            $user->device_id = json_encode([$fields['device_id']]);
                         }else{
-                            $device_id = json_decode($model->user->device_id);
+                            $device_id = json_decode($user->device_id);
                             if(!in_array($fields['device_id'], $device_id)){
-                                $model->user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
-                                if($model->user->device_type == null || $model->user->device_type == ''){
+                                $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
+                                if($user->device_type == null || $user->device_type == ''){
                                     if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                        $model->user->device_type = json_encode([$fields['device_type']]);
+                                        $user->device_type = json_encode([$fields['device_type']]);
                                     }
                                 }else{
-                                    $device_type = json_decode($model->user->device_type);
+                                    $device_type = json_decode($user->device_type);
                                     if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                        $model->user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
+                                        $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
                                     }
                                 }
                             }
                         }
                     }
-                    if($model->user->rating == null || $model->user->rating == ''){
-                        $model->user->rating = 4.5;
+                    if($user->rating == null || $user->rating == ''){
+                        $user->rating = 4.5;
                     }
-                    $model->user->save();
+                    $user->save();
+                    $model->save();
                     $message = 'Success';
                     return $this->success($message, 201, ['token'=>$token]);
                 }
             }else{
-
                 $message = 'Failed your token didn\'t match';
-                $token = 'no token';
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
             $message = 'Failed your phone didn\'t match';
-            $token = 'no token';
             return $this->error(translate_api($message, $language), 400);
         }
     }
@@ -341,25 +339,46 @@ class AuthController extends Controller
             'device_id'=>'nullable',
         ]);
         $user = Auth::user();
-        if(isset($user->deleted_at)){
-            if(isset($user->personalInfo->phone_history)){
-                $phone_history = json_decode($user->personalInfo->phone_history);
-                if(end($phone_history) != $fields['phone_number']){
-                    return $this->error(translate_api('Failed phone number is not correct', $language), 400);
-                }
-                if($user->userVerify->verify_code == $fields['verify_code']){
-                    $user->email = $fields['phone_number'];
-                    if(!isset($user->personalInfo)){
-                        $personal_info = new PersonalInfo();
-                        $personal_info->phone_number = (int)$fields['phone_number'];
+        $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+        $user_verify = UserVerify::withTrashed()->where('user_id', $user->id)->first();
+        if(isset($personal_info->phone_history)){
+            $phone_history = json_decode($personal_info->phone_history);
+            if(end($phone_history) != $fields['phone_number']){
+                return $this->error(translate_api('Failed phone number is not correct', $language), 400);
+            }
+            if($user_verify->verify_code == $fields['verify_code']){
+                $user->email = $fields['phone_number'];
+                if(!isset($personal_info->id)){
+                    $personal_info = new PersonalInfo();
+                    $personal_info->phone_number = (int)$fields['phone_number'];
+                    $personal_info->save();
+                    $user->personal_info_id = $personal_info->id;
+                }else{
+                    if(isset($personal_info->deleted_at)){
+                        $personal_info->deleted_at = NULL;
                         $personal_info->save();
-                        $user->personal_info_id = $personal_info->id;
                     }
-                    $user->password = Hash::make($user->userVerify->verify_code);
-                    $token = $user->createToken('myapptoken')->plainTextToken;
-                    $user->token = $token;
-                    if($fields['device_id'] != null && $fields['device_id'] != ''){
-                        if($user->device_id == null || $user->device_id == ''){
+                }
+                $user->password = Hash::make($user_verify->verify_code);
+                $token = $user->createToken('myapptoken')->plainTextToken;
+                $user->token = $token;
+                if($fields['device_id'] != null && $fields['device_id'] != ''){
+                    if($user->device_id == null || $user->device_id == ''){
+                        if($user->device_type == null || $user->device_type == ''){
+                            if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                $user->device_type = json_encode([$fields['device_type']]);
+                            }
+                        }else{
+                            $device_type = json_decode($user->device_type);
+                            if($fields['device_type'] != null && $fields['device_type'] != ''){
+                                $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
+                            }
+                        }
+                        $user->device_id = json_encode([$fields['device_id']]);
+                    }else{
+                        $device_id = json_decode($user->device_id);
+                        if(!in_array($fields['device_id'], $device_id)){
+                            $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
                             if($user->device_type == null || $user->device_type == ''){
                                 if($fields['device_type'] != null && $fields['device_type'] != ''){
                                     $user->device_type = json_encode([$fields['device_type']]);
@@ -370,46 +389,25 @@ class AuthController extends Controller
                                     $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
                                 }
                             }
-                            $user->device_id = json_encode([$fields['device_id']]);
-                        }else{
-                            $device_id = json_decode($user->device_id);
-                            if(!in_array($fields['device_id'], $device_id)){
-                                $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
-                                if($user->device_type == null || $user->device_type == ''){
-                                    if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                        $user->device_type = json_encode([$fields['device_type']]);
-                                    }
-                                }else{
-                                    $device_type = json_decode($user->device_type);
-                                    if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                        $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
-                                    }
-                                }
-                            }
                         }
                     }
-                    if($user->rating == null || $user->rating == ''){
-                        $user->rating = 4.5;
-                    }
-                    $user->userVerify->phone_number = $fields['phone_number'];
-                    $user->userVerify->save();
-                    $user->save();
-                    $message = 'Success';
-                    return $this->success($message, 201, ['token'=>$token]);
-                }else{
-                    $message = 'Failed your token didn\'t match';
-                    $token = 'no token';
-                    return $this->error(translate_api($message, $language), 400);
                 }
+                if($user->rating == null || $user->rating == ''){
+                    $user->rating = 4.5;
+                }
+                $user_verify->phone_number = $fields['phone_number'];
+                $user_verify->save();
+                $user->save();
+                $message = 'Success';
+                return $this->success($message, 201, ['token'=>$token]);
             }else{
                 $message = 'Failed your token didn\'t match';
-                $token = 'no token';
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            return $this->error(translate_api('Your account had been deleted. Login again', $language), 400);
+            $message = 'Failed your token didn\'t match';
+            return $this->error(translate_api($message, $language), 400);
         }
-
     }
 
 
@@ -451,23 +449,22 @@ class AuthController extends Controller
     public function Set_name_surname(Request $request) {
         $language = $request->header('language');
         $auth_user = Auth::user();
-        if(isset($auth_user->deleted_at)){
-            if(!isset($auth_user->personalInfo)){
-                $personal_info = new PersonalInfo();
-                $personal_info->first_name = $request->first_name;
-                $personal_info->last_name = $request->last_name;
-            }else{
-                $personal_info = $auth_user->personalInfo;
-                $personal_info->first_name = $request->first_name;
-                $personal_info->last_name = $request->last_name;
+        $personal_info = PersonalInfo::withTrashed()->find($auth_user->personal_info_id);
+        if(isset($personal_info->id)){
+            if(isset($personal_info->deleted_at)){
+                $personal_info->deleted_at = NULL;
             }
-            $personal_info->save();
-            $auth_user->personal_info_id = $personal_info->id;
-            $auth_user->save();
-            return $this->success('Success', 201);
+            $personal_info->first_name = $request->first_name;
+            $personal_info->last_name = $request->last_name;
         }else{
-                return $this->error(translate_api('Your account had been deleted. Login again', $language), 400);
+            $personal_info = new PersonalInfo();
+            $personal_info->first_name = $request->first_name;
+            $personal_info->last_name = $request->last_name;
         }
+        $personal_info->save();
+        $auth_user->personal_info_id = $personal_info->id;
+        $auth_user->save();
+        return $this->success('Success', 201);
     }
 
     /**
@@ -508,16 +505,16 @@ class AuthController extends Controller
         ]);
         $client = new Client();
         $eskiz_token = EskizToken::first();
-        $user_verify = UserVerify::where('user_id', $user->id)->first();
+        $user_verify = UserVerify::withTrashed()->where('user_id', $user->id)->first();
         $random = rand(100000, 999999);
-        $user_verify_phone = UserVerify::where('phone_number', (int)$fields['phone'])->where('deleted_at', NULL)->first();
+        $user_verify_phone = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone'])->first();
         if(isset($user_verify_phone->phone_number) && $user_verify_phone->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400);
         }
         if(isset($user_verify_phone->phone_number) && $user_verify->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number ", $language), 400);
         }
-        if(!isset($user_verify->deleted_at)){
+        if(isset($user_verify->deleted_at)){
             $user_verify->deleted_at = NULL;
         }
         if(!isset($user_verify->id)){
@@ -581,18 +578,19 @@ class AuthController extends Controller
         $result = json_decode($result);
         if(isset($result)){
             $user_verify->verify_code = $random;
-            if(isset($user_verify->user->personalInfo->phone_history)){
-                $phone_history = json_decode($user_verify->user->personalInfo->phone_history);
-                $user_verify->user->personalInfo->phone_history = json_encode(array_merge($phone_history, [(int)$fields['phone']]));
+            $user = User::withTrashed()->find($user_verify->user_id);
+            $personal_info = PersonalInfo::withTrashed()->find($user->personal_info_id);
+            if(isset($personal_info->phone_history)){
+                $phone_history = json_decode($personal_info->phone_history);
+                $personal_info->phone_history = json_encode(array_merge($phone_history, [(int)$fields['phone']]));
             }else{
-                $user_verify->user->personalInfo->phone_history = json_encode([(int)$fields['phone']]);
+                $personal_info->phone_history = json_encode([(int)$fields['phone']]);
             }
             $user_verify->save();
-            $user_verify->user->personalInfo->save();
+            $personal_info->save();
             return $this->success("Success", 200, ['Verify_code'=>$random]);
         }else{
             return $this->error(translate_api("Fail message not sent. Try again", $language), 400);
         }
     }
-
 }

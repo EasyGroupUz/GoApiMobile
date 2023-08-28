@@ -61,7 +61,7 @@ class CarsController extends Controller
         if($car_array != null){
             return $this->success('Success', 200, $car_array);
         }else{
-            return $this->error(translate_api('No my cars', $language), 400);
+            return $this->success(translate_api('No my cars', $language), 400);
         }
     }
 
@@ -377,7 +377,6 @@ class CarsController extends Controller
         if(!isset($model)) {
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
-        
         $model->delete();
         return $this->success(translate_api('Success', $language), 201);
     }

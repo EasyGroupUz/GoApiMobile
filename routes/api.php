@@ -37,12 +37,12 @@ Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
 Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
-Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/verify-get', [AuthController::class, 'loginToken_get']);
     Route::post('/phone-update', [AuthController::class, 'PhoneUpdate']);
     Route::post('/phone-update/verify', [AuthController::class, 'resetLoginToken']);
     Route::post('/logout', [AuthController::class, 'Logout']);
-    Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);       
+    Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
-    
+
     Route::group(['prefix' => 'car'], function () {
         Route::get('/driver-car',[CarsController::class, 'myTaxi']);
         Route::get('/list', [CarsController::class, 'information']);
@@ -98,7 +98,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
     Route::group(['prefix' => 'country'], function () {
         Route::get('/index', [CountryController::class, 'index']);
     });
-    
+
     Route::group(['prefix' => 'notification'], function () {
         Route::get('/index', [NotificationController::class, 'index']);
         Route::post('/read', [NotificationController::class, 'read']);
@@ -109,7 +109,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/get-comments',[CommentScoreController::class, 'getComments']);
         Route::get('/get-orders-users',[CommentScoreController::class, 'getOrderUserId']);
     });
-    
+
     Route::group(['prefix' => 'complain'], function () {
         Route::post('/store-reason', [ComplainController::class, 'storeReason']);
         Route::get('/get-reason', [ComplainController::class, 'getReason']);
