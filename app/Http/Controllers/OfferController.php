@@ -58,7 +58,7 @@ class OfferController extends Controller
         $offer->price = $field['price'];
         $offer->create_type = $create_type;
         $offer->status = Constants::NEW;
-        $offer->comment = $field['comment'];
+        $offer->comment = $field['comment'] ?? '';
         
         
         if ($offer->save()) {
