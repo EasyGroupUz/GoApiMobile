@@ -60,7 +60,7 @@ class CarsController extends Controller
         if($car_array != null){
             return $this->success('Success', 200, $car_array);
         }else{
-            return $this->success(translate_api('No my cars', $language), 400);
+            return $this->success('Success', 400);
         }
     }
 
@@ -118,7 +118,7 @@ class CarsController extends Controller
         }
 
         if(count($class_lists)>0 && count($color_lists)>0 && count($carList)>0){
-            return $this->success(translate_api('Success', $language), 200, [
+            return $this->success('Success', 200, [
                 "class_list"=>$class_lists??[],
                 "color_list"=>$color_lists??[],
                 "car_list"=>$carList??[],
@@ -251,7 +251,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 
 
@@ -336,7 +336,7 @@ class CarsController extends Controller
         }
         $cars->driver_id = $driver->id;
         $cars->save();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 
     /**
@@ -377,6 +377,6 @@ class CarsController extends Controller
             return $this->error(translate_api('Failed car not found', $language), 400);
         }
         $model->delete();
-        return $this->success(translate_api('Success', $language), 201);
+        return $this->success('Success', 201);
     }
 }
