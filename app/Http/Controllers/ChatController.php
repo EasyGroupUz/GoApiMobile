@@ -107,7 +107,7 @@ class ChatController extends Controller implements MessageComponentInterface
                     ->Leftjoin('yy_personal_infos as dt2', 'dt2.id', '=', 'dt1.personal_info_id')
                     ->where('dt1.id',$data->to_user_id)
                     ->select('dt2.avatar ','dt2.last_name', 'dt1.first_name','dt2.created_at',)
-                    ->get()
+                    ->get();
                 // $receiver_connection_id = User::select('avatar','first_name','last_name','created_at')->where('id', $data->to_user_id)->get();
                 
 
@@ -115,7 +115,7 @@ class ChatController extends Controller implements MessageComponentInterface
                 ->Leftjoin('yy_personal_infos as dt2', 'dt2.id', '=', 'dt1.personal_info_id')
                 ->where('dt1.id',$data->from_user_id)
                 ->select('dt2.avatar ','dt2.last_name', 'dt1.first_name','dt2.created_at',)
-                ->get()
+                ->get();
 
                 // $sender_connection_id = User::select(,'avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->get();                
 
