@@ -12,6 +12,7 @@ use App\Models\Cars;
 use App\Models\PersonalInfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Constants;
 
 use App\Http\Requests\OrderRequest;
@@ -235,7 +236,7 @@ class OrderController extends Controller
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
             $arr['driver_information'] = $arrDriverInformation;
-            $arr['car_information'] = $arrCarInfo;
+            $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
             $arr['options'] = json_decode($order->options) ?? [];
 
@@ -244,6 +245,211 @@ class OrderController extends Controller
             return $this->success('This kind of order not found', 204);
         }
     }
+
+
+    /* ========================= Order show start ========================= */
+    // public function show(Request $request)
+    // {
+    //     // Check if the 'id' parameter is present in the request
+    //     if (!$request->has('id')) {
+    //         return $this->error('id parameter is missing', 400);
+    //     }
+
+    //     $orderId = $request->id;
+    //     $order = Order::find($orderId);
+
+    //     // Check if the order exists
+    //     if (!$order) {
+    //         return $this->error('This kind of order not found', 204);
+    //     }
+
+    //     // Generate and return the order details
+    //     $orderDetails = $this->generateOrderDetails($order);
+    //     return $this->success('success', 200, $orderDetails);
+    // }
+
+    // // Function to generate order details
+    // private function generateOrderDetails(Order $order)
+    // {
+    //     // Generate driver information, car information, clients list, and distance information
+    //     $driverInformation = $this->generateDriverInformation($order->driver);
+    //     $carInformation = $this->generateCarInformation($order->car);
+    //     $clientsList = $this->generateClientsList($order->orderDetails);
+    //     $distanceInfo = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
+
+    //     // Build the order details array
+    //     $orderDetails = [
+    //         'id' => $order->id,
+    //         'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+    //         'isYour' => $order->driver_id == auth()->id(),
+    //         'from' => optional($order->from)->name,
+    //         'from_lng' => optional($order->from)->lng,
+    //         'from_lat' => optional($order->from)->lat,
+    //         'to' => optional($order->to)->name,
+    //         'to_lng' => optional($order->to)->lng,
+    //         'to_lat' => optional($order->to)->lat,
+    //         'distance_km' => $distanceInfo['km'],
+    //         'distance' => $distanceInfo['time'],
+    //         'arrived_date' => date('d.m.Y H:i', strtotime($order->start_date. ' +' . $distanceInfo['time'])),
+    //         'seats_count' => $order->seats,
+    //         'price' => $order->price,
+    //         'price_type' => $order->price_type,
+    //         'driver_information' => $driverInformation,
+    //         'car_information' => $carInformation,
+    //         'clients_list' => $clientsList,
+    //         'options' => json_decode($order->options) ?? []
+    //     ];
+
+    //     return $orderDetails;
+    // }
+
+    // /**
+    //  * Generate driver information.
+    //  *
+    //  * @param object $driver The driver object
+    //  * @return array|null The generated driver information array, or null if no driver provided
+    //  */
+    // private function generateDriverInformation($driver)
+    // {
+    //     if ($driver) {
+    //         // Initialize variables to store driver details
+    //         $d_full_name = '';
+    //         $d_phone_number = '';
+    //         $d_img = '';
+            
+    //         // Check if the driver has personal information
+    //         if ($driver->personalInfo) {
+    //             // Retrieve personal information of the driver
+    //             $d_personal_info = $driver->personalInfo;
+
+    //             // Build full name using first name, middle name, and last name
+    //             $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name . ' ' . $d_personal_info->middle_name;
+    //             $d_phone_number = $d_personal_info->phone_number;
+    //             // Build image URL using the avatar path
+    //             $d_img = asset('storage/avatar/' . $d_personal_info->avatar);
+
+    //             // Generate driver comments array
+    //             $arrComments = $this->generateDriverComments($driver->commentScores);
+    //         }
+
+    //         // Build driver information array
+    //         $arrDriverInformation = [
+    //             'id' => $driver->id,
+    //             'full_name' => $d_full_name,
+    //             'phone_number' => $d_phone_number,
+    //             'img' => $d_img,
+    //             'rating' => $driver->rating,
+    //             'type' => $driver->type ?? 0,
+    //             'count_comments' => count($arrComments ?? []),
+    //             'comments' => $arrComments ?? [],
+    //         ];
+
+    //         return $arrDriverInformation;
+    //     }
+
+    //     return null;
+    // }
+
+    // /**
+    //  * Generate driver comments array.
+    //  *
+    //  * @param array|null $commentScores The array of comment scores
+    //  * @return array The array of driver comments
+    //  */
+    // private function generateDriverComments($commentScores) 
+    // {
+    //     $arrComments = [];
+
+    //     if ($commentScores) {
+    //         // Iterate through comment scores and build comments array
+    //         foreach ($commentScores as $value) {
+    //             $arrComments[] = [
+    //                 'text' => $value->text,
+    //                 'date' => date('d.m.Y H:i', strtotime($value->date)),
+    //                 'score' => $value->score,
+    //             ];
+    //         }
+    //     }
+
+    //     return $arrComments;
+    // }
+
+    // /**
+    //  * Generate car information array.
+    //  *
+    //  * @param object $car The car object
+    //  * @return array The generated car information array
+    //  */
+    // private function generateCarInformation($car)
+    // {
+    //     $arrCarInfo = [];
+
+    //     // Check if the car object is provided
+    //     if ($car) {
+    //         // Initialize an array to store car images
+    //         $arrCarImg = [];
+            
+    //         // Check if the car has images
+    //         if (!empty($car->images)) {
+    //             $ci = 0;
+                
+    //             // Iterate through car images and generate image URLs
+    //             foreach (json_decode($car->images) as $valueCI) {
+    //                 $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+    //                 $ci++;
+    //             }
+    //         }
+
+    //         // Build car information array
+    //         $arrCarInfo = [
+    //             'id' => $car->id,
+    //             'name' => $car->car->name ?? '',
+    //             'color' => ($car->color) ? ['name' => $car->color->name, 'code' => $car->color->code] : [],
+    //             'production_date' => date('d.m.Y', strtotime($car->production_date)),
+    //             'class' => $car->class->name ?? '',
+    //             'reg_certificate' => $car->reg_certificate,
+    //             'reg_certificate_img' => $car->reg_certificate_image,
+    //             'images' => $arrCarImg,
+    //         ];
+    //     }
+
+    //     return $arrCarInfo;
+    // }
+
+    // /**
+    //  * Generate an array of client information from the given order details.
+    //  *
+    //  * @param array $orderDetails The order details array
+    //  * @return array The generated array of client information
+    //  */
+    // private function generateClientsList($orderDetails)
+    // {
+    //     $arrClients = [];
+
+    //     // Iterate through each order detail to extract client information
+    //     foreach ($orderDetails as $orderDetail) {
+    //         $order_details_client = $orderDetail->client;
+            
+    //         // Retrieve the client's personal information, if available
+    //         $c_personal_info = $order_details_client->personalInfo ?? null;
+
+    //         // Build an array of client information
+    //         $arrClients[] = [
+    //             'id' => $order_details_client->id,
+    //             'last_name' => optional($c_personal_info)->last_name ?? '',
+    //             'first_name' => optional($c_personal_info)->first_name ?? '',
+    //             'middle_name' => optional($c_personal_info)->middle_name ?? '',
+    //             'phone_number' => optional($c_personal_info)->phone_number ?? '',
+    //             'avatar' => optional($c_personal_info)->avatar ?? '',
+    //             'gender' => optional($c_personal_info)->gender ?? '',
+    //             'balance' => $order_details_client->balance ?? 0,
+    //             'about_me' => $order_details_client->about_me ?? '',
+    //         ];
+    //     }
+
+    //     return $arrClients;
+    // }
+    /* ========================= Order show end ========================= */
 
 
     public function create(OrderRequest $request)
@@ -271,6 +477,57 @@ class OrderController extends Controller
         return $this->success('success', 200);
     }
 
+    /* ========================= Order create start ========================= */
+    // public function create(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'from_id' => 'required|integer',
+    //         'to_id' => 'required|integer',
+    //         'start_date' => 'required|date_format:Y-m-d H:i:s',
+    //         'car_id' => 'required|integer',
+    //         'seats' => 'required|integer',
+    //         'options' => 'nullable|max:1000',
+    //         'price' => 'nullable|numeric',
+    //         'price_type' => 'nullable|integer',
+    //         'tarif_id' => 'nullable|integer',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return $this->error($validator->errors()->first(), 400);
+    //     }
+
+    //     $data = $request->all();
+    //     $driver_id = auth()->user()->id;
+    //     $data['driver_id'] = $driver_id;
+
+    //     $this->createOrder($data);
+
+    //     if (isset($data['back_date'])) {
+    //         $reversedData = $this->reverseOrderData($data);
+    //         $this->createOrder($reversedData);
+    //     }
+
+    //     return $this->success('success', 200);
+    // }
+
+    // private function createOrder($data)
+    // {
+    //     $order = new Order();
+    //     $order->create($data);
+    // }
+
+    // private function reverseOrderData($data)
+    // {
+    //     return [
+    //         'start_date' => $data['back_date'],
+    //         'from_id' => $data['to_id'],
+    //         'to_id' => $data['from_id'],
+    //         // Add other necessary fields here
+    //     ];
+    // }
+    /* ========================= Order create end ========================= */
+
+
     public function edit(Request $request)
     {
         if (!isset($request->id))
@@ -295,6 +552,56 @@ class OrderController extends Controller
 
         return $this->success('success', 200);
     }
+
+
+    /* ========================= Order edit start ========================= */
+    // public function edit(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'from_id' => 'required|integer',
+    //         'to_id' => 'required|integer',
+    //         'start_date' => 'required|date_format:Y-m-d H:i:s',
+    //         'car_id' => 'required|integer',
+    //         'seats' => 'required|integer',
+    //         'options' => 'nullable|max:1000',
+    //         'price' => 'nullable|numeric',
+    //         'price_type' => 'nullable|integer',
+    //         'tarif_id' => 'nullable|integer',
+    //     ]);
+
+    //     $id = $request->input('id');
+    //     $carId = $request->input('car_id');
+        
+    //     if (!$id) {
+    //         return $this->error('id parameter is missing', 400);
+    //     }
+
+    //     $car = Cars::find($carId); 
+    //     if (!$car) {
+    //         return $this->error('car_id parameter is not correct. Car not found', 400);
+    //     }
+
+    //     $order = Order::find($id);
+    //     if (!$order) {
+    //         return $this->error('id parameter is not correct. Order not found', 400);
+    //     }
+
+    //     $this->updateOrder($order, $request);
+
+    //     return $this->success('success', 200);
+    // }
+
+    // private function updateOrder(Order $order, Request $request)
+    // {
+    //     $order->car_id = $request->input('car_id');
+    //     $order->seats = $request->input('seats');
+    //     $order->options = $request->input('options');
+    //     $order->price = $request->input('price');
+    //     $order->price_type = $request->input('price_type');
+    //     $order->save();
+    // }
+    /* ========================= Order edit end ========================= */
+
 
     public function delete(Request $request)
     {
@@ -397,7 +704,7 @@ class OrderController extends Controller
                 $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
                 $arr[$n]['clients_list'] = $clientArr;
                 $arr[$n]['driver'] = $arrDriverInfo;
-                $arr[$n]['car'] = $arrCar;
+                $arr[$n]['car'] = (empty($arrCar)) ? NULL : $arrCar;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
 
                 $arr[$n]['from'] = ($value->from) ? $value->from->name : '';

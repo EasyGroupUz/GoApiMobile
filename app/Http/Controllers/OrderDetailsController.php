@@ -363,7 +363,8 @@ class OrderDetailsController extends Controller
             $odTo = $order_detail->to;
             $personalInfo = PersonalInfo::where('id',User::where('id', $order_detail->client_id)->first()->personal_info_id)->first();
 
-            $distance = $this->getDistanceAndKm((($odFrom) ? $odFrom->lng : ''), (($odFrom) ? $odFrom->lat : ''), (($odTo) ? $odTo->lng : ''), (($odTo) ? $odTo->lat : ''));
+            // $distance = $this->getDistanceAndKm((($odFrom) ? $odFrom->lng : ''), (($odFrom) ? $odFrom->lat : ''), (($odTo) ? $odTo->lng : ''), (($odTo) ? $odTo->lat : ''));
+            $distance = ['km' => '0', 'time' => '0', 'distance_value' => 0];
 
             $data = [
                 'id' => $order_detail->id ,
