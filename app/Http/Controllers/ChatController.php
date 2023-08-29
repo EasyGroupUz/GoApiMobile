@@ -99,21 +99,7 @@ class ChatController extends Controller implements MessageComponentInterface
                 'image' => $personalInfo->avatar ?? null
             ];
                 
-                
-               
-                // $sub_data = array();
-                // foreach ($users as $user_data) {
-                //     $user_role_name=Role::where('id',$user_data->role_id)->first()->name;
-        
-                //     $sub_data[] = array(
-                //         'id'    =>  $user_data->id,
-                //         'name'  =>  $user_data->first_name." ". $user_data->last_name,
-                //         'user_role_name'=>$user_role_name,
-                //         'first_name'=>$user_data->first_name,
-                //         'user_image'    =>  $user_data->avatar,
-                //     );
-
-                // }
+    
 
                 foreach($this->clients as $client)
                 {
@@ -140,9 +126,22 @@ class ChatController extends Controller implements MessageComponentInterface
 
                 $chat_message_id = $chat->id;
 
-                $receiver_connection_id = User::select('connection_id','avatar','first_name','last_name','created_at')->where('id', $data->to_user_id)->get();
 
-                $sender_connection_id = User::select('connection_id','avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->get();                
+                $receiver_connection_id = DB::table('yy_users as dt1')
+                    ->Leftjoin('yy_personal_infos as dt2', 'dt2.id', '=', 'dt1.personal_info_id')
+                    ->where('dt1.id',$data->to_user_id)
+                    ->select('dt2.avatar ','dt2.last_name', 'dt1.first_name','dt2.created_at',)
+                    ->get()
+                // $receiver_connection_id = User::select('avatar','first_name','last_name','created_at')->where('id', $data->to_user_id)->get();
+                
+
+                $sender_connection_id = DB::table('yy_users as dt1')
+                ->Leftjoin('yy_personal_infos as dt2', 'dt2.id', '=', 'dt1.personal_info_id')
+                ->where('dt1.id',$data->from_user_id)
+                ->select('dt2.avatar ','dt2.last_name', 'dt1.first_name','dt2.created_at',)
+                ->get()
+
+                // $sender_connection_id = User::select(,'avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->get();                
 
 
                 // if(date('Y-m-d') == date('Y-m-d', strtotime($user_data->updated_at)))
@@ -169,17 +168,17 @@ class ChatController extends Controller implements MessageComponentInterface
 
                         $send_data['time']=date('H:i', strtotime($chat->created_at));
 
-                        if($client->resourceId == $receiver_connection_id[0]->connection_id)
-                        {
-                            Chat::where('id', $chat_message_id)->update(['message_status' =>'Send']);
+                        // if($client->resourceId == $receiver_connection_id[0]->connection_id)
+                        // {
+                        //     Chat::where('id', $chat_message_id)->update(['message_status' =>'Send']);
 
-                            $send_data['message_status'] = 'Send';
-                        }
-                        else
-                        {
-                            $send_data['message_status'] = 'Not Send';
-                        }
-                        $send_data['message_status'] = 'Not Send';
+                        //     $send_data['message_status'] = 'Send';
+                        // }
+                        // else
+                        // {
+                        //     $send_data['message_status'] = 'Not Send';
+                        // }
+                        // $send_data['message_status'] = 'Not Send';
                         $send_data['receiver_connection']=$receiver_connection_id;
                         $send_data['sender_connection']=$sender_connection_id;
                         $client->send(json_encode($send_data));
