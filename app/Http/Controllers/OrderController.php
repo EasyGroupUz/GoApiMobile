@@ -79,7 +79,7 @@ class OrderController extends Controller
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
                 'isYour' => ($order->driver_id == auth()->id()) ? true : false,
-                'avatar' => $personalInfo->avatar ?? '',
+                'avatar' => $personalInfo->avatar ? asset('storage/avatar/' . $personalInfo->avatar) : NULL,
                 'rating' => 4,
                 'price' => $order->price,
                 'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '',
@@ -107,6 +107,81 @@ class OrderController extends Controller
 
         return $this->success($message, 200, $list);
     }
+
+
+    /* ========================= Order search-taxi start ========================= */
+    // public function searchTaxi(Request $request)
+    // {
+    //     $language = $request->header('language');
+    //     $date = Carbon::parse($request->start_date)->format('Y-m-d');
+    //     $tomorrow = Carbon::parse($date)->addDays(1)->format('Y-m-d');
+        
+    //     $orders = Order::all();
+    //     // $orders = Order::where('status_id', Constants::ORDERED)
+    //     //     ->where('from_id', $request->from_id)
+    //     //     ->where('to_id', $request->to_id)
+    //     //     ->where('start_date', '>=', $date)
+    //     //     ->where('start_date', '<', $tomorrow)
+    //     //     ->get();
+
+
+    //     $order_count = $orders->count();
+    //     $total_trips = Order::where('driver_id', auth()->id())
+    //         // ->where('status_id', Constants::COMPLETED)
+    //         ->count();
+
+    //     $list = [];
+    //     foreach ($orders as $order) {
+    //         $user = User::find($order->driver_id);
+    //         $personalInfo = $user->personalInfo ?? null;
+
+    //         $car = Cars::find($order->car_id);
+    //         $car_information = [
+    //             'name' => optional($car->carList)->name ?? '',
+    //             'color' => table_translate($car, 'color', $language),
+    //             'production_date' => optional($car->production_date)->format('d.m.Y') ?? '',
+    //         ];
+
+    //         $distance = $this->getDistanceAndKm(
+    //             optional($order->from)->lng,
+    //             optional($order->from)->lat,
+    //             optional($order->to)->lng,
+    //             optional($order->to)->lat
+    //         );
+
+    //         $data = [
+    //             'id' => $order->id,
+    //             'order_count' => $order_count,
+    //             'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
+    //             'isYour' => ($order->driver_id == auth()->id()),
+    //             'avatar' => (optional($personalInfo)->avatar) ? asset('storage/avatar/' . optional($personalInfo)->avatar) : NULL,
+    //             'rating' => $user->rating,
+    //             'price' => $order->price,
+    //             'name' => optional($personalInfo)->full_name,
+    //             'count_pleace' => $order->booking_place,
+    //             'seats' => $order->seats,
+    //             'car_information' => $car_information,
+    //             'from' => optional($order->from)->name ?? '',
+    //             'from_lng' => optional($order->from)->lng ?? '',
+    //             'from_lat' => optional($order->from)->lat ?? '',
+    //             'to' => optional($order->to)->name ?? '',
+    //             'to_lng' => optional($order->to)->lng ?? '',
+    //             'to_lat' => optional($order->to)->lat ?? '',
+    //             'distance_km' => $distance['km'],
+    //             'distance' => $distance['time'],
+    //             'arrived_date' => date('d.m.Y H:i', strtotime($order->start_date. ' +' . $distance['time'])),
+    //         ];
+
+    //         $list[] = $data;
+    //     }
+
+    //     $message = translate_api('success', $language);
+    //     return $this->success($message, 200, $list);
+    // }
+    /* ========================= Order search-taxi end ========================= */
+
+
+
 
     public function show(Request $request)
     {
@@ -200,7 +275,7 @@ class OrderController extends Controller
                         $c_first_name = $c_personal_info->first_name;
                         $c_middle_name = $c_personal_info->middle_name;
                         $c_phone_number = $c_personal_info->phone_number;
-                        $c_img = $d_personal_info->avatar;
+                        $c_img = asset('storage/avatar/' . $d_personal_info->avatar);
                         $c_gender = $d_personal_info->gender;
                     }
 
