@@ -35,30 +35,6 @@ class ChatController extends Controller implements MessageComponentInterface
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
 
-        $querystring = $conn->httpRequest->getUri()->getQuery();
-
-        parse_str($querystring, $queryarray);
-
-        if(isset($queryarray['token']))
-        {
-            User::where('token', $queryarray['token'])->update([ 'connection_id' => $conn->resourceId]);
-
-            $user_id = User::select('id')->where('token', $queryarray['token'])->get();
-
-            $data['id'] = $user_id[0]->id;
-
-            // $data['status'] = 'Online';
-
-            foreach($this->clients as $client)
-            {
-                if($client->resourceId != $conn->resourceId)
-                {
-                    $client->send(json_encode($data));
-                }
-            }
-
-        }
-
         echo "New connection! ({$conn->resourceId})\n";
     }
 
