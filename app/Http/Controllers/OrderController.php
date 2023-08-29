@@ -641,7 +641,7 @@ class OrderController extends Controller
                     foreach ($value->orderDetails as $keyOD => $valueOD) {
                         if (isset($valueOD->client) && isset($valueOD->client->personalInfo)) {
                             $clientArr[$i]['clients_full_name'] = $valueOD->client->personalInfo->last_name . ' ' . $valueOD->client->personalInfo->first_name . ' ' . $valueOD->client->personalInfo->middle_name;
-                            $clientArr[$i]['client_img'] = $valueOD->client->personalInfo->avatar;
+                            $clientArr[$i]['client_img'] = asset('storage/avatar/' . $valueOD->client->personalInfo->avatar);
                             $clientArr[$i]['client_rating'] = 4.3;
                         }
 
@@ -688,7 +688,7 @@ class OrderController extends Controller
                     $arrCar['production_date'] = date('d.m.Y', strtotime($valCar->production_date));
                     $arrCar['class'] = $valCar->class->name ?? '';
                     $arrCar['reg_certificate'] = $valCar->reg_certificate;
-                    $arrCar['reg_certificate_img'] = $valCar->reg_certificate_image;
+                    $arrCar['reg_certificate_img'] = asset('storage/cars/' . $valCar->reg_certificate_image);
                     $arrCar['images'] = $arrCarImg;
                 }
 

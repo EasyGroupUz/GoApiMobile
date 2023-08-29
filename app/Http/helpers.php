@@ -112,19 +112,19 @@ if (!function_exists('table_translate')) {
 //                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
                 return $color;
                 break;
-            case 'class_list':
-                $class_lists = ClassList::select('id', 'name')->get()->toArray();
-                foreach ($class_lists as $key => $class_list){
-                    $class_list_translate = DB::table('yy_class_lists as Class')
-                        ->leftJoin('yy_class_translations as ClassT', 'Class.id', '=', 'ClassT.class_list_id')
-                        ->where('Class.id', $class_list['id'])
-                        ->where('ClassT.lang', $lang)
-                        ->select('Class.id as id', 'ClassT.name as name')->first();
-                    $class_lists[$key]['name'] = $class_list_translate->name??$class_list['name'];
-                    $class_lists[$key]['id'] = $class_list['id'];
-                }
-                return $class_lists;
-                break;
+//            case 'class_list':
+//                $class_lists = ClassList::select('id', 'name')->get()->toArray();
+//                foreach ($class_lists as $key => $class_list){
+//                    $class_list_translate = DB::table('yy_class_lists as Class')
+//                        ->leftJoin('yy_class_translations as ClassT', 'Class.id', '=', 'ClassT.class_list_id')
+//                        ->where('Class.id', $class_list['id'])
+//                        ->where('ClassT.lang', $lang)
+//                        ->select('Class.id as id', 'ClassT.name as name')->first();
+//                    $class_lists[$key]['name'] = $class_list_translate->name??$class_list['name'];
+//                    $class_lists[$key]['id'] = $class_list['id'];
+//                }
+//                return $class_lists;
+//                break;
             case 'color_list':
                 $color_lists = ColorList::select('id', 'name')->get()->toArray();
                 foreach ($color_lists as $key => $color_list){

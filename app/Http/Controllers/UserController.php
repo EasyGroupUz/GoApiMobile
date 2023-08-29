@@ -271,4 +271,13 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function getId() {
+        $model = Auth::user();
+
+        if(!$model)
+            return $this->error('A token error occurred', 400);
+
+        return $this->success('success', 200, ['id' => $model->id]);
+    }
 }
