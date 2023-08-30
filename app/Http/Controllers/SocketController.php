@@ -36,11 +36,12 @@ class SocketController extends Controller implements MessageComponentInterface
             'received' => $data
         ];
 
-        foreach ($this->clients as $client) {
-            // $send_data['response_connected_chat_user'] = true;
-            $send_data['data'] = $response;
-            $client->send(json_encode($send_data));
-        }
+        // foreach ($this->clients as $client) {
+        //     // $send_data['response_connected_chat_user'] = true;
+        //     $send_data['data'] = $response;
+        //     $client->send(json_encode($send_data));
+        // }
+        $from->send(json_encode($response));
 
         // $from->send(json_encode($response)); 
 
