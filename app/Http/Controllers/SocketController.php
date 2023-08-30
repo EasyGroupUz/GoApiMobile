@@ -36,7 +36,13 @@ class SocketController extends Controller implements MessageComponentInterface
             'received' => $data
         ];
 
-        $from->send(json_encode($response)); 
+        foreach ($this->clients as $client) {
+            // $send_data['response_connected_chat_user'] = true;
+            $send_data['data'] = $response;
+            $client->send(json_encode($send_data));
+        }
+
+        // $from->send(json_encode($response)); 
 
         // $numRecv = count($this->clients) - 1;
         // echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
