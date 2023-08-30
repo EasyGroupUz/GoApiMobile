@@ -41,41 +41,47 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $data = json_decode($msg, true); // Assuming JSON data
 
-        if($data->type == 'request_connected_chat_user')
-        {
-            
-            $chat = Chat::find($data->id);
-            $order = Order::find($chat->order_id);
 
-            $userID = ($chat->from_user_id == $data->from_user_id) ? $order->driver_id : $chat->from_user_id;
-            $personalInfo = User::find($userID)->personalInfo;
 
-            if ($personalInfo && isset($personalInfo->avatar)) {
-                $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-                if (file_exists($avatarPath)) {
-                    $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-                } else {
-                    $personalInfo->avatar = null;
-                }
-            }
+        $from->send(json_encode($response)); 
 
-            $from_to_name = table_translate($order, 'city', $language);
+        // if($data->type == 'request_connected_chat_user')
+        // {
 
-            $list = [
-                'id' => $chat->id,
-                'start_date' => $order->start_date,
-                'from_name' => $from_to_name['from_name'],
-                'to_name' => $from_to_name['to_name'],
-                'name' => $personalInfo->first_name ?? null,
-                'image' => $personalInfo->avatar ?? null
-            ];
 
-            $response = [
-                'message' => 'Hello from the server!',
-                'received' => $list
-            ];
-            $from->send(json_encode($response));   
-        }
+
+        //     $chat = Chat::find($data->id);
+        //     $order = Order::find($chat->order_id);
+
+        //     $userID = ($chat->from_user_id == $data->from_user_id) ? $order->driver_id : $chat->from_user_id;
+        //     $personalInfo = User::find($userID)->personalInfo;
+
+        //     if ($personalInfo && isset($personalInfo->avatar)) {
+        //         $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+        //         if (file_exists($avatarPath)) {
+        //             $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+        //         } else {
+        //             $personalInfo->avatar = null;
+        //         }
+        //     }
+
+        //     $from_to_name = table_translate($order, 'city', $language);
+
+        //     $list = [
+        //         'id' => $chat->id,
+        //         'start_date' => $order->start_date,
+        //         'from_name' => $from_to_name['from_name'],
+        //         'to_name' => $from_to_name['to_name'],
+        //         'name' => $personalInfo->first_name ?? null,
+        //         'image' => $personalInfo->avatar ?? null
+        //     ];
+
+        //     $response = [
+        //         'message' => 'Hello from the server!',
+        //         'received' => $list
+        //     ];
+        //     $from->send(json_encode($response));   
+        // }
     }
 
     public function onClose(ConnectionInterface $conn) {
