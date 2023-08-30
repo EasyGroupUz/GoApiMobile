@@ -89,7 +89,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/edit', [OrderController::class, 'edit']);
         Route::post('/delete', [OrderController::class, 'delete']);
         Route::get('/expired', [OrderController::class, 'expired']);
-        Route::get('/find-by-order-search', [OrderController::class, 'searchTaxi']);
+        Route::post('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::post('/booking-cancel', [OrderController::class, 'bookingCancel']);
         Route::get('/options', [OrderController::class, 'getOptions']);
