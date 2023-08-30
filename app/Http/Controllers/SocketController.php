@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use Ratchet\MessageComponentInterface;
+
+use Ratchet\ConnectionInterface;
+
+use Auth;
+
+class SocketController extends Controller implements MessageComponentInterface
+{
+    protected $clients;
+
+    public function __construct() {
+        $this->clients = new \SplObjectStorage;
+    }
+
+    public function onOpen(ConnectionInterface $conn) {
+        // Store the new connection to send messages to later
+        $this->clients->attach($conn);
+
+        echo "New connection! ({$conn->resourceId})\n";
+    }
+
+    public function onMessage(ConnectionInterface $from, $msg) {
+
+
+        $data = json_decode($msg, true); // Assuming JSON data
+
+        // Process the message and prepare a response
+        $response = [
+            'message' => 'Hello from the server!',
+            'received' => $data
+        ];
+
+        // foreach ($this->clients as $client) {
+        //     // $send_data['response_connected_chat_user'] = true;
+        //     $send_data['data'] = $response;
+        //     $client->send(json_encode($send_data));
+        // }
+        $from->send(json_encode($response));
+
+        // $from->send(json_encode($response)); 
+
+        // $numRecv = count($this->clients) - 1;
+        // echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
+        //     , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
+
+        // foreach ($this->clients as $client) {
+        //     if ($from !== $client) {
+        //         // The sender is not the receiver, send to each client connected
+        //         $client->send($msg);
+        //     }
+        // }
+    }
+
+    public function onClose(ConnectionInterface $conn) {
+        // The connection is closed, remove it, as we can no longer send it messages
+        $this->clients->detach($conn);
+
+        echo "Connection {$conn->resourceId} has disconnected\n";
+    }
+
+    public function onError(ConnectionInterface $conn, \Exception $e) {
+        echo "An error has occurred: {$e->getMessage()}\n";
+
+        $conn->close();
+    }
+
+
+}
