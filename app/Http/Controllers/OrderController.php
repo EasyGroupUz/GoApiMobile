@@ -21,6 +21,19 @@ class OrderController extends Controller
 {
     public function searchTaxi(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'from_id' => 'required|integer',
+            'to_id' => 'required|integer',
+            'start_date' => 'required',
+            'seats_count' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 400);
+        }
+
+        $this->createOrderDetail($request->all());
+
         $language = $request->header('language');
 
         $date=Carbon::parse($request->start_date)->format('Y-m-d');
@@ -109,6 +122,19 @@ class OrderController extends Controller
         return $this->success($message, 200, $list);
     }
 
+    public function createOrderDetail($data)
+    {
+        $newOrderDetail = OrderDetail::create([
+            'client_id' => auth()->id(),
+            'status_id' => Constants::ACTIVE,
+            'from_id' => $data['from_id'],
+            'to_id' => $data['to_id'],
+            'seats_count' => $data['seats_count'],
+            'start_date' => date('Y-m-d', strtotime($data['start_date']))
+        ]);
+
+        return $data;
+    }
 
     /* ========================= Order search-taxi start ========================= */
     // public function searchTaxi(Request $request)
