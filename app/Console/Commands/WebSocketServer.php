@@ -1,8 +1,18 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Http\Controllers\ChatController;
+
 use Illuminate\Console\Command;
+
+use Ratchet\Server\IoServer;
+
+use Ratchet\Http\HttpServer;
+
+use Ratchet\WebSocket\WsServer;
+
+use React\EventLoop\Factory;
+
+use App\Http\Controllers\SocketController;
 
 class WebSocketServer extends Command
 {
@@ -18,21 +28,26 @@ class WebSocketServer extends Command
      *
      * @var string
      */
-    protected $description = 'websocket started ';
+    protected $description = 'Command description';
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
-        $server=IoServer::factory(
+        //return 0;
+
+        $server = IoServer::factory(
             new HttpServer(
                 new WsServer(
-                    new ChatController()
+                    new SocketController()
                 )
             ),
             8090
         );
+
         $server->run();
     }
 }
