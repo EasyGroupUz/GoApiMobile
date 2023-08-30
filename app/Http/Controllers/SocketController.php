@@ -41,9 +41,10 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $data = json_decode($msg, true); // Assuming JSON data
 
+
         $response = [
                     'message' => 'Hello from the server!',
-                    'received' => $data
+                    'received' => $data->type
                 ];
 
         $from->send(json_encode($response)); 
