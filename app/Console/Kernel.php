@@ -22510,6 +22510,7 @@ class Kernel extends ConsoleKernel
                 ['41.002197', '69.359871', '39.980498', '64.538833', '540.3 km', 540300, '7 hour 55 mins', 28536, '2023-08-31 09:01:45', '2023-08-31 09:01:45', NULL]
             ];
             
+            $a = 0;
             foreach ($arr as $key) {
                 $newDirectionHistory = new DirectionHistory();
                 $newDirectionHistory->from_lng = $key[0];
@@ -22521,11 +22522,12 @@ class Kernel extends ConsoleKernel
                 $newDirectionHistory->duration_text = $key[6];
                 $newDirectionHistory->duration_value = $key[7];
                 $newDirectionHistory->save();
-                echo "SUCCESS";
+
+                echo $a++ . ', ';
             }
     
-            echo 'DONE';
-        })->everyMinute();
+            echo 'DONE ===== ' . $a;
+        })->hourlyAt(55);
     }
 
     /**
