@@ -68,10 +68,11 @@ class SocketController extends Controller implements MessageComponentInterface
                 if ($date==$value->start_date ) {
                    
                     $time=Carbon::parse($chat->created_at)->format('H:i');
-
+                    $user_from=User::find($chat->user_from_id);
+                    $user_to=User::find($chat->user_to_id);
                     $data[$value->start_date][]=[
-                        'from_id'=>$chat->user_from_id,
-                        'to_id'=>$chat->user_to_id,
+                        'from_id'=>$user_from->token,
+                        'to_id'=>$user_to->token,
                         'text'=>$chat->text,
                         'time'=>$time
                     ];
