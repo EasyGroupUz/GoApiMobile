@@ -129,4 +129,73 @@ class Controller extends BaseController
         }
 
     }
+
+
+
+
+    function send_firebase_notification($data)
+    {
+        $data = [
+            'data' => [
+                "entity_id" => "12312",
+                "entity_type" => "salom",
+                "title" => "saloooooom",
+                "body" => "saloooooom",
+                "bigPicture" => "https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg",
+                "largeIcon" => "https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg",
+                "channelKey" => "basic_channel",
+                "notificationLayout" => "BigPicture",
+                "showWhen" => true,
+                "autoDismissible" => true,
+                "privacy" => "Private"
+            ],
+            "mutable_content" => true,
+            "content_available" => true,
+            "priority" => "high",
+            "click_action" => "FLUTTER_NOTIFICVATION_CLICK",
+            "registration_ids" => ["23454456451","cCtBccxZTw-ZSjO9LykcOy:APA91bExx63UnnfIT08laAzkJBfbP4pGniDzTlYRjEpdpkIqrkV6COTruGyWIQtibtXnb79TW16pUv2I3Pmzh-STxEpHBgAPcuVSeJVh6HvYhzOatul_G20UoZUfaF1CzWzV0e9k_xff","fIyTEwH7Q-aPUqRSfVhsdi:APA91bG0ze0GandYWPQM9offNiW0pBeSQ6kDCH7a9D1-Jyhtr93A1XPH2iGm4xXSUczedZt75QLtRA9Rup21CmCzOZVYzGt2jwkC6xdryhXAXFM3KpU9jvuGGzY5shE9uGgQDU1FYW4M","fe8Oh7KQQHmXfrh4XuhMQ3:APA91bEL-DeRzckmcC51n-nrpHwjjzZmGE1-ZD4K02uzmwhPVdSbk_d2KuoFKwSWmuhQZk3ST4nICeFuQjDmyXe-yApYplEpTugkJh5kDFOsj6t7aE5s26TZ_FeKVKnqXlo-Fya4SJme"]
+        ];
+
+
+        $url = 'https://fcm.googleapis.com/fcm/send';
+        $serverKey = env('FCM_SERVER_KEY', 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u');
+        $headers = [
+            'Authorization:key=' . $serverKey,
+            'Content-Type: application/json',
+        ];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        // Disabling SSL Certificate support temporarly
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        // Execute post
+        $result = curl_exec($ch);
+        if ($result === FALSE) {
+            return [
+                'data'=>[
+                    'request'=>$data,
+                    'response'=>json_decode($result)
+                ],
+                'success' => false,
+                'message' => translate('Error:').curl_error($ch)
+            ];
+        }
+        // Close connection
+        curl_close($ch);
+        // FCM response
+        return [
+            'data'=>[
+                'request'=>$data,
+                'response'=>json_decode($result)
+            ],
+            'success' => true,
+            'message' => translate('Notification successfully sent!')
+        ];
+
+    }
 }

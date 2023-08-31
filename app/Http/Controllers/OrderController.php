@@ -212,6 +212,8 @@ class OrderController extends Controller
 
     public function show(Request $request)
     {
+        send_firebase_notification('Hello')
+
         if (!$request->id)
             return $this->error('id parameter is missing', 400);
 
