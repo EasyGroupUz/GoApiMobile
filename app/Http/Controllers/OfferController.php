@@ -84,7 +84,7 @@ class OfferController extends Controller
         ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
         ->where('dt3.driver_id', auth()->id())
         ->orWhere('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name')
+        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
         ->get();
         // ->toArray();
         // dd($offer);
@@ -93,6 +93,17 @@ class OfferController extends Controller
         foreach ($offers as $key => $offer) {
             // dd($offer);
             $from_to_name=table_translate($offer,'city',$language);
+
+
+            if(isset($offer->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$offer->avatar);
+                if(file_exists($avatar)){
+                    $offer->avatar = asset('storage/avatar/'.$offer->avatar);
+                }
+                else {
+                    $offer->avatar=null;
+                }
+            }
 
             $list=[
                 'offer_id'=>$offer->offer_id,
@@ -103,7 +114,8 @@ class OfferController extends Controller
                 'rating'=>$offer->rating,
                 'from_name' => $from_to_name['from_name'],
                 'to_name' => $from_to_name['to_name'],
-                'full_name'=> $offer->first_name. '.' .$offer->last_name[0]
+                'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
+                'avatar'=>$offer->avatar
             ];
             array_push($data , $list);
         }
