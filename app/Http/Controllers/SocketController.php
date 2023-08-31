@@ -7,6 +7,17 @@ use Illuminate\Http\Request;
 use Ratchet\MessageComponentInterface;
 
 use Ratchet\ConnectionInterface;
+use Illuminate\Support\Facades\DB;
+
+use App\Models\User;
+
+use App\Models\Chat;
+
+use App\Models\PersonalInfo;
+
+use App\Models\Order;
+
+use Carbon\Carbon;
 
 use Auth;
 
@@ -30,31 +41,66 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $data = json_decode($msg, true); // Assuming JSON data
 
-        // Process the message and prepare a response
-        $response = [
-            'message' => 'Hello from the server!',
-            'received' => $data
+        $language = $data['language'];
+        // dd($request->all());
+        $chat= Chat::find($data['id']);
+        // dd($chat->order_id);
+        $order = Order::find($chat->order_id);
+        $id=$order->id;
+        // dd($order);
+
+        $from_to_name=table_translate($order,'city',$language);
+        $start_dates= DB::table('yy_chats')
+        ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+        ->where('order_id',$id)
+        ->get();
+        $data=[];
+       foreach ($start_dates as $key => $value) {
+
+            $get_chats= DB::table('yy_chats')
+            // ->select('')
+            ->where('order_id',$id)
+            ->get();
+
+            foreach ($get_chats as $key => $chat) {
+                $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                // dd($date);
+                if ($date==$value->start_date ) {
+                   
+                    $time=Carbon::parse($chat->created_at)->format('H:i');
+                    $user_from=User::find($chat->user_from_id);
+                    $user_to=User::find($chat->user_to_id);
+                    $data[$value->start_date][]=[
+                        'from_id'=>$user_from->token,
+                        'to_id'=>$user_to->token,
+                        'text'=>$chat->text,
+                        'time'=>$time
+                    ];
+                }
+                
+                
+            }
+
+       }
+
+    //    $data = [
+    //     "from_name" => "Туракурганский район",
+    //     "to_name" => "Кошрабадский район"
+    // ];
+    
+    // $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+    
+    // return response()->json($jsonData);
+
+        $list=[
+            'start_date'=>$order->start_date,
+            'from_name'=>$from_to_name['from_name'],
+            'to_name'=>$from_to_name['to_name'],
+            'data'=>$data
         ];
 
-        // foreach ($this->clients as $client) {
-        //     // $send_data['response_connected_chat_user'] = true;
-        //     $send_data['data'] = $response;
-        //     $client->send(json_encode($send_data));
-        // }
-        $from->send(json_encode($response));
 
-        // $from->send(json_encode($response)); 
-
-        // $numRecv = count($this->clients) - 1;
-        // echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-        //     , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
-
-        // foreach ($this->clients as $client) {
-        //     if ($from !== $client) {
-        //         // The sender is not the receiver, send to each client connected
-        //         $client->send($msg);
-        //     }
-        // }
+        $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
     }
 
     public function onClose(ConnectionInterface $conn) {
@@ -70,5 +116,66 @@ class SocketController extends Controller implements MessageComponentInterface
         $conn->close();
     }
 
+
+    public function chatDetails(Request $request)
+    {
+        // id ->>>>> $request chat_id
+        $language = $request->header('language');
+        // dd($request->all());
+        $id=$request->id;
+        $chat= Chat::find($id);
+        // dd($chat->order_id);
+        $order = Order::find($chat->order_id);
+        // dd($order);
+
+        $from_to_name=table_translate($order,'city',$language);
+        $start_dates= DB::table('yy_chats')
+        ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+        ->where('id',$id)
+        ->get();
+        $data=[];
+       foreach ($start_dates as $key => $value) {
+
+            $get_chats= DB::table('yy_chats')
+            // ->select('')
+            ->where('id',$id)
+            ->get();
+
+            foreach ($get_chats as $key => $chat) {
+                $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                // dd($date);
+                if ($date==$value->start_date ) {
+                   
+                    $time=Carbon::parse($chat->created_at)->format('H:i');
+
+                    $data[$value->start_date][]=[
+                        'from_id'=>$chat->user_from_id,
+                        'to_id'=>$chat->user_to_id,
+                        'text'=>$chat->text,
+                        'time'=>$time
+                    ];
+                }
+                
+                
+            }
+
+       }
+
+        $list=[
+            'start_date'=>$order->start_date,
+            'from_name'=>$from_to_name['from_name'],
+            'to_name'=>$from_to_name['to_name'],
+            'data'=>$data
+        ];
+
+
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'fesfsef',
+        ], 200);
+
+
+    }
 
 }

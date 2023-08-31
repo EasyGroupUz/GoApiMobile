@@ -76,25 +76,62 @@ class OfferController extends Controller
 
     public function getOffer(Request $request){
         $language = $request->header('language');
-        // $offer = Offer::select('order_id',
-        //     'order_detail_id', 'price', 'status', 'comment')
-        //     ->where('')
-        //     ->get()
-        //     ->toArray();
-        // dd(auth()->id());
-        $offer = DB::table('yy_offers as dt1')
+        $offers = DB::table('yy_offers as dt1')
         ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
         ->Leftjoin('yy_orders as dt3', 'dt3.id', '=', 'dt1.order_id')
         ->Leftjoin('yy_statuses as dt4', 'dt4.type_id', '=', 'dt1.status')
+        ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
+        ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
         ->where('dt3.driver_id', auth()->id())
         ->orWhere('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt4.name as status',)
-        ->get()
-        ->toArray();
+        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
+        ->get();
+        // ->toArray();
         // dd($offer);
 
-        if(count($offer)>0){
-            return $this->success('Success', 200, $offer);
+        $data=[];
+        foreach ($offers as $key => $offer) {
+            // dd($offer);
+            $from_to_name=table_translate($offer,'city',$language);
+
+
+            if(isset($offer->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$offer->avatar);
+                if(file_exists($avatar)){
+                    $offer->avatar = asset('storage/avatar/'.$offer->avatar);
+                }
+                else {
+                    $offer->avatar=null;
+                }
+            }
+
+            $list=[
+                'offer_id'=>$offer->offer_id,
+                'order_id'=>$offer->order_id,
+                'order_detail_id'=>$offer->order_detail_id,
+                'start_date'=>$offer->start_date,
+                'status'=>$offer->status,
+                'rating'=>$offer->rating,
+                'from_name' => $from_to_name['from_name'],
+                'to_name' => $from_to_name['to_name'],
+                'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
+                'avatar'=>$offer->avatar
+            ];
+            array_push($data , $list);
+        }
+        // dd($data);
+        // $data=$data->toArray();
+        // foreach ($offers as $key => $offer) {
+        //     $data
+            
+
+        // }
+
+
+        
+
+        if($data){
+            return $this->success('Success', 200, $data);
         }else{
             return $this->error(translate_api('Offer not found', $language), 400);
         }
