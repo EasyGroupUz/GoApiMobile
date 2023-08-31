@@ -103,7 +103,7 @@ class OfferController extends Controller
                 'rating'=>$offer->rating,
                 'from_name' => $from_to_name['from_name'],
                 'to_name' => $from_to_name['to_name'],
-                'full_name'=> $offer->first_name.' '.$offer->middle_name . ' ' .$offer->last_name
+                'full_name'=> $offer->first_name. '.' .$offer->last_name[0]
             ];
             array_push($data , $list);
         }
