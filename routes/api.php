@@ -17,6 +17,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\WishController;
+use App\Http\Controllers\SocketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,7 +78,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::group(['prefix' => 'chat'], function () {
-        Route::get('/details', [ChatController::class, 'chatDetails']);
+        Route::get('/details', [SocketController::class, 'chatDetails']);
         Route::get('/list', [ChatController::class, 'chatList']);
     });
 

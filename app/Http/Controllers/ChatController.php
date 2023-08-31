@@ -47,9 +47,9 @@ class ChatController extends Controller implements MessageComponentInterface
         // chat_id
 
 
-        if($data->type == 'request_connected_chat_user')
+        if($data['type'] == 'request_connected_chat_user')
         {
-            $chat = Chat::find($data->id);
+            $chat = Chat::find($data['id']);
             $order = Order::find($chat->order_id);
 
             $userID = ($chat->from_user_id == $data->from_user_id) ? $order->driver_id : $chat->from_user_id;
