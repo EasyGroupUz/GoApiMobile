@@ -47,7 +47,7 @@ class SocketController extends Controller implements MessageComponentInterface
                             "to_name" => "Кошрабадский район"
                         ];
                     
-                    $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
+                        $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
         }
         
         // if ($data['type'] == 'chat_detail') {
