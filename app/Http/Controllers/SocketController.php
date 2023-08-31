@@ -106,14 +106,29 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $array = [
-                "from_name" => "Туракурганский район",
-                "to_name" => "Кошрабадский район"
-            ];
+
+            $user_from=User::find($data['token']);
+
+            if ($chat=Chat::find($data['order_id'])) {
+                if ($chat->user_from_id==$user_from->id) {
+                    $user_to_id=$chat->user_to_id;
+                } else {
+                    $user_to_id=$chat->user_from_id;
+                }
+                
+            } else {
+               $order=Order::find($data['order_id']);
+               $user_to_id=$order->driver_id;
+            }
+
+            // $array = [
+            //     "from_name" => "Туракурганский район",
+            //     "to_name" => "Кошрабадский район"
+            // ];
             
             // $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
 
-            $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
+            $from->send(json_encode($user_from ));
         }
 
     }
