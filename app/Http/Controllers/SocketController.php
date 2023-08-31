@@ -40,15 +40,6 @@ class SocketController extends Controller implements MessageComponentInterface
 
 
         $data = json_decode($msg, true); // Assuming JSON data
-
-        // if ($data['type'] == 'chat_detail') {
-        //                 $array = [
-        //                     "from_name" => "Туракурганский район",
-        //                     "to_name" => "Кошрабадский район"
-        //                 ];
-                    
-        //                 $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
-        // }
         
         if ($data['type'] == 'chat_detail') {
             
@@ -81,9 +72,14 @@ class SocketController extends Controller implements MessageComponentInterface
                             $time=Carbon::parse($chat->created_at)->format('H:i');
                             $user_from=User::find($chat->user_from_id);
                             $user_to=User::find($chat->user_to_id);
+                            if ($user_from->token==$data['token']) {
+                                $is_your=true;
+                            } else {
+                                $is_your=false;
+                            }
+                            
                             $array[$value->start_date][]=[
-                                'from_id'=>$user_from->token,
-                                'to_id'=>$user_to->token,
+                                'is_your'=>$is_your,
                                 'text'=>$chat->text,
                                 'time'=>$time
                             ];
@@ -95,6 +91,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
+                'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
@@ -109,14 +106,40 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $array = [
-                "from_name" => "Туракурганский район",
-                "to_name" => "Кошрабадский район"
-            ];
-            
-            // $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
+            $token=$data['token'];
+            $order_id=$data['order_id'];
+            $text=$data['text'];
 
-            $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
+            $user_from=User::where('token',$token)->first();
+            // dd($user_from);
+            $from->send(json_encode($user_from));
+
+                // if ($chat=Chat::where('order_id',$order_id)->first()) {
+                //     // dd($chat);
+                //     if ($chat->user_from_id==$user_from->id) {
+                //         $user_to_id=$chat->user_to_id;
+                //     } else {
+                //         $user_to_id=$chat->user_from_id;
+                //     }
+                    
+                // } else {
+                // $order=Order::find($order_id);
+                // $user_to_id=$order->driver_id;
+                // //    dd($user_to_id);
+                // }
+                
+
+
+                // $new_chat = [
+                //     'order_id' => $order_id,
+                //     'user_from_id' => $user_from->id,
+                //     'user_to_id' =>$user_to_id,
+                //     'text' => $text
+                // ];
+                
+                // $new_chat = Chat::create($new_chat);
+
+                // $from->send(json_encode($new_chat));
         }
 
     }

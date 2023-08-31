@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\Options;
 use App\Models\Offer;
+use App\Models\DirectionHistory;
 use App\Models\OrderDetail;
 use App\Models\Cars;
 use App\Models\PersonalInfo;
@@ -49,17 +50,16 @@ class OrderController extends Controller
         //     ->where('start_date','<',$tomorrow)
         //     ->get();
 
-        $orders = Order::all();
-            // where('status_id', Constants::ORDERED)
-            // ->where('from_id', $request->from_id)
-            // ->where('to_id', $request->to_id)
-            // ->where('start_date','>=',$date)
-            // ->where('start_date','<',$tomorrow)
-            // ->get();
+        $orders = Order::where('status_id', Constants::ORDERED)
+            ->where('from_id', $request->from_id)
+            ->where('to_id', $request->to_id)
+            ->where('start_date','>=',$date)
+            ->where('start_date','<',$tomorrow)
+            ->get();
 
         $order_count = count($orders);
         $total_trips = Order::where('driver_id',auth()->id())
-            // ->where('status_id', Constants::COMPLETED)
+            ->where('status_id', Constants::COMPLETED)
             ->count();
 
         foreach ($orders as $order) {
@@ -212,6 +212,8 @@ class OrderController extends Controller
 
     public function show(Request $request)
     {
+        send_firebase_notification('Hello')
+
         if (!$request->id)
             return $this->error('id parameter is missing', 400);
 
@@ -1082,69 +1084,4 @@ class OrderController extends Controller
         return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
     }
 
-    // public function index()
-    // {
-    //     $model = Order::orderBy('start_date', 'asc')->get();
-
-    //     $arr = [];
-    //     if (isset($model) && count($model) > 0) {
-    //         $n = 0;
-    //         foreach ($model as $key => $value) {
-    //             $arrCars = [];
-    //             if (isset($value->car)) {
-    //                 $arrCarImg = [];
-    //                 if (!empty($value->car->images)) {
-    //                     $ci = 0;
-    //                     foreach (json_decode($value->car->images) as $valueCI) {
-    //                         $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
-    //                         $ci++;
-    //                     }
-    //                 }
-    //                 $arrCars['id'] = $value->car->id;
-    //                 $arrCars['car_list_name'] = $value->car->car->name;
-    //                 $arrCars['car_color'] = ($value->car->color) ? ['name' => $value->car->color->name, 'code' => $value->car->color->code] : [];
-    //                 $arrCars['production_date'] = date('d.m.Y', strtotime($value->car->production_date));
-    //                 $arrCars['car_class'] = ($value->car->class) ? $value->car->class->name : '';
-    //                 $arrCars['car_reg_certificate'] = $value->car->reg_certificate;
-    //                 $arrCars['car_reg_certificate_img'] = $value->car->reg_certificate_image;
-    //                 $arrCars['images'] = $arrCarImg;
-    //             }
-
-    //             $arr[$n]['id'] = $value->id;
-    //             $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
-    //             $arr[$n]['price'] = (double)$value->price;
-    //             $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
-    //             $arr[$n]['from_lng'] = 69.287645;
-    //             $arr[$n]['from_lat'] = 41.339596;
-    //             $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
-    //             $arr[$n]['to_lng'] = 69.287645;
-    //             $arr[$n]['to_lat'] = 41.339596;
-    //             $arr[$n]['seats_count'] = $value->seats ?? 0;
-    //             $arr[$n]['driver_full_name'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? $value->driver->personalInfo->last_name . ' ' . $value->driver->personalInfo->first_name . ' ' . $value->driver->personalInfo->middle_name : '';
-    //             $arr[$n]['driver_img'] = (isset($value->driver) && isset($value->driver->personalInfo)) ? asset('storage/avatar/' . $value->driver->personalInfo->avatar) : '';
-    //             $arr[$n]['driver_rating'] = (isset($value->driver)) ? $value->driver->rating : 0;
-    //             $arr[$n]['car_information'] = $arrCars;
-    //             $arr[$n]['options'] = json_decode($value->options) ?? [];
-    //             $n++;
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'data' => $arr,
-    //         'status' => true,
-    //         'message' => "success"
-    //     ], 200);
-
-    //     // return $this->success(
-    //     //     'success',
-    //     //     200,
-    //     //     $arr
-    //     // );
-
-    //     // return $this->error(
-    //     //     'There are some problems',
-    //     //     400,
-    //     //     []
-    //     // );
-    // }
 }
