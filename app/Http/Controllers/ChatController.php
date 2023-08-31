@@ -117,18 +117,6 @@ class ChatController extends Controller implements MessageComponentInterface
                 ->select('dt2.avatar ','dt2.last_name', 'dt1.first_name','dt2.created_at',)
                 ->get();
 
-                // $sender_connection_id = User::select(,'avatar','first_name','last_name','created_at')->where('id', $data->from_user_id)->get();                
-
-
-                // if(date('Y-m-d') == date('Y-m-d', strtotime($user_data->updated_at)))
-                // {
-                //     $last_seen = 'Last Seen At ' . date('H:i', strtotime($user_data->updated_at));
-                // }
-                // else
-                // {
-                //     $last_seen = 'Last Seen At ' . date('d/m/Y H:i', strtotime($user_data->updated_at));
-                // }
-
 
                 foreach($this->clients as $client)
                 {
