@@ -41,83 +41,83 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $data = json_decode($msg, true); // Assuming JSON data
 
-        if ($data['type'] == 'chat_detail') {
-                        $array = [
-                            "from_name" => "Туракурганский район",
-                            "to_name" => "Кошрабадский район"
-                        ];
-                    
-                        $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
-        }
-        
         // if ($data['type'] == 'chat_detail') {
-            
-        //     $language = $data['language'];
-        //     // dd($request->all());
-        //     $chat= Chat::find($data['id']);
-        //     // dd($chat->order_id);
-        //     $order = Order::find($chat->order_id);
-        //     $id=$order->id;
-        //     // dd($order);
-    
-        //     $from_to_name=table_translate($order,'city',$language);
-        //     $start_dates= DB::table('yy_chats')
-        //     ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-        //     ->where('order_id',$id)
-        //     ->get();
-        //     $array=[];
-        //     foreach ($start_dates as $key => $value) {
-    
-        //             $get_chats= DB::table('yy_chats')
-        //             // ->select('')
-        //             ->where('order_id',$id)
-        //             ->get();
-    
-        //             foreach ($get_chats as $key => $chat) {
-        //                 $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-        //                 // dd($date);
-        //                 if ($date==$value->start_date ) {
-                        
-        //                     $time=Carbon::parse($chat->created_at)->format('H:i');
-        //                     $user_from=User::find($chat->user_from_id);
-        //                     $user_to=User::find($chat->user_to_id);
-        //                     $array[$value->start_date][]=[
-        //                         'from_id'=>$user_from->token,
-        //                         'to_id'=>$user_to->token,
-        //                         'text'=>$chat->text,
-        //                         'time'=>$time
-        //                     ];
-        //                 }
-                        
-                        
-        //             }
-    
-        //     }
-
-        //     $list=[
-        //         'start_date'=>$order->start_date,
-        //         'from_name'=>$from_to_name['from_name'],
-        //         'to_name'=>$from_to_name['to_name'],
-        //         'data'=>$array
-        //     ];
-    
-    
-        //     $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
-
-
-
+        //                 $array = [
+        //                     "from_name" => "Туракурганский район",
+        //                     "to_name" => "Кошрабадский район"
+        //                 ];
+                    
+        //                 $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
         // }
-        // if ($data['type'] == 'send_message') {
-
-        //     $array = [
-        //         "from_name" => "Туракурганский район",
-        //         "to_name" => "Кошрабадский район"
-        //     ];
+        
+        if ($data['type'] == 'chat_detail') {
             
-        //     $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
+            $language = $data['language'];
+            // dd($request->all());
+            $chat= Chat::find($data['id']);
+            // dd($chat->order_id);
+            $order = Order::find($chat->order_id);
+            $id=$order->id;
+            // dd($order);
+    
+            $from_to_name=table_translate($order,'city',$language);
+            $start_dates= DB::table('yy_chats')
+            ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+            ->where('order_id',$id)
+            ->get();
+            $array=[];
+            foreach ($start_dates as $key => $value) {
+    
+                    $get_chats= DB::table('yy_chats')
+                    // ->select('')
+                    ->where('order_id',$id)
+                    ->get();
+    
+                    foreach ($get_chats as $key => $chat) {
+                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                        // dd($date);
+                        if ($date==$value->start_date ) {
+                        
+                            $time=Carbon::parse($chat->created_at)->format('H:i');
+                            $user_from=User::find($chat->user_from_id);
+                            $user_to=User::find($chat->user_to_id);
+                            $array[$value->start_date][]=[
+                                'from_id'=>$user_from->token,
+                                'to_id'=>$user_to->token,
+                                'text'=>$chat->text,
+                                'time'=>$time
+                            ];
+                        }
+                        
+                        
+                    }
+    
+            }
 
-        //     // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
-        // }
+            $list=[
+                'start_date'=>$order->start_date,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
+                'data'=>$array
+            ];
+    
+    
+            $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
+
+
+
+        }
+        if ($data['type'] == 'send_message') {
+
+            $array = [
+                "from_name" => "Туракурганский район",
+                "to_name" => "Кошрабадский район"
+            ];
+            
+            // $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
+
+            $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
+        }
 
     }
 
