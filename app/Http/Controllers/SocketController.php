@@ -90,7 +90,7 @@ class SocketController extends Controller implements MessageComponentInterface
         ];
 
 
-        $from->send(json_encode($list)); 
+        $from->send(json_encode($from_to_name));
     }
 
     public function onClose(ConnectionInterface $conn) {
