@@ -109,39 +109,37 @@ class SocketController extends Controller implements MessageComponentInterface
             $token=$data['token'];
             $order_id=$data['order_id'];
             $text=$data['text'];
-            //  dd($request->all());
-            // $token=($request->token);
-            // $order_id=($request->order_id);
-            // $text=$request->text;
-            // dd($order_id);
+
             $user_from=User::where('token',$token)->first();
             // dd($user_from);
-                if ($chat=Chat::where('order_id',$order_id)->first()) {
-                    // dd($chat);
-                    if ($chat->user_from_id==$user_from->id) {
-                        $user_to_id=$chat->user_to_id;
-                    } else {
-                        $user_to_id=$chat->user_from_id;
-                    }
+            $from->send(json_encode($user_from));
+
+                // if ($chat=Chat::where('order_id',$order_id)->first()) {
+                //     // dd($chat);
+                //     if ($chat->user_from_id==$user_from->id) {
+                //         $user_to_id=$chat->user_to_id;
+                //     } else {
+                //         $user_to_id=$chat->user_from_id;
+                //     }
                     
-                } else {
-                $order=Order::find($order_id);
-                $user_to_id=$order->driver_id;
-                //    dd($user_to_id);
-                }
+                // } else {
+                // $order=Order::find($order_id);
+                // $user_to_id=$order->driver_id;
+                // //    dd($user_to_id);
+                // }
                 
 
 
-                $new_chat = [
-                    'order_id' => $order_id,
-                    'user_from_id' => $user_from->id,
-                    'user_to_id' =>$user_to_id,
-                    'text' => $text
-                ];
+                // $new_chat = [
+                //     'order_id' => $order_id,
+                //     'user_from_id' => $user_from->id,
+                //     'user_to_id' =>$user_to_id,
+                //     'text' => $text
+                // ];
                 
-                $new_chat = Chat::create($new_chat);
+                // $new_chat = Chat::create($new_chat);
 
-                $from->send(json_encode($new_chat));
+                // $from->send(json_encode($new_chat));
         }
 
     }
