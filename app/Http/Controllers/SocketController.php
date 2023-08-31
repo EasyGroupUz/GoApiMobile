@@ -106,29 +106,42 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-
-            $user_from=User::find($data['token']);
-
-            if ($chat=Chat::find($data['order_id'])) {
-                if ($chat->user_from_id==$user_from->id) {
-                    $user_to_id=$chat->user_to_id;
+            $token=$data['token'];
+            $order_id=$data['order_id'];
+            $text=$data['text'];
+            //  dd($request->all());
+            // $token=($request->token);
+            // $order_id=($request->order_id);
+            // $text=$request->text;
+            // dd($order_id);
+            $user_from=User::where('token',$token)->first();
+            // dd($user_from);
+                if ($chat=Chat::where('order_id',$order_id)->first()) {
+                    // dd($chat);
+                    if ($chat->user_from_id==$user_from->id) {
+                        $user_to_id=$chat->user_to_id;
+                    } else {
+                        $user_to_id=$chat->user_from_id;
+                    }
+                    
                 } else {
-                    $user_to_id=$chat->user_from_id;
+                $order=Order::find($order_id);
+                $user_to_id=$order->driver_id;
+                //    dd($user_to_id);
                 }
                 
-            } else {
-               $order=Order::find($data['order_id']);
-               $user_to_id=$order->driver_id;
-            }
 
-            // $array = [
-            //     "from_name" => "Туракурганский район",
-            //     "to_name" => "Кошрабадский район"
-            // ];
-            
-            // $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
 
-            $from->send(json_encode($user_from ));
+                $new_chat = [
+                    'order_id' => $order_id,
+                    'user_from_id' => $user_from->id,
+                    'user_to_id' =>$user_to_id,
+                    'text' => $text
+                ];
+                
+                $new_chat = Chat::create($new_chat);
+
+                $from->send(json_encode($new_chat));
         }
 
     }
