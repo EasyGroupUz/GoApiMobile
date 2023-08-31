@@ -87,7 +87,6 @@ class SocketController extends Controller implements MessageComponentInterface
                         
                         
                     }
-
     
             }
 
@@ -107,39 +106,14 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $user_from=User::find($data['token']);
-
-            if ($chat=Chat::find($data['order_id'])) {
-                if ($chat->user_from_id==$user_from->id) {
-                    $user_to_id=$chat->user_to_id;
-                } else {
-                    $user_to_id=$chat->user_from_id;
-                }
-                
-            } else {
-               $order=Order::find($data['order_id']);
-               $user_to_id=$order->driver_id;
-            }
-            
-
-
-            $new_chat = [
-                'order_id' => $data['order_id'],
-                'user_from_id' => $user_from->id,
-                'user_to_id' =>$user_to_id
-                'text' => $data['text']
+            $array = [
+                "from_name" => "Туракурганский район",
+                "to_name" => "Кошрабадский район"
             ];
-            
-            $new_chat = Chat::create($new_chat);
-
-            // $array = [
-            //     "from_name" => "Туракурганский район",
-            //     "to_name" => "Кошрабадский район"
-            // ];
             
             // $jsonData = json_encode($array, JSON_UNESCAPED_UNICODE);
 
-            $from->send(json_encode($new_chat));
+            $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
         }
 
     }
