@@ -40,15 +40,6 @@ class SocketController extends Controller implements MessageComponentInterface
 
 
         $data = json_decode($msg, true); // Assuming JSON data
-
-        // if ($data['type'] == 'chat_detail') {
-        //                 $array = [
-        //                     "from_name" => "Туракурганский район",
-        //                     "to_name" => "Кошрабадский район"
-        //                 ];
-                    
-        //                 $from->send(json_encode($array , JSON_UNESCAPED_UNICODE));
-        // }
         
         if ($data['type'] == 'chat_detail') {
             
@@ -81,9 +72,14 @@ class SocketController extends Controller implements MessageComponentInterface
                             $time=Carbon::parse($chat->created_at)->format('H:i');
                             $user_from=User::find($chat->user_from_id);
                             $user_to=User::find($chat->user_to_id);
+                            if ($user_from->token==$data['token']) {
+                                $is_your=true;
+                            } else {
+                                $is_your=false;
+                            }
+                            
                             $array[$value->start_date][]=[
-                                'from_id'=>$user_from->token,
-                                'to_id'=>$user_to->token,
+                                'is_your'=>$is_your,
                                 'text'=>$chat->text,
                                 'time'=>$time
                             ];
