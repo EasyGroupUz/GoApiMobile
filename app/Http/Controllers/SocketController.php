@@ -43,10 +43,10 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $language = $data['language'];
         // dd($request->all());
-        $id=$data['id'];
         $chat= Chat::find($data['id']);
         // dd($chat->order_id);
         $order = Order::find($chat->order_id);
+        $id=$order->id;
         // dd($order);
 
         $from_to_name=table_translate($order,'city',$language);
