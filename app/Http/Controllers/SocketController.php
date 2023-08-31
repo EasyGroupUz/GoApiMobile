@@ -82,6 +82,15 @@ class SocketController extends Controller implements MessageComponentInterface
 
        }
 
+    //    $data = [
+    //     "from_name" => "Туракурганский район",
+    //     "to_name" => "Кошрабадский район"
+    // ];
+    
+    // $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+    
+    // return response()->json($jsonData);
+
         $list=[
             'start_date'=>$order->start_date,
             'from_name'=>$from_to_name['from_name'],
@@ -90,7 +99,7 @@ class SocketController extends Controller implements MessageComponentInterface
         ];
 
 
-        $from->send(json_encode($from_to_name));
+        $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
     }
 
     public function onClose(ConnectionInterface $conn) {
