@@ -52,14 +52,14 @@ class SocketController extends Controller implements MessageComponentInterface
         $from_to_name=table_translate($order,'city',$language);
         $start_dates= DB::table('yy_chats')
         ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-        ->where('id',$id)
+        ->where('order_id',$id)
         ->get();
         $data=[];
        foreach ($start_dates as $key => $value) {
 
             $get_chats= DB::table('yy_chats')
             // ->select('')
-            ->where('id',$id)
+            ->where('order_id',$id)
             ->get();
 
             foreach ($get_chats as $key => $chat) {
