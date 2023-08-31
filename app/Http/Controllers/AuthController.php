@@ -48,6 +48,7 @@ class AuthController extends Controller
      * )
      */
     public function Login(Request $request){
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $fields = $request->validate([
             'phone'=>'required|string'
@@ -170,6 +171,7 @@ class AuthController extends Controller
      * )
      */
     public function loginToken(Request $request){
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $fields = $request->validate([
              'phone_number'=>'required',
@@ -179,8 +181,13 @@ class AuthController extends Controller
         ]);
         $model = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone_number'])->first();
         if(isset($model->id)){
+            if(strtotime('-7 minutes') > strtotime($model->updated_at )){
+                $model->verify_code = rand(100000, 999999);
+                $model->save();
+                return $this->error(translate_api('Your sms code expired. Resend sms code', $language), 400);
+            }
             if(isset($model->deleted_at)){
-                $model->deleted_at = NULL;
+                $model->deleted_at = rand(100000, 999999);
             }
             if($model->verify_code == $fields['verify_code']){
                 $user = User::withTrashed()->find($model->user_id);
@@ -331,6 +338,7 @@ class AuthController extends Controller
      * )
      */
     public function resetLoginToken(Request $request){
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $fields = $request->validate([
             'phone_number'=>'required',
@@ -345,6 +353,11 @@ class AuthController extends Controller
             $phone_history = json_decode($personal_info->phone_history);
             if(end($phone_history) != $fields['phone_number']){
                 return $this->error(translate_api('Failed phone number is not correct', $language), 400);
+            }
+            if(strtotime('-7 minutes') > strtotime($user_verify->updated_at )){
+                $user_verify->verify_code = rand(100000, 999999);
+                $user_verify->save();
+                return $this->error(translate_api('Your sms code expired. Resend sms code', $language), 400);
             }
             if($user_verify->verify_code == $fields['verify_code']){
                 $user->email = $fields['phone_number'];
@@ -447,6 +460,7 @@ class AuthController extends Controller
      */
 
     public function Set_name_surname(Request $request) {
+        date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $auth_user = Auth::user();
         $personal_info = PersonalInfo::withTrashed()->find($auth_user->personal_info_id);
@@ -507,12 +521,10 @@ class AuthController extends Controller
         $eskiz_token = EskizToken::first();
         $user_verify = UserVerify::withTrashed()->where('user_id', $user->id)->first();
         $random = rand(100000, 999999);
-        $user_verify_phone = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone'])->first();
+        $user_verify_phone = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone'])
+            ->where('user_id', '!=', $user->id)->first();
         if(isset($user_verify_phone->phone_number) && $user_verify_phone->phone_number == (int)$fields['phone']){
             return $this->error(translate_api("Failed enter new phone number this number exists", $language), 400);
-        }
-        if(isset($user_verify_phone->phone_number) && $user_verify->phone_number == (int)$fields['phone']){
-            return $this->error(translate_api("Failed enter new phone number ", $language), 400);
         }
         if(isset($user_verify->deleted_at)){
             $user_verify->deleted_at = NULL;
