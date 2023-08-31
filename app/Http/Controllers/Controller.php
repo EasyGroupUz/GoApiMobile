@@ -67,66 +67,66 @@ class Controller extends BaseController
 
     public function getDistanceAndKm($fromLng, $fromLat, $toLng, $toLat)
     {
-        return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
+        // return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
         
-        // $directionHistory = DB::table('yy_direction_histories')
-        //     ->where(['from_lng' => $fromLng, 'from_lat' => $fromLat, 'to_lng' => $toLng, 'to_lat' => $toLat])
-        //     ->first();
+        $directionHistory = DB::table('yy_direction_histories')
+            ->where(['from_lng' => $fromLng, 'from_lat' => $fromLat, 'to_lng' => $toLng, 'to_lat' => $toLat])
+            ->first();
 
-        // if ($directionHistory) {
-        //     return [
-        //         'new' => false,
-        //         'km' => $directionHistory->distance_text,
-        //         'distance_value' => $directionHistory->distance_value,
-        //         'time' => $directionHistory->duration_text,
-        //         'duration_value' => $directionHistory->duration_value
-        //     ];
-        // } else {
-        //     $apiUrl = 'https://api.distancematrix.ai/maps/api/distancematrix/json?origins=' . $fromLng . ', ' . $fromLat . '&destinations=' . $toLng . ', ' . $toLat . '&key=7Q0lMsRgFBBSTgcFtBvQAMk3Qfe5O';
+        if ($directionHistory) {
+            return [
+                'new' => false,
+                'km' => $directionHistory->distance_text,
+                'distance_value' => $directionHistory->distance_value,
+                'time' => $directionHistory->duration_text,
+                'duration_value' => $directionHistory->duration_value
+            ];
+        } else {
+            // $apiUrl = 'https://api.distancematrix.ai/maps/api/distancematrix/json?origins=' . $fromLng . ', ' . $fromLat . '&destinations=' . $toLng . ', ' . $toLat . '&key=7Q0lMsRgFBBSTgcFtBvQAMk3Qfe5O';
 
-        //     $response = file_get_contents($apiUrl);
+            // $response = file_get_contents($apiUrl);
 
-        //     if ($response !== false) {
-        //         $data = json_decode($response, true);
+            // if ($response !== false) {
+            //     $data = json_decode($response, true);
 
-        //         if ($data !== null && isset($data['rows'][0]['elements'][0]['distance']['text']) && isset($data['rows'][0]['elements'][0]['duration']['text'])) {
-        //             $dataElements = $data['rows'][0]['elements'][0];
+            //     if ($data !== null && isset($data['rows'][0]['elements'][0]['distance']['text']) && isset($data['rows'][0]['elements'][0]['duration']['text'])) {
+            //         $dataElements = $data['rows'][0]['elements'][0];
 
-        //             $newDirectionHistory = new DirectionHistory();
-        //             $newDirectionHistory->from_lng = $fromLng;
-        //             $newDirectionHistory->from_lat = $fromLat;
-        //             $newDirectionHistory->to_lng = $toLng;
-        //             $newDirectionHistory->to_lat = $toLat;
-        //             $newDirectionHistory->distance_text = $dataElements['distance']['text'];
-        //             $newDirectionHistory->distance_value = $dataElements['distance']['value'];
-        //             $newDirectionHistory->duration_text = $dataElements['duration']['text'];
-        //             $newDirectionHistory->duration_value = $dataElements['duration']['value'];
-        //             $newDirectionHistory->save();
+            //         $newDirectionHistory = new DirectionHistory();
+            //         $newDirectionHistory->from_lng = $fromLng;
+            //         $newDirectionHistory->from_lat = $fromLat;
+            //         $newDirectionHistory->to_lng = $toLng;
+            //         $newDirectionHistory->to_lat = $toLat;
+            //         $newDirectionHistory->distance_text = $dataElements['distance']['text'];
+            //         $newDirectionHistory->distance_value = $dataElements['distance']['value'];
+            //         $newDirectionHistory->duration_text = $dataElements['duration']['text'];
+            //         $newDirectionHistory->duration_value = $dataElements['duration']['value'];
+            //         $newDirectionHistory->save();
 
-        //             $newDirectionHistory = new DirectionHistory();
-        //             $newDirectionHistory->from_lng = $toLng;
-        //             $newDirectionHistory->from_lat = $toLat;
-        //             $newDirectionHistory->to_lng = $fromLng;
-        //             $newDirectionHistory->to_lat = $fromLat;
-        //             $newDirectionHistory->distance_text = $dataElements['distance']['text'];
-        //             $newDirectionHistory->distance_value = $dataElements['distance']['value'];
-        //             $newDirectionHistory->duration_text = $dataElements['duration']['text'];
-        //             $newDirectionHistory->duration_value = $dataElements['duration']['value'];
-        //             $newDirectionHistory->save();
+            //         $newDirectionHistory = new DirectionHistory();
+            //         $newDirectionHistory->from_lng = $toLng;
+            //         $newDirectionHistory->from_lat = $toLat;
+            //         $newDirectionHistory->to_lng = $fromLng;
+            //         $newDirectionHistory->to_lat = $fromLat;
+            //         $newDirectionHistory->distance_text = $dataElements['distance']['text'];
+            //         $newDirectionHistory->distance_value = $dataElements['distance']['value'];
+            //         $newDirectionHistory->duration_text = $dataElements['duration']['text'];
+            //         $newDirectionHistory->duration_value = $dataElements['duration']['value'];
+            //         $newDirectionHistory->save();
 
-        //             return [
-        //                 'new' => true,
-        //                 'km' => $dataElements['distance']['text'],
-        //                 'distance_value' => $dataElements['distance']['value'],
-        //                 'time' => $dataElements['duration']['text'],
-        //                 'duration_value' => $dataElements['duration']['value']
-        //             ];
-        //         }
-        //         return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
-        //     } else {
-        //         return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
-        //     }
-        // }
+            //         return [
+            //             'new' => true,
+            //             'km' => $dataElements['distance']['text'],
+            //             'distance_value' => $dataElements['distance']['value'],
+            //             'time' => $dataElements['duration']['text'],
+            //             'duration_value' => $dataElements['duration']['value']
+            //         ];
+            //     }
+            //     return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
+            // } else {
+                return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
+            // }
+        }
 
     }
 }
