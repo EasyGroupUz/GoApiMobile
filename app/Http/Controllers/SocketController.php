@@ -48,6 +48,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $chat= Chat::find($data['id']);
             // dd($chat->order_id);
             $order = Order::find($chat->order_id);
+            
             $id=$order->id;
             // dd($order);
     
@@ -114,20 +115,20 @@ class SocketController extends Controller implements MessageComponentInterface
             // dd($user_from);
             // $from->send(json_encode($user_from));
     
-                $order=Order::where('id',$order_id)->first();
-                $user_to_id=$order->driver_id;
-                // if ($chat=Chat::where('order_id',$order_id)->first()) {
-                //     if ($chat->user_from_id==$user_from->id) {
-                //         $user_to_id=$chat->user_to_id;
-                //     } else {
-                //         $user_to_id=$chat->user_from_id;
-                //     }
+                // $order=Order::where('id',$order_id)->first();
+               
+                if ($chat=Chat::where('order_id',$order_id)->first()) {
+                    if ($chat->user_from_id==$user_from->id) {
+                        $user_to_id=$chat->user_to_id;
+                    } else {
+                        $user_to_id=$chat->user_from_id;
+                    }
                     
-                // } else {
-                // // $order=Order::where('id',$order_id)->first();
-                // // $user_to_id=$order->driver_id;
-                // //    dd($user_to_id);
-                // }
+                } else {
+                    $order=Order::find($order_id);
+                    $user_to_id=$order->driver_id;
+                //    dd($user_to_id);
+                }
                 
                 $from->send(json_encode($user_to_id));
 
