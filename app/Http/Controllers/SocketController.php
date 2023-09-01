@@ -107,11 +107,11 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $token=$data['token'];
+            $user_id=$data['user_id'];
             $order_id=$data['order_id'];
             $text=$data['text'];
 
-            $user_from=User::where('token',$token)->first();
+            $user_from=User::find($user_id);
             // dd($user_from);
             // $from->send(json_encode($user_from));
     
@@ -142,7 +142,14 @@ class SocketController extends Controller implements MessageComponentInterface
                 
                 $new_chat = Chat::create($new_chat);
 
-                $from->send(json_encode($new_chat));
+
+                $response=[
+                   'message'=>'new chat created',
+                   'status'=>true,
+                   'data'=>$new_chat
+                ];
+
+                $from->send(json_encode($response));
         }
 
     }
