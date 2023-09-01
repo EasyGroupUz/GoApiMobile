@@ -130,19 +130,19 @@ class SocketController extends Controller implements MessageComponentInterface
                 //    dd($user_to_id);
                 }
                 
-                $from->send(json_encode($user_to_id));
+                // $from->send(json_encode($user_to_id));
 
 
-                // $new_chat = [
-                //     'order_id' => $order_id,
-                //     'user_from_id' => $user_from->id,
-                //     'user_to_id' =>$user_to_id,
-                //     'text' => $text
-                // ];
+                $new_chat = [
+                    'order_id' => $order_id,
+                    'user_from_id' => $user_from->id,
+                    'user_to_id' =>$user_to_id,
+                    'text' => $text
+                ];
                 
-                // $new_chat = Chat::create($new_chat);
+                $new_chat = Chat::create($new_chat);
 
-                // $from->send(json_encode($new_chat));
+                $from->send(json_encode($new_chat));
         }
 
     }
