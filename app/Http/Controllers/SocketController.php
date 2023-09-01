@@ -73,7 +73,7 @@ class SocketController extends Controller implements MessageComponentInterface
                             $time=Carbon::parse($chat->created_at)->format('H:i');
                             $user_from=User::find($chat->user_from_id);
                             $user_to=User::find($chat->user_to_id);
-                            if ($user_from->token==$data['token']) {
+                            if ($chat->user_from_id==$data['user_id']) {
                                 $is_your=true;
                             } else {
                                 $is_your=false;
