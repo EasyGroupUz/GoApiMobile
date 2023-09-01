@@ -92,6 +92,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
+                'user_id'=>$chat->user_from_id,
                 'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
