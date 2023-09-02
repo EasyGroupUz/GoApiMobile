@@ -147,7 +147,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
                 $list=[
                     'is_your'=>$is_your,
-                    'text'=>$chat->text,
+                    'text'=>$new_chat->text,
                     'time'=>$time
                 ];
 
