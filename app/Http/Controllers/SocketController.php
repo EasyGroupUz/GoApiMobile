@@ -142,12 +142,19 @@ class SocketController extends Controller implements MessageComponentInterface
                 ];
                 
                 $new_chat = Chat::create($new_chat);
+                $time=Carbon::parse($new_chat->created_at)->format('H:i');
+                $is_your=true;
 
+                $list=[
+                    'is_your'=>$is_your,
+                    'text'=>$chat->text,
+                    'time'=>$time
+                ];
 
                 $response=[
                    'message'=>'new chat created',
                    'status'=>true,
-                   'data'=>$new_chat
+                   'data'=>$list
                 ];
 
                 $from->send(json_encode($response));
