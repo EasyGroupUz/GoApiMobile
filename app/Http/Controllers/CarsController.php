@@ -59,7 +59,7 @@ class CarsController extends Controller
         if(isset($car_array)){
             return $this->success('Success', 200, $car_array);
         }else{
-            return $this->success('Success', 400);
+            return $this->success('Success', 400, []);
         }
     }
 
