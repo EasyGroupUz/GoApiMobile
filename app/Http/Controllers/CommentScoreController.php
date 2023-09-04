@@ -259,12 +259,12 @@ class CommentScoreController extends Controller
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
             }else{
                 $img_ = null;
-                $full_name = '';
+                $full_name = null;
             }
             $personal_info = [
                 'user_token'=>$to_user->token??null,
                 'img'=>$img_,
-                'full_name'=>$full_name??null,
+                'full_name'=>$full_name,
                 'doc_status'=>$doc_status??null,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
@@ -305,7 +305,7 @@ class CommentScoreController extends Controller
                     $user_full_name = $user_first_name.''.mb_strtoupper($user_last_name).''.mb_strtoupper($user_middle_name);
                 }else{
                     $user_img = null;
-                    $user_full_name = '';
+                    $user_full_name = null;
                 }
                 $date = explode(" ", $getComment->date);
                 if(!isset($all_personal_info->id)){
@@ -320,7 +320,7 @@ class CommentScoreController extends Controller
                     $comments_list[] = [
                         'id'=>$from_user->id??null,
                         "img" => $user_img,
-                        "full_name" => $user_full_name??null,
+                        "full_name" => $user_full_name,
                         "date" => $date[0]??null,
                         "rating" => $getComment->score??null,
                         "comment" => $getComment->text??null,
@@ -387,7 +387,7 @@ class CommentScoreController extends Controller
                 $personal_info = [
                     'user_token'=>$user->token??null,
                     'img'=>$img_,
-                    'full_name'=>$full_name??null,
+                    'full_name'=>$full_name,
                     'doc_status'=>$doc_status??null,
                     'rating'=>null,
                     'comment_count'=> null
