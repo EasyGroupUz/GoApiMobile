@@ -142,6 +142,17 @@ class SocketController extends Controller implements MessageComponentInterface
                 ];
                 
                 $new_chat = Chat::create($new_chat);
+                
+                // Send Notification start
+                    $userSend = User::find($user_to_id);
+                    
+                    $device = ($userSend) ? json_decode($userSend->device_id) : [];
+                    $title = translate_api('GoEasy', $language);
+                    $message = $text;
+                    
+                    $this->sendNotification($device, $title, $message);
+                // Send Notification end
+
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
                 $is_your=true;
 

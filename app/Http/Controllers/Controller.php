@@ -131,6 +131,54 @@ class Controller extends BaseController
     }
 
 
+    public function sendNotification($device, $title = 'GoEasy', $message = 'Hello GoEasy')
+    {
+        $firebaseServerKey = 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u'; // Replace with your Firebas>
+        $fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+
+        $data = [
+            'data' => [
+                'entity_id' => '12312',
+                'entity_type' => 'salom',
+                'title' => $title,
+                'body' => $message,
+                'bigPicture' => 'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
+                'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
+                'channelKey' => 'basic_channel',
+                'notificationLayout' => 'BigPicture',
+                'showWhen' => true,
+                'autoDismissible' => true,
+                'privacy' => 'Private',
+            ],
+            'mutable_content' => true,
+            'content_available' => true,
+            'priority' => 'high',
+            'click_action' => 'FLUTTER_NOTIFICVATION_CLICK',
+            'registration_ids' => $device
+        ];
+
+        $headers = [
+            'Authorization: key=' . $firebaseServerKey,
+            'Content-Type: application/json',
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $fcmEndpoint);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        // Handle the response, e.g., log it or return it as a JSON response
+        return response()->json(['message' => 'Notification sent', 'response' => json_decode($response)]);
+    }
+
+
+
 
 
     function send_firebase_notification($data)
@@ -182,7 +230,7 @@ class Controller extends BaseController
                     'response'=>json_decode($result)
                 ],
                 'success' => false,
-                'message' => translate('Error:').curl_error($ch)
+                'message' => 'Error:'.curl_error($ch)
             ];
         }
         // Close connection
@@ -194,7 +242,7 @@ class Controller extends BaseController
                 'response'=>json_decode($result)
             ],
             'success' => true,
-            'message' => translate('Notification successfully sent!')
+            'message' => 'Notification successfully sent!'
         ];
 
     }

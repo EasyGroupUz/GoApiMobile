@@ -212,8 +212,6 @@ class OrderController extends Controller
 
     public function show(Request $request)
     {
-        send_firebase_notification('Hello')
-
         if (!$request->id)
             return $this->error('id parameter is missing', 400);
 
@@ -967,6 +965,13 @@ class OrderController extends Controller
                 $saveOrder = $order->save();
                 // dd($new_offer);
             // }else {
+
+                $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+                $title = translate_api('GoEasy', $language);
+                $message = translate_api('Offer accepted', $language);
+                
+                $this->sendNotification($device, $title, $message);
+
                 return $this->success('offer created', 204);
             // }
             
@@ -1026,7 +1031,11 @@ class OrderController extends Controller
 
             $cancel_offer = $first_offer->update($offer);
             
-
+            $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+            $title = translate_api('GoEasy', $language);
+            $message = translate_api('Offer cenceled', $language);
+            
+            $this->sendNotification($device, $title, $message);
           
         }
         else {
