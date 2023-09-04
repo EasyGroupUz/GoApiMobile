@@ -48,6 +48,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $chat= Chat::find($data['id']);
             // dd($chat->order_id);
             $order = Order::find($chat->order_id);
+            
             $id=$order->id;
             // dd($order);
     
@@ -72,7 +73,7 @@ class SocketController extends Controller implements MessageComponentInterface
                             $time=Carbon::parse($chat->created_at)->format('H:i');
                             $user_from=User::find($chat->user_from_id);
                             $user_to=User::find($chat->user_to_id);
-                            if ($user_from->token==$data['token']) {
+                            if ($chat->user_from_id==$data['user_id']) {
                                 $is_your=true;
                             } else {
                                 $is_your=false;
@@ -91,6 +92,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
+                'user_id'=>$chat->user_from_id,
                 'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
@@ -106,40 +108,68 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $token=$data['token'];
+            $user_id=$data['user_id'];
             $order_id=$data['order_id'];
             $text=$data['text'];
 
-            $user_from=User::where('token',$token)->first();
+            $user_from=User::find($user_id);
             // dd($user_from);
-            $from->send(json_encode($user_from));
-
-                // if ($chat=Chat::where('order_id',$order_id)->first()) {
-                //     // dd($chat);
-                //     if ($chat->user_from_id==$user_from->id) {
-                //         $user_to_id=$chat->user_to_id;
-                //     } else {
-                //         $user_to_id=$chat->user_from_id;
-                //     }
+            // $from->send(json_encode($user_from));
+    
+                // $order=Order::where('id',$order_id)->first();
+               
+                if ($chat=Chat::where('order_id',$order_id)->first()) {
+                    if ($chat->user_from_id==$user_from->id) {
+                        $user_to_id=$chat->user_to_id;
+                    } else {
+                        $user_to_id=$chat->user_from_id;
+                    }
                     
-                // } else {
-                // $order=Order::find($order_id);
-                // $user_to_id=$order->driver_id;
-                // //    dd($user_to_id);
-                // }
+                } else {
+                    $order=Order::find($order_id);
+                    $user_to_id=$order->driver_id;
+                //    dd($user_to_id);
+                }
                 
+                // $from->send(json_encode($user_to_id));
 
 
-                // $new_chat = [
-                //     'order_id' => $order_id,
-                //     'user_from_id' => $user_from->id,
-                //     'user_to_id' =>$user_to_id,
-                //     'text' => $text
-                // ];
+                $new_chat = [
+                    'order_id' => $order_id,
+                    'user_from_id' => $user_from->id,
+                    'user_to_id' =>$user_to_id,
+                    'text' => $text
+                ];
                 
-                // $new_chat = Chat::create($new_chat);
+                $new_chat = Chat::create($new_chat);
+                
+                // Send Notification start
+                    $userSend = User::find($user_to_id);
+                    
+                    $device = ($userSend) ? json_decode($userSend->device_type) : [];
+                    $title = 'У вас новое сообщение';
+                    $message = $text;
+                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
 
-                // $from->send(json_encode($new_chat));
+                    $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
+                // Send Notification end
+
+                $time=Carbon::parse($new_chat->created_at)->format('H:i');
+                $is_your=true;
+
+                $list=[
+                    'is_your'=>$is_your,
+                    'text'=>$new_chat->text,
+                    'time'=>$time
+                ];
+
+                $response=[
+                   'message'=>'new chat created',
+                   'status'=>true,
+                   'data'=>$list
+                ];
+
+                $from->send(json_encode($response));
         }
 
     }
