@@ -966,7 +966,7 @@ class OrderController extends Controller
                 // dd($new_offer);
             // }else {
 
-                $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+                $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
                 $title = translate_api('GoEasy', $language);
                 $message = translate_api('Offer accepted', $language);
                 
@@ -1031,7 +1031,7 @@ class OrderController extends Controller
 
             $cancel_offer = $first_offer->update($offer);
             
-            $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
             $title = translate_api('GoEasy', $language);
             $message = translate_api('Offer cenceled', $language);
             
