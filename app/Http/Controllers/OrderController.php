@@ -562,6 +562,7 @@ class OrderController extends Controller
         $data['driver_id'] = $driver_id;
 
         $order = new Order();
+        $order->status_id = Constants::ORDERED;
         $order->create($data);
         
         if (isset($data['back_date'])) {
@@ -573,6 +574,7 @@ class OrderController extends Controller
             $data['to_id'] = $to_id;
 
             $order = new Order();
+            $order->status_id = Constants::ORDERED;
             $order->create($data);
         }
 
@@ -850,7 +852,7 @@ class OrderController extends Controller
 
             return $this->success('success', 200, $arr);
         } else {
-            return $this->success('Order table is empty', 204);
+            return $this->success('Order table is empty', 200, $arr);
         }
 
         // return response()->json([
@@ -1050,7 +1052,7 @@ class OrderController extends Controller
 
             return $this->success('success', 200, $arr);
         } else {
-            return $this->success('Order table is empty', 204);
+            return $this->success('Order table is empty', 200, $arr);
         }
     }
 
@@ -1240,7 +1242,7 @@ class OrderController extends Controller
 
             return $this->success('success', 200, $data);
         } else {
-            return $this->success('Options table is empty', 204);
+            return $this->success('Options table is empty', 200, $data);
         }
     }
 

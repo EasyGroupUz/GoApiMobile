@@ -17,18 +17,18 @@ class OrderDetailsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
+    // public function index()
+    // {
+    //     //
+    // }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    // /**
+    //  * Show the form for creating a new resource.
+    //  */
+    // public function create()
+    // {
+    //     //
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -390,12 +390,14 @@ class OrderDetailsController extends Controller
             array_push($list,$data);
         }       
 
-        return response()->json([
-            'data' => $list,
-            'status' => true,
-            'message' => 'success',
+        return $this->success('success', 200, $list);
 
-        ], 200);
+        // return response()->json([
+        //     'data' => $list,
+        //     'status' => true,
+        //     'message' => 'success',
+
+        // ], 200);
 
     }
 
@@ -418,10 +420,10 @@ class OrderDetailsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(OrderDetails $orderDetails)
-    {
-        //
-    }
+    // public function show(OrderDetails $orderDetails)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -434,16 +436,16 @@ class OrderDetailsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, OrderDetails $orderDetails)
-    {
-        //
-    }
+    // public function update(Request $request, OrderDetails $orderDetails)
+    // {
+    //     //
+    // }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(OrderDetails $orderDetails)
-    {
-        //
-    }
+    // /**
+    //  * Remove the specified resource from storage.
+    //  */
+    // public function destroy(OrderDetails $orderDetails)
+    // {
+    //     //
+    // }
 }
