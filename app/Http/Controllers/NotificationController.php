@@ -15,16 +15,19 @@ class NotificationController extends Controller
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
+            $i = 0;
             foreach ($model as $value) {
-                $arr['id'] = $value['id'];
-                $arr['title'] = $value['title'];
-                $arr['text'] = $value['text'];
-                $arr['date'] = date('d.m.Y H:i', strtotime($value['date']));
+                $arr[$i]['id'] = $value['id'];
+                $arr[$i]['title'] = $value['title'];
+                $arr[$i]['text'] = $value['text'];
+                $arr[$i]['date'] = date('d.m.Y H:i', strtotime($value['date']));
+
+                $i++;
             }
 
             return $this->success('success', 200, $arr);
         } else {
-            return $this->success('Notification not found', 204);
+            return $this->success('Notification not found', 200, $arr);
         }
     }
     
