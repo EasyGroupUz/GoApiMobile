@@ -967,8 +967,8 @@ class OrderController extends Controller
             // }else {
 
                 $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                $title = translate_api('GoEasy', $language);
-                $message = translate_api('Offer accepted', $language);
+                $title = 'GoEasy';
+                $message = 'Offer accepted';
                 
                 $this->sendNotification($device, $title, $message);
 
@@ -982,8 +982,15 @@ class OrderController extends Controller
         }
 
 
-        if ($saveOrderDetail && $saveOrder)
+        if ($saveOrderDetail && $saveOrder) {
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $title = 'GoEasy';
+            $message = 'Offer accepted';
+            
+            $this->sendNotification($device, $title, $message);
+
             return $this->success('success', 200);
+        }
     }
     public function bookingCancel(Request $request)
     {
@@ -1032,8 +1039,8 @@ class OrderController extends Controller
             $cancel_offer = $first_offer->update($offer);
             
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = translate_api('GoEasy', $language);
-            $message = translate_api('Offer cenceled', $language);
+            $title = 'GoEasy';
+            $message = 'Offer cenceled';
             
             $this->sendNotification($device, $title, $message);
           
@@ -1043,8 +1050,15 @@ class OrderController extends Controller
         }
 
 
-        if ($offer)
+        if ($offer) {
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $title = 'GoEasy';
+            $message = 'Offer cenceled';
+            
+            $this->sendNotification($device, $title, $message);
+
             return $this->success('success', 200);
+        }
     }
 
     public function getOptions(Request $request)
