@@ -199,7 +199,7 @@ class AuthController extends Controller
                     }else{
                         $new_user->personal_account = 1000000;
                     }
-                    if(!isset($user->personal_info_id) && !isset($personal_info->id)){
+                    if(!isset($user->personal_info_id)){
                         $personal_info = new PersonalInfo();
                         $personal_info->phone_number = (int)$fields['phone_number'];
                         $personal_info->save();
