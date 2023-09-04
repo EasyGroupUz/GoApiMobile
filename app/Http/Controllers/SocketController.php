@@ -149,7 +149,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
                     $title = 'У вас новое сообщение';
                     $message = $text;
-                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? storage_path('app/public/avatar/' . $userSend->personalInfo->avatar) : '';
+                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
 
                     $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
                 // Send Notification end
