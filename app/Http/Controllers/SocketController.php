@@ -147,7 +147,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     $userSend = User::find($user_to_id);
                     
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
-                    $title = translate_api('GoEasy', $language);
+                    $title = 'GoEasy';
                     $message = $text;
                     
                     $this->sendNotification($device, $title, $message);
