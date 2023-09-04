@@ -261,6 +261,9 @@ class CommentScoreController extends Controller
                 $img_ = null;
                 $full_name = null;
             }
+            if($full_name == ''){
+                $full_name = null;
+            }
             $personal_info = [
                 'user_token'=>$to_user->token??null,
                 'img'=>$img_,
@@ -305,6 +308,9 @@ class CommentScoreController extends Controller
                     $user_full_name = $user_first_name.''.mb_strtoupper($user_last_name).''.mb_strtoupper($user_middle_name);
                 }else{
                     $user_img = null;
+                    $user_full_name = null;
+                }
+                if($user_full_name == ''){
                     $user_full_name = null;
                 }
                 $date = explode(" ", $getComment->date);
@@ -384,6 +390,9 @@ class CommentScoreController extends Controller
                     $img_ = null;
                 }
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
+                if($full_name == ''){
+                    $full_name = null;
+                }
                 $personal_info = [
                     'user_token'=>$user->token??null,
                     'img'=>$img_,
