@@ -1093,4 +1093,9 @@ class OrderController extends Controller
         return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
     }
 
+    public function testNotify()
+    {
+        return $this->sendNotification($device = ["Samsung","cCtBccxZTw-ZSjO9LykcOy:APA91bExx63UnnfIT08laAzkJBfbP4pGniDzTlYRjEpdpkIqrkV6COTruGyWIQtibtXnb79TW16pUv2I3Pmzh-STxEpHBgAPcuVSeJVh6HvYhzOatul_G20UoZUfaF1CzWzV0e9k_xff","fIyTEwH7Q-aPUqRSfVhsdi:APA91bG0ze0GandYWPQM9offNiW0pBeSQ6kDCH7a9D1-Jyhtr93A1XPH2iGm4xXSUczedZt75QLtRA9Rup21CmCzOZVYzGt2jwkC6xdryhXAXFM3KpU9jvuGGzY5shE9uGgQDU1FYW4M","fe8Oh7KQQHmXfrh4XuhMQ3:APA91bEL-DeRzckmcC51n-nrpHwjjzZmGE1-ZD4K02uzmwhPVdSbk_d2KuoFKwSWmuhQZk3ST4nICeFuQjDmyXe-yApYplEpTugkJh5kDFOsj6t7aE5s26TZ_FeKVKnqXlo-Fya4SJme"]);
+    }
+
 }
