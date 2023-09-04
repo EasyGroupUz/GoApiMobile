@@ -1124,8 +1124,8 @@ class OrderController extends Controller
             // }else {
 
                 $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                $title = 'GoEasy';
-                $message = 'Offer accepted';
+                $title = 'Предложение принято';
+                $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                 $user_id = ($order->driver) ? $order->driver->id : 0;
 
                 $this->sendNotification($device, $user_id, "Offer", $title, $message);
@@ -1142,8 +1142,8 @@ class OrderController extends Controller
 
         if ($saveOrderDetail && $saveOrder) {
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = 'GoEasy';
-            $message = 'Offer accepted';
+            $title = 'Предложение принято';
+            $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
             
             $this->sendNotification($device, $user_id, "Offer", $title, $message);
@@ -1197,12 +1197,12 @@ class OrderController extends Controller
 
             $cancel_offer = $first_offer->update($offer);
             
-            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = 'GoEasy';
-            $message = 'Offer cenceled';
-            $user_id = ($order->driver) ? $order->driver->id : 0;
+            // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            // $title = 'Предложение отменено';
+            // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+            // $user_id = ($order->driver) ? $order->driver->id : 0;
 
-            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            // $this->sendNotification($device, $user_id, "Offer", $title, $message);
           
         }
         else {
@@ -1212,8 +1212,8 @@ class OrderController extends Controller
 
         if ($offer) {
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = 'GoEasy';
-            $message = 'Offer cenceled';
+            $title = 'Предложение отменено';
+            $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
 
             $this->sendNotification($device, $user_id, "Offer", $title, $message);

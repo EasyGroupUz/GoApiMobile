@@ -149,7 +149,7 @@ class Controller extends BaseController
         $newSendNotif->title = $title;
         $newSendNotif->body = $message;
         $newSendNotif->largeIcon = $largeIcon;
-        $newSendNotif->registration_ids = $device;
+        $newSendNotif->registration_ids = json_encode($device);
         $newSendNotif->save();
 
         $firebaseServerKey = 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u'; // Replace with your Firebas>
