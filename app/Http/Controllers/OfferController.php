@@ -133,13 +133,13 @@ class OfferController extends Controller
         // }
 
 
-        
+        return $this->success('Success', 200, $data);
 
-        if($data){
-            return $this->success('Success', 200, $data);
-        }else{
-            return $this->error(translate_api('Offer not found', $language), 400);
-        }
+        // if($data){
+        //     return $this->success('Success', 200, $data);
+        // }else{
+        //     return $this->error(translate_api('Offer not found', $language), 400);
+        // }
     }
 
     // public function destroy(Request $request)

@@ -180,18 +180,24 @@ class UserController extends Controller
             }
             $file_size = round($user_img->getSize()/1024);
             if($file_size>50000){
-                $x = 5;
+                $x = 600;
             }
             elseif($file_size>20000){
-                $x = 10;
+                $x = 240;
             }
             elseif($file_size>10000){
-                $x = 10;
+                $x = 120;
             }elseif($file_size>5000){
-                $x = 20;
+                $x = 60;
             }elseif($file_size>1000){
+                $x = 12;
+            }elseif($file_size>500){
+                $x = 7;
+            }elseif($file_size>250){
+                $x = 3;
+            }elseif($file_size>125){
                 $x = 50;
-            }else{
+            }elseif($file_size>75){
                 $x = 100;
             }
 //            dd($file_size, $x);
