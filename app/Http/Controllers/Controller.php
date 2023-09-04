@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\DirectionHistory;
+use App\Models\SendNotif;
 
 /**
  * @OA\Info(
@@ -131,19 +132,38 @@ class Controller extends BaseController
     }
 
 
-    public function sendNotification($device, $title = 'GoEasy', $message = 'Hello GoEasy')
+    public function sendNotification($device, $user_id, $action, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
     {
+        if ($action == 'Offer')
+            $largeIcon = 'https://cdn.vectorstock.com/i/preview-1x/10/38/avatar-man-with-special-offer-message-vector-28301038.webp';
+        else if ($action == 'Chat' && $largeIcon == '')
+            $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
+
+        $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
+        $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        
+        $newSendNotif = new SendNotif();
+        $newSendNotif->user_id = $user_id;
+        $newSendNotif->entity_id = $inc;
+        $newSendNotif->entity_type = $action;
+        $newSendNotif->title = $title;
+        $newSendNotif->body = $message;
+        $newSendNotif->largeIcon = $largeIcon;
+        $newSendNotif->registration_ids = $device;
+        $newSendNotif->save();
+
         $firebaseServerKey = 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u'; // Replace with your Firebas>
         $fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
 
         $data = [
             'data' => [
-                'entity_id' => '12312',
-                'entity_type' => 'salom',
+                'entity_id' => $inc,
+                'entity_type' => $action,
                 'title' => $title,
                 'body' => $message,
                 'bigPicture' => 'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
-                'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
+                'largeIcon' => $largeIcon,
+                // 'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
                 'channelKey' => 'basic_channel',
                 'notificationLayout' => 'BigPicture',
                 'showWhen' => true,

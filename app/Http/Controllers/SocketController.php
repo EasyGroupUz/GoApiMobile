@@ -149,8 +149,9 @@ class SocketController extends Controller implements MessageComponentInterface
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
                     $title = 'GoEasy';
                     $message = $text;
+                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? storage_path('app/public/avatar/' . $userSend->personalInfo->avatar) : '';
                     
-                    $this->sendNotification($device, $title, $message);
+                    $this->sendNotification($device, "Chat", $title, $message, $largeIcon);
                 // Send Notification end
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');

@@ -721,6 +721,29 @@ class OrderController extends Controller
         return $this->success('success', 200);
     }
 
+    /* ========================= Order delete start ========================= */
+    // public function delete(Request $request)
+    // {
+    //     $id = $request->input('id');
+
+    //     if (!$id) {
+    //         return $this->error('id parameter is missing', 400);
+    //     }
+
+    //     $order = Order::find($id);
+
+    //     if (!$order) {
+    //         return $this->error('Order not found with the given ID', 400);
+    //     }
+
+    //     $order->delete();
+
+    //     return $this->success('Order deleted successfully', 200);
+    // }
+    /* ========================= Order delete end ========================= */
+
+
+
     public function history(Request $request)
     {
         // if (!$this->validateByToken($request))
@@ -836,6 +859,140 @@ class OrderController extends Controller
         //     'message' => "success"
         // ], 200);
     }
+
+    /* ========================= Order hostory start ========================= */
+    // public function history(Request $request)
+    // {
+    //     // Check if 'page' parameter exists in the request
+    //     if (!$request->has('page')) {
+    //         return $this->error('page parameter is missing', 400);
+    //     }
+
+    //     // Retrieve the 'page' parameter from the request
+    //     $page = $request->input('page');
+
+    //     // Retrieve a list of orders with pagination and ordering
+    //     $model = Order::orderBy('id', 'asc')
+    //         ->offset(($page - 1) * 15)
+    //         ->limit(15)
+    //         ->get();
+
+    //     $arr = [];
+
+    //     // Check if there are orders in the result
+    //     if ($model->isNotEmpty()) {
+    //         foreach ($model as $key => $value) {
+    //             // Initialize an array to store client information
+    //             $clientArr = [];
+
+    //             if ($value->orderDetails) {
+    //                 foreach ($value->orderDetails as $keyOD => $valueOD) {
+    //                     if (isset($valueOD->client) && isset($valueOD->client->personalInfo)) {
+    //                         // Create an array with client information
+    //                         $clientArr[] = [
+    //                             'clients_full_name' => "{$valueOD->client->personalInfo->last_name} {$valueOD->client->personalInfo->first_name} {$valueOD->client->personalInfo->middle_name}",
+    //                             'client_img' => asset('storage/avatar/' . $valueOD->client->personalInfo->avatar),
+    //                             'client_rating' => 4.3,
+    //                         ];
+    //                     }
+    //                 }
+    //             }
+
+    //             // Initialize an array to store driver information
+    //             $arrDriverInfo = [];
+
+    //             if ($value->driver) {
+    //                 $valDriver = $value->driver;
+
+    //                 $d_full_name = '';
+    //                 $d_phone_number = '';
+    //                 $d_img = '';
+
+    //                 if ($valDriver->personalInfo) {
+    //                     $driverPersonalInfo = $valDriver->personalInfo;
+
+    //                     $d_full_name = "{$driverPersonalInfo->last_name} {$driverPersonalInfo->first_name} {$driverPersonalInfo->middle_name}";
+    //                     $d_phone_number = $driverPersonalInfo->phone_number;
+    //                     $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
+    //                 }
+
+    //                 // Create an array with driver information
+    //                 $arrDriverInfo = [
+    //                     'full_name' => $d_full_name,
+    //                     'phone_number' => $d_phone_number,
+    //                     'img' => $d_img,
+    //                     'rating' => $valDriver->rating,
+    //                 ];
+    //             }
+
+    //             // Initialize an array to store car information
+    //             $arrCar = [];
+
+    //             if ($value->car) {
+    //                 $valCar = $value->car;
+
+    //                 $arrCarImg = [];
+
+    //                 if (!empty($valCar->images)) {
+    //                     foreach (json_decode($valCar->images) as $valueCI) {
+    //                         $arrCarImg[] = asset('storage/cars/' . $valueCI);
+    //                     }
+    //                 }
+
+    //                 // Create an array with car information
+    //                 $arrCar = [
+    //                     'id' => $valCar->id,
+    //                     'name' => $valCar->car->name ?? '',
+    //                     'color' => ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [],
+    //                     'production_date' => date('d.m.Y', strtotime($valCar->production_date)),
+    //                     'class' => $valCar->class->name ?? '',
+    //                     'reg_certificate' => $valCar->reg_certificate,
+    //                     'reg_certificate_img' => asset('storage/cars/' . $valCar->reg_certificate_image),
+    //                     'images' => $arrCarImg,
+    //                 ];
+    //             }
+
+    //             $distance = $this->getDistanceAndKm(
+    //                 ($value->from) ? $value->from->lng : '',
+    //                 ($value->from) ? $value->from->lat : '',
+    //                 ($value->to) ? $value->to->lng : '',
+    //                 ($value->to) ? $value->to->lat : ''
+    //             );
+
+    //             // Create an array with order information
+    //             $arr[] = [
+    //                 'id' => $value->id,
+    //                 'start_date' => date('d.m.Y H:i', strtotime($value->start_date)),
+    //                 'price' => (double)$value->price,
+    //                 'isYour' => ($value->driver_id == auth()->id()),
+    //                 'seats_count' => $value->seats ?? 0,
+    //                 'booking_count' => ($value->orderDetails) ? count($value->orderDetails) : 0,
+    //                 'clients_list' => $clientArr,
+    //                 'driver' => $arrDriverInfo,
+    //                 'car' => (empty($arrCar)) ? NULL : $arrCar,
+    //                 'options' => json_decode($value->options) ?? [],
+    //                 'from' => ($value->from) ? $value->from->name : '',
+    //                 'from_lng' => ($value->from) ? $value->from->lng : '',
+    //                 'from_lat' => ($value->from) ? $value->from->lat : '',
+    //                 'to' => ($value->to) ? $value->to->name : '',
+    //                 'to_lng' => ($value->to) ? $value->to->lng : '',
+    //                 'to_lat' => ($value->to) ? $value->to->lat : '',
+    //                 'distance_km' => $distance['km'],
+    //                 'distance' => $distance['time'],
+    //                 'arrived_date' => date('d.m.Y H:i', strtotime("{$value->start_date} + {$distance['time']}")),
+    //                 'status' => ($value->status) ? $value->status->name : '',
+    //             ];
+    //         }
+
+    //         return $this->success('success', 200, $arr);
+    //     } else {
+    //         return $this->success('Order table is empty', 204);
+    //     }
+    // }
+    /* ========================= Order hostory end ========================= */
+
+
+
 
     public function expired()
     {
@@ -969,8 +1126,9 @@ class OrderController extends Controller
                 $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
                 $title = 'GoEasy';
                 $message = 'Offer accepted';
-                
-                $this->sendNotification($device, $title, $message);
+                $user_id = ($order->driver) ? $order->driver->id : 0;
+
+                $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
                 return $this->success('offer created', 204);
             // }
@@ -986,8 +1144,9 @@ class OrderController extends Controller
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
             $title = 'GoEasy';
             $message = 'Offer accepted';
+            $user_id = ($order->driver) ? $order->driver->id : 0;
             
-            $this->sendNotification($device, $title, $message);
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
             return $this->success('success', 200);
         }
@@ -1041,8 +1200,9 @@ class OrderController extends Controller
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
             $title = 'GoEasy';
             $message = 'Offer cenceled';
-            
-            $this->sendNotification($device, $title, $message);
+            $user_id = ($order->driver) ? $order->driver->id : 0;
+
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
           
         }
         else {
@@ -1054,8 +1214,9 @@ class OrderController extends Controller
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
             $title = 'GoEasy';
             $message = 'Offer cenceled';
-            
-            $this->sendNotification($device, $title, $message);
+            $user_id = ($order->driver) ? $order->driver->id : 0;
+
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
             return $this->success('success', 200);
         }
@@ -1105,11 +1266,6 @@ class OrderController extends Controller
         $maxPrice = round((int)($distance['distance_value'] / 1000 * Constants::MAX_DESTINATION_PRICE) / 1000) * 1000;
 
         return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
-    }
-
-    public function testNotify()
-    {
-        return $this->sendNotification($device = ["Samsung","cCtBccxZTw-ZSjO9LykcOy:APA91bExx63UnnfIT08laAzkJBfbP4pGniDzTlYRjEpdpkIqrkV6COTruGyWIQtibtXnb79TW16pUv2I3Pmzh-STxEpHBgAPcuVSeJVh6HvYhzOatul_G20UoZUfaF1CzWzV0e9k_xff","fIyTEwH7Q-aPUqRSfVhsdi:APA91bG0ze0GandYWPQM9offNiW0pBeSQ6kDCH7a9D1-Jyhtr93A1XPH2iGm4xXSUczedZt75QLtRA9Rup21CmCzOZVYzGt2jwkC6xdryhXAXFM3KpU9jvuGGzY5shE9uGgQDU1FYW4M","fe8Oh7KQQHmXfrh4XuhMQ3:APA91bEL-DeRzckmcC51n-nrpHwjjzZmGE1-ZD4K02uzmwhPVdSbk_d2KuoFKwSWmuhQZk3ST4nICeFuQjDmyXe-yApYplEpTugkJh5kDFOsj6t7aE5s26TZ_FeKVKnqXlo-Fya4SJme"]);
     }
 
 }

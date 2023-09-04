@@ -65,8 +65,9 @@ class OfferController extends Controller
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
             $title = translate_api('GoEasy', $language);
             $message = translate_api('Offer created', $language);
-            
-            $this->sendNotification($device, $title, $message);
+            $user_id = ($order->driver) ? $order->driver->id : 0;
+
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
         }
         // return response()->json([
         //     'status' => 'success',
