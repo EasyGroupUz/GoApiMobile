@@ -330,7 +330,7 @@ class CommentScoreController extends Controller
                         "date" => $date[0]??null,
                         "rating" => $getComment->score??null,
                         "comment" => $getComment->text??null,
-                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')??null
+                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }
             }

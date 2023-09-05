@@ -16,14 +16,21 @@ class ComplainController extends Controller
         $complains = Complain::select('id', 'type', 'order_id', 'order_detail_id', 'text', 'complain_reason', 'created_at')->get();
         $getComplain = null;
         foreach($complains as $complain){
+            if(!is_array($complain->complain_reason)){
+                $complain_reason = json_decode($complain->complain_reason);
+            }elseif(!isset($complain->complain_reason)){
+                $complain_reason = null;
+            }else{
+                $complain_reason = $complain->complain_reason;
+            }
             $getComplain[] = [
-                'id'=>$complain->id,
-                'type'=>$complain->type,
-                'order_id'=>$complain->order_id,
-                'order_detail_id'=>$complain->order_detail_id,
-                'text'=>$complain->text,
-                'complain_reason'=>json_decode($complain->complain_reason),
-                'created_at'=>$complain->created_at,
+                'id'=>$complain->id??null,
+                'type'=>$complain->type??null,
+                'order_id'=>$complain->order_id??null,
+                'order_detail_id'=>$complain->order_detail_id??null,
+                'text'=>$complain->text??null,
+                'complain_reason'=>$complain_reason,
+                'created_at'=>$complain->created_at??null,
             ];
         }
         if($getComplain != null){

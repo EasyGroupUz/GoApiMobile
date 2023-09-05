@@ -49,14 +49,18 @@ class UserController extends Controller
             $i = -1;
             foreach ($device_types as $device_type){
                 $i++;
-                $device[] = ['type'=>$device_type??'', 'id'=>$device_id[$i]??''];
+                $device[] = ['type'=>$device_type??null, 'id'=>$device_id[$i]??null];
             }
         }
         if(isset($model->personalInfo)){
             $first_name = $model->personalInfo->first_name?$model->personalInfo->first_name.' ':'';
             $last_name = $model->personalInfo->last_name?strtoupper($model->personalInfo->last_name[0].'. '):'';
             $middle_name = $model->personalInfo->middle_name?strtoupper($model->personalInfo->middle_name[0].'.'):'';
-
+            if($first_name.''.strtoupper($last_name).''.strtoupper($middle_name) != ''){
+                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+            }else{
+                $full_name = null;
+            }
             if(isset($model->personalInfo->avatar)){
                 $avatar = storage_path('app/public/avatar/'.$model->personalInfo->avatar);
                 if(file_exists($avatar)){
@@ -66,16 +70,16 @@ class UserController extends Controller
             $list = [
                 'id'=>$model->id,
                 'device'=>$device??[],
-                'img'=>$model->personalInfo->avatar,
-                'first_name'=>$model->personalInfo->first_name,
-                'last_name'=>$model->personalInfo->last_name,
-                'middle_name'=>$model->personalInfo->middle_name,
-                'full_name'=>$first_name.''.strtoupper($last_name).''.strtoupper($middle_name),
-                'birth_date'=>$model->personalInfo->birth_date,
-                'email'=>$model->personalInfo->email??'',
-                'gender'=>$model->personalInfo->gender,
-                'phone_number'=>$model->personalInfo->phone_number,
-                'rating'=>$model->rating,
+                'img'=>$model->personalInfo->avatar??null,
+                'first_name'=>$model->personalInfo->first_name??null,
+                'last_name'=>$model->personalInfo->last_name??null,
+                'middle_name'=>$model->personalInfo->middle_name??null,
+                'full_name'=>$full_name,
+                'birth_date'=>$model->personalInfo->birth_date??null,
+                'email'=>$model->personalInfo->email??null,
+                'gender'=>$model->personalInfo->gender??null,
+                'phone_number'=>$model->personalInfo->phone_number??null,
+                'rating'=>$model->rating??null,
             ];
             return $this->success('Success', 201, $list);
         }else{
@@ -246,12 +250,12 @@ class UserController extends Controller
             $model->personalInfo->deleted_at = date("Y-m-d H:i:s");
             $model->personalInfo->save();
         }
-        $driver = Driver::where('user_id', $model->id)->where('deleted_at', NULL)->first();
+        $driver = Driver::where('user_id', $model->id)->first();
         if(isset($driver->id)){
             $driver->deleted_at = date("Y-m-d H:i:s");
             $driver->save();
         }
-        $user_verify = UserVerify::where('user_id', $model->id)->where('deleted_at', NULL)->first();
+        $user_verify = UserVerify::where('user_id', $model->id)->first();
         if(isset($user_verify->id)){
             $user_verify->deleted_at = date("Y-m-d H:i:s");
             $user_verify->save();
@@ -267,13 +271,13 @@ class UserController extends Controller
         if(!isset($user->deleted_at)) {
             return response()->json([
                 'users' => $user,
-                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : ''
+                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : null
             ]);
         }else{
             return response()->json([
                 'status' => 'deleted',
                 'users' => $user,
-                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : ''
+                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : null
             ]);
         }
     }

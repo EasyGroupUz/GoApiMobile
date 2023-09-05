@@ -45,10 +45,10 @@ class CarsController extends Controller
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
-                'reg_certificate'=>$car->reg_certificate,
+                'reg_certificate'=>$car->reg_certificate??null,
                 'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
-                'production_date'=>$car->production_date,
-                'car_name'=>$car->car_name,
+                'production_date'=>$car->production_date??null,
+                'car_name'=>$car->car_name??null,
                 'color'=>$color_table->color_translation_name??$car->color_name,
                 'color_code'=>$color_table->color_code??$car->color_code,
                 'created_at'=>$car->created_at,
@@ -103,16 +103,16 @@ class CarsController extends Controller
             foreach($car_type->carList as $car_list){
                 $list[] = [
                     "id" => $car_list->id,
-                    "status_id" => $car_list->status_id,
-                    "car_type_id" => $car_list->car_type_id,
-                    "name" => $car_list->name,
-                    "default_seats" => $car_list->default_seats,
+                    "status_id" => $car_list->status_id??null,
+                    "car_type_id" => $car_list->car_type_id??null,
+                    "name" => $car_list->name??null,
+                    "default_seats" => $car_list->default_seats??null,
                 ];
             }
             $carList[] = [
                 'id'=>$car_type->id,
-                'model'=>$model??'',
-                'list' => $list,
+                'model'=>$model??null,
+                'list' => $list??[],
             ];
             $list = [];
         }
@@ -124,11 +124,11 @@ class CarsController extends Controller
                 "car_list"=>$carList??[],
             ]);
         }elseif(count($class_lists) == 0){
-            return $this->error(translate_api('No car class', $language), 400);
+            return $this->error(translate_api('No car class', $language), 400, []);
         }elseif(count($color_lists) == 0){
-            return $this->error(translate_api('No car color', $language), 400);
+            return $this->error(translate_api('No car color', $language), 400, []);
         }elseif(count($carList) == 0){
-            return $this->error(translate_api('No car list', $language), 400);
+            return $this->error(translate_api('No car list', $language), 400, []);
         }
     }
 

@@ -77,12 +77,16 @@ class MediaHistoryController extends Controller
                         if(file_exists($avatar)){
                             $img_ = asset('storage/avatar/'.$personal_info->avatar);
                         }else{
-                            $img_ = '';
+                            $img_ = null;
                         }
                     }else{
-                        $img_ = '';
+                        $img_ = null;
                     }
-                    $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                    if($first_name.''.strtoupper($last_name).''.strtoupper($middle_name) != ''){
+                        $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                    }else{
+                        $full_name = null;
+                    }
                     if(isset($personal_info->deleted_at)) {
                         $mediaUser[] = [
                             'id' => $media_user->id,
@@ -99,14 +103,14 @@ class MediaHistoryController extends Controller
             }
             $data[] = [
                 'id' =>$media->id,
-                'url_small'=>$url_small??'',
-                'url_big'=>$url_big_array,
-                'is_read'=>$media->is_read,
+                'url_small'=>$url_small??null,
+                'url_big'=>$url_big_array??null,
+                'is_read'=>$media->is_read??null,
                 'count_user'=>count($media->mediaUser),
                 'media_user'=>$mediaUser??[],
-                'expire_date'=>$media->expire_date,
-                'created_at'=>$media->created_at??'',
-                'updated_at'=>$media->updated_at??'',
+                'expire_date'=>$media->expire_date??null,
+                'created_at'=>$media->created_at??null,
+                'updated_at'=>$media->updated_at??null,
             ];
         }
         if($data != null){
@@ -154,12 +158,16 @@ class MediaHistoryController extends Controller
                     if(file_exists($avatar)){
                         $img_ = asset('storage/avatar/'.$personal_info->avatar);
                     }else{
-                        $img_ = '';
+                        $img_ = null;
                     }
                 }else{
-                    $img_ = '';
+                    $img_ = null;
                 }
-                $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                if($first_name.''.strtoupper($last_name).''.strtoupper($middle_name) != ''){
+                    $full_name = $first_name.''.strtoupper($last_name).''.strtoupper($middle_name);
+                }else{
+                    $full_name = null;
+                }
                 if(isset($personal_info->deleted_at)) {
                     $mediaUser[] = [
                         'id' => $media_user->id,
@@ -176,14 +184,14 @@ class MediaHistoryController extends Controller
         }
         $data = [
             'id' =>$media->id,
-            'url_small'=>$url_small??'',
-            'url_big'=>$url_big_array,
-            'is_read'=>$media->is_read,
+            'url_small'=>$url_small??null,
+            'url_big'=>$url_big_array??[],
+            'is_read'=>$media->is_read??null,
             'count_user'=>count($media->mediaUser),
             'media_user'=>$mediaUser??[],
-            'expire_date'=>$media->expire_date,
-            'created_at'=>$media->created_at??'',
-            'updated_at'=>$media->updated_at??'',
+            'expire_date'=>$media->expire_date??null,
+            'created_at'=>$media->created_at??null,
+            'updated_at'=>$media->updated_at??null,
         ];
         if($data != null){
             return $this->success('Success', 200, $data);
