@@ -126,8 +126,8 @@ class OfferController extends Controller
                 'from_name' => $from_to_name['from_name'],
                 'to_name' => $from_to_name['to_name'],
                 'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
-                'avatar'=>$offer->avatar
-                'is_your'=>
+                'avatar'=>$offer->avatar,
+                'is_your'=>$is_your
             ];
             array_push($data , $list);
         }
