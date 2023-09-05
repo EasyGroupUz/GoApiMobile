@@ -437,14 +437,14 @@ class OrderDetailsController extends Controller
     {
         $offers = DB::table('yy_order_details as od')
             ->join('yy_offers as of', 'od.id', '=', 'of.order_detail_id')
-            ->join('yy_orders as or', 'or.id', '=', 'of.order_id')
-            ->join('yy_cities as from', 'from.id', '=', 'or.from_id')
-            ->join('yy_cities as to', 'to.id', '=', 'or.to_id')
+            ->leftJoin('yy_orders as or', 'or.id', '=', 'of.order_id')
+            ->leftJoin('yy_cities as from', 'from.id', '=', 'or.from_id')
+            ->leftJoin('yy_cities as to', 'to.id', '=', 'or.to_id')
             ->leftJoin('yy_order_details as orod', 'orod.order_id', '=', 'or.id')
             ->leftJoin('yy_users as usC', 'usC.id', '=', 'orod.client_id')
             ->leftJoin('yy_personal_infos as piC', 'piC.id', '=', 'usC.personal_info_id')
-            ->join('yy_users as us', 'us.id', '=', 'or.driver_id')
-            ->join('yy_personal_infos as pi', 'pi.id', '=', 'us.personal_info_id')
+            ->leftJoin('yy_users as us', 'us.id', '=', 'or.driver_id')
+            ->leftJoin('yy_personal_infos as pi', 'pi.id', '=', 'us.personal_info_id')
             ->leftJoin('yy_cars as car', 'car.id', '=', 'or.car_id')
             ->leftJoin('yy_car_lists as cl', 'cl.id', '=', 'car.car_list_id')
             ->leftJoin('yy_color_lists as col', 'col.id', '=', 'car.color_list_id')
@@ -478,7 +478,7 @@ class OrderDetailsController extends Controller
 
             $arrImgs = [];
             if ($offer->car_images != null) {
-                $imgs = json_decode($offer->car_images);
+                $imgs = json_decode(json_decode($offer->car_images));
 
                 foreach ($imgs as $img) {
                     $arrImgs[] = asset('storage/cars/' . $img);
