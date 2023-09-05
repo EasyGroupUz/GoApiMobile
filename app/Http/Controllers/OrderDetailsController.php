@@ -416,6 +416,125 @@ class OrderDetailsController extends Controller
         return $this->success('success', 200, $model);
     }
 
+    public function history(Request $request)
+    {
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+
+        $offers = $this->getClientOffers();
+
+        if (!$offers)
+            return $this->success('success', 200, []);
+        
+        $data = $this->makeDataToArray($offers);
+            
+        return $this->success('success', 201, $data);
+    }
+
+    private function getClientOffers()
+    {
+        $offers = DB::table('yy_order_details as od')
+            ->join('yy_offers as of', 'od.id', '=', 'of.order_detail_id')
+            ->join('yy_orders as or', 'or.id', '=', 'of.order_id')
+            ->join('yy_cities as from', 'from.id', '=', 'or.from_id')
+            ->join('yy_cities as to', 'to.id', '=', 'or.to_id')
+            ->leftJoin('yy_order_details as orod', 'orod.order_id', '=', 'or.id')
+            ->leftJoin('yy_users as usC', 'usC.id', '=', 'orod.client_id')
+            ->leftJoin('yy_personal_infos as piC', 'piC.id', '=', 'usC.personal_info_id')
+            ->join('yy_users as us', 'us.id', '=', 'or.driver_id')
+            ->join('yy_personal_infos as pi', 'pi.id', '=', 'us.personal_info_id')
+            ->leftJoin('yy_cars as car', 'car.id', '=', 'or.car_id')
+            ->leftJoin('yy_car_lists as cl', 'cl.id', '=', 'car.car_list_id')
+            ->leftJoin('yy_color_lists as col', 'col.id', '=', 'car.color_list_id')
+            ->leftJoin('yy_class_lists as class', 'class.id', '=', 'car.class_list_id')
+            ->leftJoin('yy_statuses as status', 'status.id', '=', 'or.status_id')
+            ->where('od.client_id',auth()->id())
+            ->select('or.id', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name')
+            ->get();
+
+        return $offers;
+    }
+
+    private function makeDataToArray($offers)
+    {
+        $arr = [];
+        $n = -1;
+        $c = -1;
+        $inArray = [];
+        $clientIdArr = [];
+        foreach ($offers as $offer) {
+
+            if (!in_array($offer->client_id, $clientIdArr, true)) {
+                $clientIdArr[] = $offer->client_id;
+                $c++;
+            }
+
+            if (!in_array($offer->id, $inArray, true)) {
+                $inArray[] = $offer->id;
+                $n++;
+            }
+
+            $arrImgs = [];
+            if ($offer->car_images != null) {
+                $imgs = json_decode($offer->car_images);
+
+                foreach ($imgs as $img) {
+                    $arrImgs[] = asset('storage/cars/' . $img);
+                }
+            }
+
+            $arr[$n]['id'] = $offer->id;
+            $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($offer->start_date));
+            $arr[$n]['price'] = (double)$offer->price;
+            $arr[$n]['offer'] = $offer->offer_status;
+            $arr[$n]['seats_count'] = $offer->seats_count;
+            $arr[$n]['booking_count'] = $offer->booking_count;
+            $arr[$n]['is_full'] = ($offer->seats_count == $offer->booking_count) ? true : false;
+            $arr[$n]['clients_list'][$c]['full_name'] = $offer->c_last_name . ' ' . $offer->c_first_name . ' ' . $offer->c_middle_name;
+            $arr[$n]['clients_list'][$c]['phone_number'] = $offer->c_phone_number;
+            $arr[$n]['clients_list'][$c]['img'] = ($offer->c_avatar) ? asset('storage/avatar/' . $offer->c_avatar) : '';
+            $arr[$n]['clients_list'][$c]['rating'] = $offer->c_rating;
+            $arr[$n]['driver'] = [
+                'full_name' => $offer->last_name . ' ' . $offer->first_name . ' ' . $offer->middle_name,
+                'phone_number' => $offer->phone_number,
+                'img' => ($offer->dImg) ? asset('storage/avatar/' . $offer->dImg) : '',
+                'rating' => $offer->rating
+            ];
+            $arr[$n]['car'] = [
+                'id' => $offer->car_id,
+                'name' => $offer->car_name,
+                'color' => [
+                    'name' => $offer->color_name,
+                    'code' => $offer->color_code
+                ],
+                'production_date' => $offer->production_date,
+                'class' => $offer->class_name,
+                'reg_certificate' => $offer->reg_certificate,
+                'reg_certificate_img' => ($offer->reg_certificate_image) ? asset('storage/cars/' . $offer->reg_certificate_image) : '',
+                'images' => $arrImgs,
+            ];
+            $arr[$n]['options'] = json_decode($offer->options);
+            $arr[$n]['from'] = $offer->from;
+            $arr[$n]['from_lng'] = $offer->from_lng;
+            $arr[$n]['from_lat'] = $offer->from_lat;
+            $arr[$n]['to'] = $offer->to;
+            $arr[$n]['to_lng'] = $offer->to_lng;
+            $arr[$n]['to_lat'] = $offer->to_lat;
+
+            $distance = $this->getDistanceAndKm($offer->from_lng, $offer->from_lat, $offer->to_lng, $offer->to_lat);
+
+            $arr[$n]['distance_km'] = $distance['km'];
+            $arr[$n]['distance'] = $distance['time'];
+            $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($offer->start_date. ' +' . $distance['time']));
+            
+            $arr[$n]['status'] = $offer->status_name;
+        }
+
+        return $arr;
+    }
+
 
     /**
      * Display the specified resource.
