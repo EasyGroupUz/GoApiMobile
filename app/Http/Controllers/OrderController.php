@@ -11,6 +11,7 @@ use App\Models\DirectionHistory;
 use App\Models\OrderDetail;
 use App\Models\Cars;
 use App\Models\PersonalInfo;
+use App\Models\Chat;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -321,6 +322,7 @@ class OrderController extends Controller
             }
 
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
+            $chat_id = $this->getChatId($order->id, auth()->id());
 
             $arr['id'] = $order->id;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
@@ -341,11 +343,19 @@ class OrderController extends Controller
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
             $arr['options'] = json_decode($order->options) ?? [];
+            $arr['chat_id'] = $chat_id;
 
             return $this->success('success', 200, $arr);
         } else {
             return $this->success('This kind of order not found', 204);
         }
+    }
+
+    private function getChatId($order_id, $auth_id)
+    {
+        $chat = Chat::where('user_from_id', $auth_id)->where('order_id', $order_id)->first();
+
+        return $chat->id ?? NULL;
     }
 
 
