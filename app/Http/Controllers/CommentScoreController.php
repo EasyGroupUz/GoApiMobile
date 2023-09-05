@@ -151,7 +151,7 @@ class CommentScoreController extends Controller
         if(!isset($user)){
             return $this->error(translate_api('This user is not exist', $language), 400);
         }
-        $personal_info = '';
+        $personal_info = null;
         $ratings_list = [];
         $comments_list = [];
         $comment = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->first();
@@ -167,7 +167,7 @@ class CommentScoreController extends Controller
                             case 1:
                                 $ratings_list_1[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score??'',
+                                    "rating" => $com->score??null,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -175,7 +175,7 @@ class CommentScoreController extends Controller
                             case 2:
                                 $ratings_list_2[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score??'',
+                                    "rating" => $com->score??null,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -183,7 +183,7 @@ class CommentScoreController extends Controller
                             case 3:
                                 $ratings_list_3[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score??'',
+                                    "rating" => $com->score??null,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -191,7 +191,7 @@ class CommentScoreController extends Controller
                             case 4:
                                 $ratings_list_4[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score??'',
+                                    "rating" => $com->score??null,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -199,7 +199,7 @@ class CommentScoreController extends Controller
                             case 5:
                                 $ratings_list_5[] = [
                                     "id" => $com->id,
-                                    "rating" => $com->score??'',
+                                    "rating" => $com->score??null,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -258,72 +258,79 @@ class CommentScoreController extends Controller
                 }
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
             }else{
-                $img_ = '';
-                $full_name = '';
+                $img_ = null;
+                $full_name = null;
+            }
+            if($full_name == ''){
+                $full_name = null;
             }
             $personal_info = [
-                'user_token'=>$to_user->token,
+                'user_token'=>$to_user->token??null,
                 'img'=>$img_,
                 'full_name'=>$full_name,
-                'doc_status'=>$doc_status,
+                'doc_status'=>$doc_status??null,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
             ];
             foreach ($getComments as $getComment){
                 if($getComment->to_whom == $getComment->client_id){
-                    $from_user = User::where('id', $getComment->driver_id)->where('deleted_at', NULL)->first();
+                    $from_user = User::withTrashed()->where('id', $getComment->driver_id)->first();
                 }else{
-                    $from_user = User::where('id', $getComment->client_id)->where('deleted_at', NULL)->first();
+                    $from_user = User::withTrashed()->where('id', $getComment->client_id)->first();
                 }
-                if(isset($from_user->personalInfo)){
-                    if(isset($from_user->personalInfo->first_name)){
-                        $user_first_name = $from_user->personalInfo->first_name.' ';
+                $all_personal_info = PersonalInfo::withTrashed()->find($from_user->personal_info_id);
+                if(isset($all_personal_info->id)){
+                    if(isset($all_personal_info->first_name)){
+                        $user_first_name = $all_personal_info->first_name.' ';
                     }else{
                         $user_first_name = '';
                     }
-                    if(isset($from_user->personalInfo->last_name)){
-                        $user_last_name = mb_strtoupper($from_user->personalInfo->last_name[0].'. ');
+                    if(isset($all_personal_info->last_name)){
+                        $user_last_name = mb_strtoupper($all_personal_info->last_name[0].'. ');
                     }else{
                         $user_last_name = '';
                     }
-                    if(isset($from_user->personalInfo->middle_name)){
-                        $user_middle_name = mb_strtoupper($from_user->personalInfo->middle_name[0].'.');
+                    if(isset($all_personal_info->middle_name)){
+                        $user_middle_name = mb_strtoupper($all_personal_info->middle_name[0].'.');
                     }else{
                         $user_middle_name = '';
                     }
-                    if(isset($from_user->personalInfo->avatar) && $from_user->personalInfo->avatar != ''){
-                        $avatar = storage_path('app/public/avatar/'.$from_user->personalInfo->avatar??'no');
+                    if(isset($all_personal_info->avatar) && $all_personal_info->avatar != ''){
+                        $avatar = storage_path('app/public/avatar/'.$all_personal_info->avatar??'no');
                         if(file_exists($avatar)){
-                            $user_img = asset('storage/avatar/'.$from_user->personalInfo->avatar);
+                            $user_img = asset('storage/avatar/'.$all_personal_info->avatar);
                         }else{
-                            $user_img = '';
+                            $user_img = null;
                         }
                     }else{
-                        $user_img = '';
+                        $user_img = null;
                     }
                     $user_full_name = $user_first_name.''.mb_strtoupper($user_last_name).''.mb_strtoupper($user_middle_name);
                 }else{
-                    $user_img = '';
-                    $user_full_name = '';
+                    $user_img = null;
+                    $user_full_name = null;
+                }
+                if($user_full_name == ''){
+                    $user_full_name = null;
                 }
                 $date = explode(" ", $getComment->date);
-                if(!isset($from_user)){
+                if(!isset($all_personal_info->id)){
                     $comments_list[] = [
                         "user"=>'deleted',
-                        "date" => $date[0],
-                        "rating" => $getComment->score??'',
-                        "comment" => $getComment->text??'',
+                        "date" => $date[0]??null,
+                        "rating" => $getComment->score??null,
+                        "comment" => $getComment->text??null,
                         "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
                 }else{
                     $comments_list[] = [
-                        'id'=>$from_user->id,
+                        'id'=>$from_user->id??null,
                         "img" => $user_img,
-                        "full_name" => $user_full_name??'',
-                        "date" => $date[0],
-                        "rating" => $getComment->score??'',
-                        "comment" => $getComment->text??'',
-                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
+                        "full_name" => $user_full_name,
+                        "date" => $date[0]??null,
+                        "rating" => $getComment->score??null,
+                        "comment" => $getComment->text??null,
+                        "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')??null
                     ];
                 }
             }
@@ -377,27 +384,30 @@ class CommentScoreController extends Controller
                     if(file_exists($avatar)){
                         $img_ = asset('storage/avatar/'.$user->personalInfo->avatar);
                     }else{
-                        $img_ = '';
+                        $img_ = null;
                     }
                 }else{
-                    $img_ = '';
+                    $img_ = null;
                 }
                 $full_name = $first_name.''.mb_strtoupper($last_name).''.mb_strtoupper($middle_name);
+                if($full_name == ''){
+                    $full_name = null;
+                }
                 $personal_info = [
-                    'user_token'=>$user->token,
+                    'user_token'=>$user->token??null,
                     'img'=>$img_,
                     'full_name'=>$full_name,
-                    'doc_status'=>$doc_status,
-                    'rating'=>'no score',
-                    'comment_count'=> ''
+                    'doc_status'=>$doc_status??null,
+                    'rating'=>null,
+                    'comment_count'=> null
                 ];
             }else{
                 $personal_info = [];
             }
             return $this->success(translate_api('No comment', $language), 400, [
                 'personal_info'=>$personal_info,
-                'ratings_list'=> '',
-                'comments_list'=> '',
+                'ratings_list'=> null,
+                'comments_list'=> null,
             ]);
         }
     }
