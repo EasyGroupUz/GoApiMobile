@@ -282,6 +282,16 @@ class UserController extends Controller
         }
     }
 
+    public function setLanguage(Request $request){
+        $user = Auth::user();
+        if(!isset($request->language)){
+            return $this->error('Send language', 400);
+        }
+        $user->language = $request->language;
+        $user->save();
+        return $this->success('Success', 201);
+    }
+    
     public function getId() {
         $model = Auth::user();
 

@@ -11,7 +11,6 @@ use App\Http\Requests\ComplainRequest;
 
 class ComplainController extends Controller
 {
-
     public function getComplain(){
         $complains = Complain::select('id', 'type', 'order_id', 'order_detail_id', 'text', 'complain_reason', 'created_at')->get();
         $getComplain = null;
