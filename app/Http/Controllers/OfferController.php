@@ -89,10 +89,11 @@ class OfferController extends Controller
         ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
         ->where('dt3.driver_id', auth()->id())
         ->orWhere('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
+        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
         ->get();
         // ->toArray();
         // dd($offer);
+
 
         $data=[];
         foreach ($offers as $key => $offer) {
@@ -110,6 +111,11 @@ class OfferController extends Controller
                 }
             }
 
+            if ($offers->client_id==auth()->id()) {
+                $is_your=true;
+            }else {
+                $is_your=false;
+            }
             $list=[
                 'offer_id'=>$offer->offer_id,
                 'order_id'=>$offer->order_id,
@@ -121,6 +127,7 @@ class OfferController extends Controller
                 'to_name' => $from_to_name['to_name'],
                 'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
                 'avatar'=>$offer->avatar
+                'is_your'=>
             ];
             array_push($data , $list);
         }
