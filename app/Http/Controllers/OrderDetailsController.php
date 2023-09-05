@@ -490,7 +490,7 @@ class OrderDetailsController extends Controller
             $arr[$n]['price'] = (double)$offer->price;
             $arr[$n]['offer'] = $offer->offer_status;
             $arr[$n]['seats_count'] = $offer->seats_count;
-            $arr[$n]['booking_count'] = $offer->booking_count;
+            $arr[$n]['booking_count'] = $offer->booking_count ?? 0;
             $arr[$n]['is_full'] = ($offer->seats_count == $offer->booking_count) ? true : false;
             $arr[$n]['clients_list'][$c]['full_name'] = $offer->c_last_name . ' ' . $offer->c_first_name . ' ' . $offer->c_middle_name;
             $arr[$n]['clients_list'][$c]['phone_number'] = $offer->c_phone_number;
