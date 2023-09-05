@@ -181,7 +181,7 @@ class AuthController extends Controller
         ]);
         $model = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone_number'])->first();
         if(isset($model->id)){
-            if(strtotime('-7 minutes') > strtotime($model->updated_at )){
+            if(strtotime('-7 minutes') > strtotime($model->updated_at)){
                 $model->verify_code = rand(100000, 999999);
                 $model->save();
                 return $this->error(translate_api('Your sms code expired. Resend sms code', $language), 400);
@@ -207,6 +207,7 @@ class AuthController extends Controller
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
                     $new_user->rating = 4.5;
+                    $new_user->language = $request->header('language');
                     $new_user->save();
                     $model->user_id = $new_user->id;
                     $model->save();
@@ -273,6 +274,7 @@ class AuthController extends Controller
                     if($user->rating == null || $user->rating == ''){
                         $user->rating = 4.5;
                     }
+                    $user->language = $request->header('language');
                     $user->save();
                     $model->save();
                     $message = 'Success';

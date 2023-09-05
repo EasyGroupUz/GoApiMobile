@@ -41,12 +41,17 @@ class CarsController extends Controller
                     $images_[] = asset("storage/cars/$images");
                 }
             }
+            if(file_exists(storage_path("app/public/certificate/$car->reg_certificate_image"))){
+                $reg_certificate_img = asset("storage/certificate/$car->reg_certificate_image");
+            }else{
+                $reg_certificate_img = null;
+            }
             $color_table = table_translate($car, 'color', $language);
             $car_array[] = [
                 'id'=>$car->id,
                 'images'=>$images_??[],
                 'reg_certificate'=>$car->reg_certificate??null,
-                'reg_certificate_image'=>asset("storage/certificate/$car->reg_certificate_image"),
+                'reg_certificate_image'=>$reg_certificate_img,
                 'production_date'=>$car->production_date??null,
                 'car_name'=>$car->car_name??null,
                 'color'=>$color_table->color_translation_name??$car->color_name,

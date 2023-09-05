@@ -70,6 +70,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [UserController::class, 'delete']);
         Route::get('/get-user', [UserController::class, 'getUser']);
         Route::get('/get-id', [UserController::class, 'getId']);
+        Route::post('/set-language', [UserController::class, 'setLanguage']);
     });
 
     Route::group(['prefix' => 'offer'], function () {

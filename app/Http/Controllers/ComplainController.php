@@ -11,7 +11,6 @@ use App\Http\Requests\ComplainRequest;
 
 class ComplainController extends Controller
 {
-
     public function getComplain(){
         $complains = Complain::select('id', 'type', 'order_id', 'order_detail_id', 'text', 'complain_reason', 'created_at')->get();
         $getComplain = null;
@@ -54,23 +53,27 @@ class ComplainController extends Controller
         $language = $request->header('language');
         $reasons_id = $request->reasons_id;
         $reason = [];
+        $complain = new Complain();
         foreach ($reasons_id as $reason_id){
             $complainReason = ComplainReason::find($reason_id);
             if(isset($complainReason->text)){
                 $reason[] = $complainReason->text;
             }
         }
-        $order_detail = OrderDetail::find($request->order_detail_id);
-        if(!isset($order_detail)){
-            return $this->error(translate_api("Order detail not found", $language), 400);
+        if(isset($request->order_detail_id)){
+            $order_detail = OrderDetail::withTrashed()->find($request->order_detail_id);
+            $complain->order_detail_id = $request->order_detail_id;
+            if(!isset($order_detail)){
+                return $this->error(translate_api("Order detail not found", $language), 400);
+            }
         }
-
-        $order = Order::find($request->order_id);
-        if(!isset($order)){
-            return $this->error(translate_api("Order not found", $language), 400);
+        if(isset($request->order_id)) {
+            $order = Order::withTrashed()->find($request->order_id);
+            $complain->order_id = $request->order_id;
+            if (!isset($order)) {
+                return $this->error(translate_api("Order not found", $language), 400);
+            }
         }
-        
-        $complain = new Complain();
         $complain->complain_reason = json_encode($reason);
         if(!isset($request->text)){
             return $this->error('text is not entered', 400);
@@ -79,13 +82,9 @@ class ComplainController extends Controller
         if(!isset($request->type)){
             return $this->error('type is not entered', 400);
         }
-        
-        $complain->order_id = $request->order_id;
-        $complain->order_detail_id = $request->order_detail_id;
         $complain->text = $request->text;
         $complain->type = $request->type;
         $complain->save();
-
         return $this->success("success", 200);
     }
 

@@ -31,6 +31,7 @@ class User extends Authenticatable
         'rating',
         'device_type',
         'device_id',
+        'language',
         'created_at',
         'deleted_at',
     ];
