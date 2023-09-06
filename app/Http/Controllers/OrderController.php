@@ -107,6 +107,7 @@ class OrderController extends Controller
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->dr_id) ? true : false
                 ],
+                'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
                 'seats' => $order->seats, // obshi joylar soni
                 'car_information' => $car_information,
