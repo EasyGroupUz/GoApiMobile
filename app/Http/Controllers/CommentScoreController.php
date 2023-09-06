@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CommentScore;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\PersonalInfo;
 use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,54 +67,50 @@ class CommentScoreController extends Controller
         $language = $request->header('language');
         $user = Auth::user();
         $comment = new CommentScore();
-        if(!isset($user->deleted_at)){
-            if(isset($request->to_user_id)){
-                $to_user = User::find($request->to_user_id);
-                if(isset($to_user->deleted_at)){
-                    return $this->error(translate_api('This user was deleted', $language), 400);
-                }
-                if($user->id == $request->to_user_id){
-                    return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
-                }
-                if(isset($to_user->id)){
-                    $driver = Driver::where('user_id', $to_user->id)->first();
-                    if(isset($driver->id)){
-                        $comment->type = 1;
-                        $comment->driver_id = $request->to_user_id;
-                        $comment->client_id = $user->id;
-                        $comment->to_whom = $request->to_user_id;
-                    }else{
-                        $comment->client_id = $request->to_user_id;
-                        $comment->to_whom = $request->to_user_id;
-                        $comment->driver_id = $user->id;
-                    }
+        if(isset($request->to_user_id)){
+            $to_user = User::find($request->to_user_id);
+            if(isset($to_user->deleted_at)){
+                return $this->error(translate_api('This user was deleted', $language), 400);
+            }
+            if($user->id == $request->to_user_id){
+                return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
+            }
+            if(isset($to_user->id)){
+                $driver = Driver::where('user_id', $to_user->id)->first();
+                if(isset($driver->id)){
+                    $comment->type = 1;
+                    $comment->driver_id = $request->to_user_id;
+                    $comment->client_id = $user->id;
+                    $comment->to_whom = $request->to_user_id;
                 }else{
-                    return $this->error(translate_api('To user id is not exist', $language), 400);
+                    $comment->client_id = $request->to_user_id;
+                    $comment->to_whom = $request->to_user_id;
+                    $comment->driver_id = $user->id;
                 }
+            }else{
+                return $this->error(translate_api('To user id is not exist', $language), 400);
             }
-            if(isset($request->order_id)){
-                $comment->order_id = $request->order_id;
-                $order = Order::find($request->order_id);
-                if(!isset($order->id)){
-                    return $this->error(translate_api('Order is not exist', $language), 400);
-                }
-            }
-            if(isset($request->text)){
-                $comment->text = $request->text;
-            }
-            if(isset($request->score)){
-                $comment->score = $request->score;
-            }
-            $comment->date = date("Y-m-d");
+        }
+        if(isset($request->order_id)){
+            $comment->order_id = $request->order_id;
             $order = Order::find($request->order_id);
-            if(!isset($order)){
+            if(!isset($order->id)){
                 return $this->error(translate_api('Order is not exist', $language), 400);
             }
-            $comment->save();
-            return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
-        }else{
-            return $this->error(translate_api('Your account was deleted', $language), 400);
         }
+        if(isset($request->text)){
+            $comment->text = $request->text;
+        }
+        if(isset($request->score)){
+            $comment->score = $request->score;
+        }
+        $comment->date = date("Y-m-d");
+        $order = Order::find($request->order_id);
+        if(!isset($order)){
+            return $this->error(translate_api('Order is not exist', $language), 400);
+        }
+        $comment->save();
+        return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
     }
     /**
      * @OA\Get(
@@ -268,7 +265,7 @@ class CommentScoreController extends Controller
                 'user_token'=>$to_user->token??null,
                 'img'=>$img_,
                 'full_name'=>$full_name,
-                'doc_status'=>$doc_status??null,
+//                'doc_status'=>$doc_status??null,
                 'rating'=>$average_score/count($comments),
                 'comment_count'=>count($comments)
             ];

@@ -267,8 +267,8 @@ class UserController extends Controller
     
     public function getUser(Request $request){
         $language = $request->header('language');
-        $user = User::where('id', $request->id)->first();
-        if(!isset($user->deleted_at)) {
+        $user = User::withTrashed()->where('id', $request->id)->first();
+        if(isset($user->id) && !isset($user->deleted_at)) {
             return response()->json([
                 'users' => $user,
                 'sms_token' => $user->userVerify ? $user->userVerify->verify_code : null
