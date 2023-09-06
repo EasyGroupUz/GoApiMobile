@@ -96,14 +96,14 @@ class OrderController extends Controller
                 'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 // 'avatar' => $personalInfo->avatar ?? '',
                 'avatar' => ($personalInfo && $personalInfo->avatar) ? asset('storage/avatar/' . $personalInfo->avatar) : NULL,
-                'rating' => 4,
+                'rating' => $driver_info->rating,
                 'price' => $order->price,
                 'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '', 
                 'driver' => [
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
                     'phone_number' => $driver_info->personalInfo->phone_number,
-                    'img' => ($driver_info->personalInfo->dImg) ? asset('storage/avatar/' . $driver_info->personalInfo->dImg) : '',
+                    'img' => ($driver_info->personalInfo->dImg) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->dr_id) ? true : false
                 ],
