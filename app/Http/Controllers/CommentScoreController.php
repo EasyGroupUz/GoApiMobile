@@ -394,7 +394,7 @@ class CommentScoreController extends Controller
                     'user_token'=>$user->token??null,
                     'img'=>$img_,
                     'full_name'=>$full_name,
-                    'doc_status'=>$doc_status??null,
+//                    'doc_status'=>$doc_status??null,
                     'rating'=>0,
                     'comment_count'=> 0
                 ];
