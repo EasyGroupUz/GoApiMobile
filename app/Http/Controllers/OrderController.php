@@ -88,6 +88,7 @@ class OrderController extends Controller
 
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
 
+            $driver_info = $order->driver;
             $data = [
                 'id' => $order->id,
                 'order_count' => $order_count,
@@ -95,9 +96,18 @@ class OrderController extends Controller
                 'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 // 'avatar' => $personalInfo->avatar ?? '',
                 'avatar' => ($personalInfo && $personalInfo->avatar) ? asset('storage/avatar/' . $personalInfo->avatar) : NULL,
-                'rating' => 4,
+                'rating' => $driver_info->rating,
                 'price' => $order->price,
-                'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '',
+                'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '', 
+                'driver' => [
+                    'id' => $driver_info->id,
+                    'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
+                    'phone_number' => $driver_info->personalInfo->phone_number,
+                    'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
+                    'rating' => $driver_info->rating,
+                    'doc_status' => ($driver_info->dr_id) ? true : false
+                ],
+                'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
                 'seats' => $order->seats, // obshi joylar soni
                 'car_information' => $car_information,
@@ -255,6 +265,8 @@ class OrderController extends Controller
                 $arrDriverInformation['phone_number'] = $d_phone_number;
                 $arrDriverInformation['img'] = $d_img;
                 $arrDriverInformation['rating'] = $driver_info->rating;
+                $arrDriverInformation['created_at'] = date('d.m.Y H:i', strtotime($driver_info->created_at));
+                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? true : false;
                 $arrDriverInformation['type'] = $driver_info->type ?? 0;
                 $arrDriverInformation['count_comments'] = count($arrComments);
                 $arrDriverInformation['comments'] = $arrComments;
@@ -757,15 +769,13 @@ class OrderController extends Controller
 
     public function history(Request $request)
     {
-        // if (!$this->validateByToken($request))
-        //     return $this->error('The owner of the token you sent was not identified', 400);
-
         if ($request->page)
             $page = $request->page;
         else
             return $this->error('page parameter is missing', 400);
         
-        $model = Order::orderBy('id', 'asc')->offset($page - 1)->limit(15)->get();
+        $limitData = 10;
+        $model = Order::where('driver_id', auth()->id())->orderBy('id', 'asc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -803,6 +813,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
                 }
 
                 $arrCar = [];
@@ -1033,6 +1044,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
                 }
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
