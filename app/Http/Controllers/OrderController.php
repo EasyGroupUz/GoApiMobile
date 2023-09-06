@@ -255,6 +255,8 @@ class OrderController extends Controller
                 $arrDriverInformation['phone_number'] = $d_phone_number;
                 $arrDriverInformation['img'] = $d_img;
                 $arrDriverInformation['rating'] = $driver_info->rating;
+                $arrDriverInformation['created_at'] = date('d.m.Y H:i', strtotime($driver_info->created_at));
+                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? true : false;
                 $arrDriverInformation['type'] = $driver_info->type ?? 0;
                 $arrDriverInformation['count_comments'] = count($arrComments);
                 $arrDriverInformation['comments'] = $arrComments;
@@ -757,15 +759,13 @@ class OrderController extends Controller
 
     public function history(Request $request)
     {
-        // if (!$this->validateByToken($request))
-        //     return $this->error('The owner of the token you sent was not identified', 400);
-
         if ($request->page)
             $page = $request->page;
         else
             return $this->error('page parameter is missing', 400);
         
-        $model = Order::orderBy('id', 'asc')->offset($page - 1)->limit(15)->get();
+        $limitData = 10;
+        $model = Order::where('driver_id', auth()->id())->orderBy('id', 'asc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
