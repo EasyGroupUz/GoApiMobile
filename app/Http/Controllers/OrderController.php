@@ -1094,55 +1094,83 @@ class OrderController extends Controller
         $options=json_decode($order->options);
         
         // dd($options->offer);
-
+        $seats_count = ($order->seats) - ($order->booking_place);
         if ($offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
-            // dd($offer);
-            // $a=Constants::CANCEL;
-            // dd(Constants::CANCEL);
-             if ($offer->status != Constants::CANCEL) {
-                $offer->update(['status' => Constants::ACCEPT]);
+             if ($offer->status = Constants::NEW ) {
+                
+
+                if (($order->booking_place + $orderDetail->seats_count) <= $order->seats) {
+
+                    $offer->update(['status' => Constants::ACCEPT]);
                
-                $orderDetail->order_id = $order->id;
-                $saveOrderDetail = $orderDetail->save();
-        
-                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->booking_count ): $orderDetail->booking_count;
-                $saveOrder = $order->save();
-                // dd($offer);
+                    $orderDetail->order_id = $order->id;
+                    $saveOrderDetail = $orderDetail->save();
+
+                    $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count ): $orderDetail->seats_count;
+                    $saveOrder = $order->save();
+
+                    if ($order->booking_place==$order->seats) {
+                        $cancel_offers=Offer::where('order_id', $order->id)->where('order_detail_id','!=',$orderDetail->id)->where('status' , Constants::NEW)->get();
+                        if ($cancel_offers != []) {
+                            foreach ($cancel_offers as  $value) {
+                                $value->update(['status' => Constants::ACCEPT]);
+                            }
+                        }
+                    }
+
+
+                    // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    // $title = 'Offer accepted';
+                    // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                    // $user_id = ($order->driver) ? $order->driver->id : 0;
+
+                    // $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                    return $this->success('offer accepted', 200);
+                }
+                else {
+                    return $this->success('sorry we only have '. $seats_count .' spaces available', 200);
+                }
+                
 
              }
              else {
-                return $this->success('Sorry, this booking has been cancelled', 400);
+                return $this->success('Sorry, this booking has been cancelled or accepted', 200);
              }
         }
         elseif ($options->quick_booking==1) {
-            // dd($options->offer);
-            // if ($options->offer==0) {
-                $offer = [
-                    'order_id' => $order->id,
-                    'order_detail_id' => $orderDetail->id,
-                    'status' => Constants::ACCEPT,
-                    'price' => $order->price
-                ];
-                
-                $new_offer = Offer::create($offer);
-               
+            if (($order->booking_place + $orderDetail->seats_count) <= $order->seats) {
+                $offer = new Offer();
+                $id=auth()->id();
+                $create_type = ($id==$order_detail->client_id) ? 0 : 1;
+                $offer->order_id = $order->id;
+                $offer->order_detail_id = $order_detail->id;
+                $offer->create_type = $create_type;
+                $offer->status = Constants::ACCEPT;
+                $offer->save();
+
+
+                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count ): $orderDetail->seats_count;
+                $saveOrder = $order->save();
+
+            }
+            else {
+                return $this->success('sorry we only have '. $seats_count .' spaces available', 200);
+            }
+
+
                 $orderDetail->order_id = $order->id;
                 $saveOrderDetail = $orderDetail->save();
-        
-                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->booking_count ): $orderDetail->booking_count;
-                $saveOrder = $order->save();
-                // dd($new_offer);
-            // }else {
+
 
                 $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                $title = 'Предложение принято';
+                $title = 'Offer accepted';
                 $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                 $user_id = ($order->driver) ? $order->driver->id : 0;
 
                 $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
                 return $this->success('offer created', 204);
-            // }
             
         }
         else{
@@ -1190,7 +1218,7 @@ class OrderController extends Controller
         $orderDetail->order_id = null;
         $saveOrderDetail = $orderDetail->save();
 
-        $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $orderDetail->booking_count) : 0;
+        $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $orderDetail->seats_count) : 0;
         $saveOrder = $order->save();
 
         $timezone = 'Asia/Tashkent';
@@ -1221,16 +1249,16 @@ class OrderController extends Controller
         }
 
 
-        if ($offer) {
-            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = 'Предложение отменено';
-            $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-            $user_id = ($order->driver) ? $order->driver->id : 0;
+        // if ($offer) {
+        //     $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+        //     $title = 'Предложение отменено';
+        //     $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+        //     $user_id = ($order->driver) ? $order->driver->id : 0;
 
-            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+        //     $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
-            return $this->success('success', 200);
-        }
+        // }
+        return $this->success('success', 200);
     }
 
     public function getOptions(Request $request)
