@@ -103,7 +103,7 @@ class OrderController extends Controller
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
                     'phone_number' => $driver_info->personalInfo->phone_number,
-                    'img' => ($driver_info->personalInfo->dImg) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
+                    'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->dr_id) ? true : false
                 ],
