@@ -803,6 +803,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
                 }
 
                 $arrCar = [];
@@ -1033,6 +1034,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
                 }
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));

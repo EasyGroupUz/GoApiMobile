@@ -43,21 +43,17 @@ class OrderDetailsController extends Controller
            'seats_type'=>'required',
            'seats_count'=>'required',
            'date'=>'required'
-       ]);
-        //    dd($request);
-        // $language=$request->header('language');
-        // dd($language);
-
-        $order_detail= OrderDetail::create([
-            'client_id'=>auth()->id(),
-            'status_id'=>Constants::ACTIVE,
-            'from_id'=>$request['from_id'],
-            'to_id'=>$request['to_id'],
-            'seats_type'=>$request['seats_type'],
-            'seats_count'=>$request['seats_count'],
-            'start_date'=>date('Y-m-d', strtotime($request['date']))
         ]);
-        // dd($order_detail);
+
+        $order_detail = OrderDetail::create([
+            'client_id' => auth()->id(),
+            'status_id' => Constants::ACTIVE,
+            'from_id' => $request['from_id'],
+            'to_id' => $request['to_id'],
+            'seats_type' => $request['seats_type'],
+            'seats_count' => $request['seats_count'],
+            'start_date' => date('Y-m-d', strtotime($request['date']))
+        ]);
 
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
@@ -75,13 +71,9 @@ class OrderDetailsController extends Controller
             $startDate=$date;
             $endDate=Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
         }
-        
        
         if ( $came_date >= $date) {
-
-
             $from_to_name=table_translate($order_detail,'city',$language);
-
 
             $order_detail = [
                 'id'=>$order_detail->id,
@@ -95,76 +87,200 @@ class OrderDetailsController extends Controller
                 'lat'=>null
             ];
 
-            if ($order_information = DB::table('yy_orders')
-                ->where('status_id', Constants::ORDERED)
-                ->where('from_id', $request['from_id'])
-                ->where('to_id', $request['to_id'])
-                ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
-                ->where('start_date','>=',$came_date)
-                ->where('start_date','<',$tomorrow)
-                ->where('status_id', Constants::ORDERED)
-                ->get() == []) {
-                //   dd('fsef');
-                    $list=[]; 
+            if (
+                $order_information = DB::table('yy_orders')
+                    ->where('status_id', Constants::ORDERED)
+                    ->where('from_id', $request['from_id'])
+                    ->where('to_id', $request['to_id'])
+                    ->select(DB::raw('DATE(start_date) as start_date'),'driver_id','price','booking_place')
+                    ->where('start_date','>=',$came_date)
+                    ->where('start_date','<',$tomorrow)
+                    ->where('status_id', Constants::ORDERED)
+                    ->get() == []
+            ) {
 
-                    $total_trips=DB::table('yy_orders')->where('driver_id',auth()->id())
-                        ->where('status_id', Constants::COMPLETED)
-                        ->count();
+                $list=[]; 
+                $total_trips=DB::table('yy_orders')->where('driver_id',auth()->id())
+                    ->where('status_id', Constants::COMPLETED)
+                    ->count();
         
-                    foreach ($order_information as $order) {
-
-                        $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
-                        $data=[
-                            'start_date'=>$order->start_date ,
-                            'avatar'=>$personalInfo->avatar,
-                            'rating'=>4,
-                            'price'=>$order->price,
-                            'name'=>$personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                            'total_trips'=>$total_trips,
-                            'count_pleace'=>$order->booking_place,
-                        ];
-                        array_push($list,$data);
-                    }
-                                    
+                foreach ($order_information as $order) {
+                    $personalInfo = PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+                    $data = [
+                        'start_date' => $order->start_date ,
+                        'avatar' => $personalInfo->avatar,
+                        'rating' => 4,
+                        'price' => $order->price,
+                        'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+                        'total_trips' => $total_trips,
+                        'count_pleace' => $order->booking_place,
+                    ];
+                    
+                    array_push($list,$data);
+                }
             } else {
                 $order_dates = DB::table('yy_orders')
-                ->where('status_id', Constants::ORDERED)
-                ->where('from_id', $request['from_id'])
-                ->where('to_id', $request['to_id'])
-                ->where('start_date', '>=', $date)
-                ->select(DB::raw('DATE(start_date) as start_date'))
-                ->whereBetween('start_date', [$startDate, $endDate])
-                ->orderBy('start_date', 'asc')
-                ->distinct()
-                ->take(5)
-                ->get();
+                    ->where('status_id', Constants::ORDERED)
+                    ->where('from_id', $request['from_id'])
+                    ->where('to_id', $request['to_id'])
+                    ->where('start_date', '>=', $date)
+                    ->select(DB::raw('DATE(start_date) as start_date'))
+                    ->whereBetween('start_date', [$startDate, $endDate])
+                    ->orderBy('start_date', 'asc')
+                    ->distinct()
+                    ->take(5)
+                    ->get();
 
-                $list=[];
+                $list = [];
                 foreach ($order_dates as $key => $value) {
                     $list[$key]=$value->start_date;
                 }
-               
-
             }
-            $message=translate_api('success',$language);
+
+            $message = translate_api('success',$language);
+
             return response()->json([
                 'data' => $list,
-                'order_detail'=>$order_detail,
+                'order_detail' => $order_detail,
                 'status' => true,
                 'message' => $message,
             ], 200);
-        }
-        else {
-            $message=translate_api('Sorry, you must enter a date greater than or equal to today',$language);
-
-            return response()->json([
-                'status' => false,
-                'message' => $message,
-                // 'orders' => $orders,
-
-            ], 500);
+        } else {
+            $message = translate_api('Sorry, you must enter a date greater than or equal to today',$language);
+            return $this->error($message, 500);
         }
     }
+
+
+    /* ========================= OrderCode store start ========================= */
+    // public function store(Request $request)
+    // {
+    //     // Get the 'language' header from the request
+    //     $language = $request->header('language');
+
+    //     // Validate the incoming request data
+    //     $request->validate([
+    //         'from_id' => 'required',
+    //         'to_id' => 'required',
+    //         'seats_type' => 'required',
+    //         'seats_count' => 'required',
+    //         'date' => 'required'
+    //     ]);
+
+    //     // Create an OrderDetail record with the validated data
+    //     $order_detail = OrderDetail::create([
+    //         'client_id' => auth()->id(),
+    //         'status_id' => Constants::ACTIVE,
+    //         'from_id' => $request['from_id'],
+    //         'to_id' => $request['to_id'],
+    //         'seats_type' => $request['seats_type'],
+    //         'seats_count' => $request['seats_count'],
+    //         'start_date' => date('Y-m-d', strtotime($request['date']))
+    //     ]);
+
+    //     // Define timezone and current date/time
+    //     $timezone = 'Asia/Tashkent';
+    //     $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
+    //     $date = Carbon::now($timezone)->format('Y-m-d');
+
+    //     // Calculate dates for comparison
+    //     $three_day_after = Carbon::parse($date)->addDays(3)->format('Y-m-d');
+    //     $came_date = date('Y-m-d', strtotime($request['date']));
+    //     $tomorrow = Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
+    //     $came_date_time = date('Y-m-d H:i:s', strtotime($request['date']));
+    //     $startDate = Carbon::parse($came_date)->subDays(3)->format('Y-m-d');
+    //     $endDate = Carbon::parse($came_date)->addDays(3)->format('Y-m-d');
+
+    //     // Adjust startDate and endDate if came_date is less than three_day_after
+    //     if ($came_date < $three_day_after) {
+    //         $startDate = $date;
+    //         $endDate = Carbon::parse($startDate)->addDays(6)->format('Y-m-d');
+    //     }
+
+    //     // Check if came_date is greater than or equal to the current date
+    //     if ($came_date >= $date) {
+    //         // Translate city names
+    //         $from_to_name = table_translate($order_detail, 'city', $language);
+
+    //         $order_detail = [
+    //             'id' => $order_detail->id,
+    //             'seats_count' => $order_detail->seats_count,
+    //             'start_date' => $order_detail->start_date,
+    //             'from_id' => $order_detail->from_id,
+    //             'to_id' => $order_detail->to_id,
+    //             'from_name' => $from_to_name['from_name'],
+    //             'to_name' => $from_to_name['to_name'],
+    //             'long' => null,
+    //             'lat' => null
+    //         ];
+
+    //         // Check if there are any orders matching the criteria
+    //         $order_information = DB::table('yy_orders')
+    //             ->where('status_id', Constants::ORDERED)
+    //             ->where('from_id', $request['from_id'])
+    //             ->where('to_id', $request['to_id'])
+    //             ->select(DB::raw('DATE(start_date) as start_date'), 'driver_id', 'price', 'booking_place')
+    //             ->where('start_date', '>=', $came_date)
+    //             ->where('start_date', '<', $tomorrow)
+    //             ->where('status_id', Constants::ORDERED)
+    //             ->get();
+
+    //         if ($order_information->isEmpty()) {
+    //             $list = [];
+    //             $total_trips = DB::table('yy_orders')
+    //                 ->where('driver_id', auth()->id())
+    //                 ->where('status_id', Constants::COMPLETED)
+    //                 ->count();
+
+    //             foreach ($order_information as $order) {
+    //                 $personalInfo = PersonalInfo::where('id', User::where('id', $order->driver_id)->first()->personal_info_id)->first();
+    //                 $data = [
+    //                     'start_date' => $order->start_date,
+    //                     'avatar' => $personalInfo->avatar,
+    //                     'rating' => 4,
+    //                     'price' => $order->price,
+    //                     'name' => $personalInfo->first_name . ' ' . $personalInfo->last_name . ' ' . $personalInfo->middle_name,
+    //                     'total_trips' => $total_trips,
+    //                     'count_pleace' => $order->booking_place,
+    //                 ];
+
+    //                 array_push($list, $data);
+    //             }
+    //         } else {
+    //             // Fetch order dates
+    //             $order_dates = DB::table('yy_orders')
+    //                 ->where('status_id', Constants::ORDERED)
+    //                 ->where('from_id', $request['from_id'])
+    //                 ->where('to_id', $request['to_id'])
+    //                 ->where('start_date', '>=', $date)
+    //                 ->select(DB::raw('DATE(start_date) as start_date'))
+    //                 ->whereBetween('start_date', [$startDate, $endDate])
+    //                 ->orderBy('start_date', 'asc')
+    //                 ->distinct()
+    //                 ->take(5)
+    //                 ->get();
+
+    //             $list = [];
+    //             foreach ($order_dates as $key => $value) {
+    //                 $list[$key] = $value->start_date;
+    //             }
+    //         }
+
+    //         $message = translate_api('success', $language);
+
+    //         return response()->json([
+    //             'data' => $list,
+    //             'order_detail' => $order_detail,
+    //             'status' => true,
+    //             'message' => $message,
+    //         ], 200);
+    //     } else {
+    //         $message = translate_api('Sorry, you must enter a date greater than or equal to today', $language);
+    //         return $this->error($message, 500);
+    //     }
+    // }
+    /* ========================= OrderCode store end ========================= */
+
 
     public function edit(Request $request)
     {
@@ -444,6 +560,7 @@ class OrderDetailsController extends Controller
             ->leftJoin('yy_users as usC', 'usC.id', '=', 'orod.client_id')
             ->leftJoin('yy_personal_infos as piC', 'piC.id', '=', 'usC.personal_info_id')
             ->leftJoin('yy_users as us', 'us.id', '=', 'or.driver_id')
+            ->leftJoin('yy_drivers as dr', 'dr.user_id', '=', 'us.id')
             ->leftJoin('yy_personal_infos as pi', 'pi.id', '=', 'us.personal_info_id')
             ->leftJoin('yy_cars as car', 'car.id', '=', 'or.car_id')
             ->leftJoin('yy_car_lists as cl', 'cl.id', '=', 'car.car_list_id')
@@ -451,7 +568,7 @@ class OrderDetailsController extends Controller
             ->leftJoin('yy_class_lists as class', 'class.id', '=', 'car.class_list_id')
             ->leftJoin('yy_statuses as status', 'status.id', '=', 'or.status_id')
             ->where('od.client_id',auth()->id())
-            ->select('or.id', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name')
+            ->select('or.id', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name', 'us.id as driver_id', 'dr.id as dr_id')
             ->get();
 
         return $offers;
@@ -497,10 +614,12 @@ class OrderDetailsController extends Controller
             $arr[$n]['clients_list'][$c]['img'] = ($offer->c_avatar) ? asset('storage/avatar/' . $offer->c_avatar) : '';
             $arr[$n]['clients_list'][$c]['rating'] = $offer->c_rating;
             $arr[$n]['driver'] = [
+                'id' => $offer->driver_id,
                 'full_name' => $offer->last_name . ' ' . $offer->first_name . ' ' . $offer->middle_name,
                 'phone_number' => $offer->phone_number,
                 'img' => ($offer->dImg) ? asset('storage/avatar/' . $offer->dImg) : '',
-                'rating' => $offer->rating
+                'rating' => $offer->rating,
+                'doc_status' => ($offer->dr_id) ? true : false
             ];
             $arr[$n]['car'] = [
                 'id' => $offer->car_id,
