@@ -570,9 +570,9 @@ class OrderController extends Controller
 
         $driver_id = auth()->user()->id;
         $data['driver_id'] = $driver_id;
+        $data['status_id'] = Constants::ORDERED;
 
         $order = new Order();
-        $order->status_id = Constants::ORDERED;
         $order->create($data);
         
         if (isset($data['back_date'])) {
@@ -584,7 +584,6 @@ class OrderController extends Controller
             $data['to_id'] = $to_id;
 
             $order = new Order();
-            $order->status_id = Constants::ORDERED;
             $order->create($data);
         }
 
