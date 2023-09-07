@@ -63,19 +63,13 @@ class OfferController extends Controller
         
         if ($offer->save()) {
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = translate_api('Предложение создано', $language);
-            $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+            $title = translate_api('You have a new offer', $language);
+            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
 
             $this->sendNotification($device, $user_id, "Offer", $title, $message);
         }
-        // return response()->json([
-        //     'status' => 'success',
-        //     'message' => 'Action completed successfully',
-        //     'data' => $offer,
-        // ], 200);
 
-        // dd($offer);
         return $this->success('Success', 201);
     }
 

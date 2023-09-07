@@ -147,7 +147,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     $userSend = User::find($user_to_id);
                     
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
-                    $title = 'У вас новое сообщение';
+                    $title = translate_api("You've got mail", $userSend->language);
                     $message = $text;
                     $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
 

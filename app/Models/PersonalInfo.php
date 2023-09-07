@@ -14,14 +14,24 @@ class PersonalInfo extends Model
     protected $table = 'yy_personal_infos';
 
     protected $fillable = [
-        'first_name',
         'last_name',
+        'first_name',
         'middle_name',
         'phone_number',
         'avatar',
         'gender',
-        'birth_date'
+        'birth_date',
+        'email',
+        'passport_serial_number',
+        'passport_images',
+        'passport_issued_by',
+        'passport_expired_date',
+        'phone_history'
     ];
 
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'personal_info_id');
+    }
 
 }
