@@ -47,90 +47,72 @@ class OfferController extends Controller
         if(!isset($order)){
             return $this->error(translate_api('Order not found', $language), 400);
         }
-        $id=auth()->id();
-        $create_type = ($order_detail->client_id) ? 0 : 1;
-        // dd($create_type);
-        // $offer->driver_id = $order->driver_id;
-        // $offer->client_id = $order_detail->client_id;
-        $offer->order_id = $order->id;
-        $offer->order_detail_id = $order_detail->id;
-        $offer->price = $field['price'];
-        $offer->create_type = $create_type;
-        $offer->status = Constants::NEW;
-        $offer->comment = $field['comment'] ?? '';
-        
-        
-        if ($offer->save()) {
-            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = translate_api('You have a new offer', $language);
-            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-            $user_id = ($order->driver) ? $order->driver->id : 0;
 
         // $old_offer=
-            $seats_count=($order->seats)-($order->booking_place);
-            if ($old_offer=Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first()) {
-                // dd($old_offer);
-                if ($old_offer->status==Constants::NEW) 
-                {
-                    // dd('dfawdawdaw');
-                    return $this->success(translate_api('Your old offer was not accepted please wait', $language) 200);
-                }
-                elseif($old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL)
-                {
-                    return $this->success(translate_api('Sorry, but you cannot make another offer for this order', $language), 200);
-                }
-                else {
-                    if ($order->status_id==Constants::ORDERED) {
-                        
-                        if ($seats_count==0) {
-                            return $this->success(translate_api('Sorry, seats are full', $language), 200);
-                        }
-                        if ($seats_count >= $order_detail->seats_count ) {
-                            $offer = new Offer();
-                            $id=auth()->id();
-                            $create_type = ($id==$order_detail->client_id) ? 0 : 1;
-                            $offer->order_id = $order->id;
-                            $offer->order_detail_id = $order_detail->id;
-                            // $offer->price = $field['price'];
-                            $offer->create_type = $create_type;
-                            $offer->status = Constants::NEW;
-                            // $offer->comment = $field['comment'] ?? '';
-                        }
-                        else {
-
-                            return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
-                        }
-
-                    }
+        $seats_count=($order->seats)-($order->booking_place);
+        if ($old_offer=Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first()) {
+            // dd($old_offer);
+            if ($old_offer->status==Constants::NEW) 
+            {
+                // dd('dfawdawdaw');
+                return $this->success(translate_api('Your old offer was not accepted please wait', $language) 200);
+            }
+            elseif($old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL)
+            {
+                return $this->success(translate_api('Sorry, but you cannot make another offer for this order', $language), 200);
+            }
+            else 
+            {
+                if ($order->status_id==Constants::ORDERED) {
                     
+                    if ($seats_count==0) {
+                        return $this->success(translate_api('Sorry, seats are full', $language), 200);
+                    }
+                    if ($seats_count >= $order_detail->seats_count ) {
+                        $offer = new Offer();
+                        $id=auth()->id();
+                        $create_type = ($id==$order_detail->client_id) ? 0 : 1;
+                        $offer->order_id = $order->id;
+                        $offer->order_detail_id = $order_detail->id;
+                        // $offer->price = $field['price'];
+                        $offer->create_type = $create_type;
+                        $offer->status = Constants::NEW;
+                        // $offer->comment = $field['comment'] ?? '';
+                    }
+                    else {
+
+                        return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
+                    }
+
                 }
+                
             }
-            if ($seats_count >= $order_detail->seats_count) {
-                $offer = new Offer();
-                $id=auth()->id();
-                $create_type = ($id==$order_detail->client_id) ? 0 : 1;
-                $offer->order_id = $order->id;
-                $offer->order_detail_id = $order_detail->id;
-                // $offer->price = $field['price'];
-                $offer->create_type = $create_type;
-                $offer->status = Constants::NEW;
-                // $offer->comment = $field['comment'] ?? '';
-            }
-            else {
-                return $this->success(translate_api('sorry we only have '. $order->seats .' spaces available', $language), 200);
-            }
-            $offer->save();
-            // if ($offer->save()) {
-                // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                // $title = translate_api('Offer created', $language);
-                // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                // $user_id = ($order->driver) ? $order->driver->id : 0;
-
-                // $this->sendNotification($device, $user_id, "Offer", $title, $message);
-            // }
-
-            return $this->success(translate_api('Offer created', $language), 201);
         }
+        if ($seats_count >= $order_detail->seats_count) {
+            $offer = new Offer();
+            $id=auth()->id();
+            $create_type = ($id==$order_detail->client_id) ? 0 : 1;
+            $offer->order_id = $order->id;
+            $offer->order_detail_id = $order_detail->id;
+            // $offer->price = $field['price'];
+            $offer->create_type = $create_type;
+            $offer->status = Constants::NEW;
+            // $offer->comment = $field['comment'] ?? '';
+        }
+        else {
+            return $this->success(translate_api('sorry we only have '. $order->seats .' spaces available', $language), 200);
+        }
+        $offer->save();
+        // if ($offer->save()) {
+        //     $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+        //     $title = translate_api('Offer created', $language);
+        //     $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+        //     $user_id = ($order->driver) ? $order->driver->id : 0;
+
+        //     $this->sendNotification($device, $user_id, "Offer", $title, $message);
+        // }
+
+        return $this->success(translate_api('Offer created', $language), 201);
     }
 
     public function getOffer(Request $request){
