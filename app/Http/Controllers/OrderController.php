@@ -1108,10 +1108,10 @@ class OrderController extends Controller
         // dd($options->offer);
         $seats_count = ($order->seats) - ($order->booking_place);
         if ($offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
-             if ($offer->status = Constants::NEW ) {
+             if ($offer->status !== Constants::ACCEPT) {
                 
 
-                if (($order->booking_place + $orderDetail->seats_count) <= $order->seats) {
+                if (($order->booking_place + $orderDetail->seats_count) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
 
                     $offer->update(['status' => Constants::ACCEPT]);
                
@@ -1123,29 +1123,41 @@ class OrderController extends Controller
 
                     if ($order->booking_place==$order->seats) {
                         $cancel_offers=Offer::where('order_id', $order->id)->where('order_detail_id','!=',$orderDetail->id)->where('status' , Constants::NEW)->get();
-                        if ($cancel_offers != []) {
+                        if (!empty($cancel_offers)) {
                             foreach ($cancel_offers as  $value) {
-                                $value->update(['status' => Constants::ACCEPT]);
+                                $value->update(['status' => Constants::CANCEL]);
+
+                                $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                                $title = 'Offer canceled';
+                                $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                                $user_id = ($order->driver) ? $order->driver->id : 0;
+
+                                $this->sendNotification($device, $user_id, "Offer", $title, $message);
                             }
                         }
                     }
 
 
-                    // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                    // $title = 'Offer accepted';
-                    // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                    // $user_id = ($order->driver) ? $order->driver->id : 0;
+                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    $title = 'Offer accepted';
+                    $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                    $user_id = ($order->driver) ? $order->driver->id : 0;
 
-                    // $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
                     return $this->success('offer accepted', 200);
                 }
+                elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
+
+                    return $this->success('sorry this offer canceled', 200);
+                } 
                 else {
                     return $this->success('sorry we only have '. $seats_count .' spaces available', 200);
                 }
                 
 
              }
+             
              else {
                 return $this->success('Sorry, this booking has been cancelled or accepted', 200);
              }
@@ -1193,7 +1205,7 @@ class OrderController extends Controller
 
         if ($saveOrderDetail && $saveOrder) {
             $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            $title = 'Предложение принято';
+            $title = 'Offer Accepted';
             $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
             
@@ -1236,14 +1248,21 @@ class OrderController extends Controller
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
         $id=auth()->id();
-        $cencel_type=$id ;
+        // $cencel_type=$id ;
+        if ($id==$order_detail->client_id) {
+           
+            $cancel_type=0;
+        }
+        else {
+            $cancel_type=1;
+        }
         if ($first_offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
             // dd($offer);
             $offer = [
                 'cancel_type' => $cencel_type,
                 'cancel_date' => $date_time,
-                'status' => Constants::CANCEL,
-                'price' => $order->price
+                'status' => Constants::CANCEL
+                // 'price' => $order->price
             ];
 
             $cancel_offer = $first_offer->update($offer);
