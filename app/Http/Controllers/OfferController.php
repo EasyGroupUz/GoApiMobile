@@ -16,8 +16,8 @@ class OfferController extends Controller
 {
 
     public function postOffer(Request $request){
-        // dd($request->all());
         $language = $request->header('language');
+        // dd($language);
         if(!isset($request->order_id)){
             return $this->error(translate_api('order id is not entered', $language), 400);
         }
@@ -55,7 +55,7 @@ class OfferController extends Controller
             if ($old_offer->status==Constants::NEW) 
             {
                 // dd('dfawdawdaw');
-                return $this->success(translate_api('Your old offer was not accepted please wait', $language) 200);
+                return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
             }
             elseif($old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL)
             {
@@ -77,6 +77,10 @@ class OfferController extends Controller
                         $offer->seats = $field['seats'];
                         $offer->create_type = $create_type;
                         $offer->status = Constants::NEW;
+                        $offer->save();
+
+                        return $this->success(translate_api('Offer created', $language), 201);
+
                         // $offer->comment = $field['comment'] ?? '';
                     }
                     else {
@@ -88,7 +92,7 @@ class OfferController extends Controller
                 
             }
         }
-        if ($seats_count >= $order_detail->seats_count) {
+        if ($seats_count >= $field['seats']) {
             $offer = new Offer();
             $id=auth()->id();
             $create_type = ($id==$order_detail->client_id) ? 0 : 1;
