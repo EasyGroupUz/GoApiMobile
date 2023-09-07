@@ -21,7 +21,8 @@ class Offer extends Model
         'comment',
         'create_type',
         'cancel_type',
-        'cancel_date'
+        'cancel_date',
+        'seats'
     ];
 
 //    public function driver()

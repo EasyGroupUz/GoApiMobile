@@ -36,7 +36,7 @@ class OfferController extends Controller
         $field = $request->validate([
             'order_id'=>'required|integer',
             'order_detail_id'=>'required|integer',
-            // 'price'=>'required|integer',
+            'seats'=>'required|integer',
             // 'comment'=>'nullable|string',
         ]); 
         $order_detail = OrderDetail::find($field['order_detail_id']);
@@ -68,13 +68,13 @@ class OfferController extends Controller
                     if ($seats_count==0) {
                         return $this->success(translate_api('Sorry, seats are full', $language), 200);
                     }
-                    if ($seats_count >= $order_detail->seats_count ) {
+                    if ($seats_count >= $field['seats'] ) {
                         $offer = new Offer();
                         $id=auth()->id();
                         $create_type = ($id==$order_detail->client_id) ? 0 : 1;
                         $offer->order_id = $order->id;
                         $offer->order_detail_id = $order_detail->id;
-                        // $offer->price = $field['price'];
+                        $offer->seats = $field['seats'];
                         $offer->create_type = $create_type;
                         $offer->status = Constants::NEW;
                         // $offer->comment = $field['comment'] ?? '';
@@ -94,10 +94,9 @@ class OfferController extends Controller
             $create_type = ($id==$order_detail->client_id) ? 0 : 1;
             $offer->order_id = $order->id;
             $offer->order_detail_id = $order_detail->id;
-            // $offer->price = $field['price'];
+            $offer->seats = $field['seats'];
             $offer->create_type = $create_type;
             $offer->status = Constants::NEW;
-            // $offer->comment = $field['comment'] ?? '';
         }
         else {
             return $this->success(translate_api('sorry we only have '. $order->seats .' spaces available', $language), 200);

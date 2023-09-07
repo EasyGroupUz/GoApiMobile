@@ -1111,14 +1111,14 @@ class OrderController extends Controller
              if ($offer->status !== Constants::ACCEPT) {
                 
 
-                if (($order->booking_place + $orderDetail->seats_count) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
+                if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
 
                     $offer->update(['status' => Constants::ACCEPT]);
                
                     $orderDetail->order_id = $order->id;
                     $saveOrderDetail = $orderDetail->save();
 
-                    $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count ): $orderDetail->seats_count;
+                    $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats ): $offer->seats;
                     $saveOrder = $order->save();
 
                     if ($order->booking_place==$order->seats) {
@@ -1168,6 +1168,7 @@ class OrderController extends Controller
                 $id=auth()->id();
                 $create_type = ($id==$order_detail->client_id) ? 0 : 1;
                 $offer->order_id = $order->id;
+                $offer->seats = $request['seats'];
                 $offer->order_detail_id = $order_detail->id;
                 $offer->create_type = $create_type;
                 $offer->status = Constants::ACCEPT;
@@ -1242,8 +1243,7 @@ class OrderController extends Controller
         $orderDetail->order_id = null;
         $saveOrderDetail = $orderDetail->save();
 
-        $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $orderDetail->seats_count) : 0;
-        $saveOrder = $order->save();
+       
 
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
@@ -1257,7 +1257,10 @@ class OrderController extends Controller
             $cancel_type=1;
         }
         if ($first_offer=Offer::where('order_id', $order->id)->where('order_detail_id',$orderDetail->id)->first()) {
-            // dd($offer);
+
+            $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
+            $saveOrder = $order->save();
+
             $offer = [
                 'cancel_type' => $cencel_type,
                 'cancel_date' => $date_time,
