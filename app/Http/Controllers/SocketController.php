@@ -48,16 +48,17 @@ class SocketController extends Controller implements MessageComponentInterface
             // $chat= Chat::find($data['id']);
             // dd($chat->order_id);
             $order = Order::find($data['order_id']);
-            $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
             // $id=$order->id;
             // dd($order);
     
-            // $from_to_name=table_translate($order,'city',$language);
-            // $array=[];
-            // $start_dates= DB::table('yy_chats')
-            // ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-            // ->where('order_id',$id)
-            // ->get();
+            $from_to_name=table_translate($order,'city',$language);
+            $array=[];
+            $start_dates= DB::table('yy_chats')
+            ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+            ->where('order_id',$id)
+            ->get();
+            $from->send(json_encode($start_dates , JSON_UNESCAPED_UNICODE));
+
 
             // if (!empty($start_dates)) {    
 
