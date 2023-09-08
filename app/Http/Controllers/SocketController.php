@@ -45,20 +45,23 @@ class SocketController extends Controller implements MessageComponentInterface
             
             $language = $data['language'];
             // dd($request->all());
-            $chat= Chat::find($data['id']);
+            // $chat= Chat::find($data['id']);
             // dd($chat->order_id);
-            $order = Order::find($chat->order_id);
+            $order = Order::find($data['order_id']);
             
             $id=$order->id;
             // dd($order);
     
             $from_to_name=table_translate($order,'city',$language);
+            $array=[];
             $start_dates= DB::table('yy_chats')
             ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
             ->where('order_id',$id)
             ->get();
-            $array=[];
-            foreach ($start_dates as $key => $value) {
+
+            if (!empty($start_dates)) {    
+                
+                foreach ($start_dates as $key => $value) {
     
                     $get_chats= DB::table('yy_chats')
                     // ->select('')
@@ -89,10 +92,13 @@ class SocketController extends Controller implements MessageComponentInterface
                         
                     }
     
+                }
             }
+            
+           
 
             $list=[
-                'user_id'=>$chat->user_from_id,
+                'user_id'=>$data['user_id'],
                 'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
