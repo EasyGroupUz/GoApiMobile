@@ -1166,7 +1166,7 @@ class OrderController extends Controller
                 $offer->status = Constants::ACCEPT;
                 $offer->save();
 
-                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count): $orderDetail->seats_count;
+                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats): $offer->seats;
                 $saveOrder = $order->save();
             } else {
                 return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
@@ -1272,7 +1272,7 @@ class OrderController extends Controller
         } else {
             return $this->success('Offer not found', 204);
         }
-        
+
         $id=auth()->id();
         $data=$this->getOffer($id , $language);
 
