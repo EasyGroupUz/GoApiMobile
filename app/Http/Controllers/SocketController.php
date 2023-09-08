@@ -48,12 +48,12 @@ class SocketController extends Controller implements MessageComponentInterface
             // $chat= Chat::find($data['id']);
             // dd($chat->order_id);
             $order = Order::find($data['order_id']);
-            // $id=$order->id;
+            $id=$order->id;
             // dd($order);
     
             $from_to_name=table_translate($order,'city',$language);
             $array=[];
-            if ( $start_dates= DB::table('yy_chats')->where('order_id',$id)->exists()) {
+            if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
                 $start_dates= DB::table('yy_chats')
                 ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
                 ->where('order_id',$id)
