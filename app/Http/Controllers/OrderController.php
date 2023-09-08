@@ -1379,6 +1379,8 @@ class OrderController extends Controller
                     array_push($data , $list);
 
                 }
+                
+                return $data;
 
                
             }
