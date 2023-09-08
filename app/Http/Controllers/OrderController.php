@@ -1333,7 +1333,7 @@ class OrderController extends Controller
             ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
             ->where('dt3.driver_id', $id)
             ->orWhere('dt2.client_id', $id)
-            ->select('dt1.id as offer_id','dt1.order_id','dt1.status as status_id ', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt2.seats_count as seats_count','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
+            ->select('dt1.id as offer_id','dt1.order_id','dt1.status as status_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt2.seats_count as seats_count','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
             ->get();
             // ->toArray();
             // dd($offers);
