@@ -18,6 +18,8 @@ class DriverController extends Controller
             'driver_id' => 'required',
             'license_number' => 'required',
             'license_expired_date' => 'required',
+            'reg_certificate_number' => 'required',
+            'car_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -37,10 +39,12 @@ class DriverController extends Controller
         }
 
         // Find the associated car
-        $modelCars = Cars::where('driver_id', $model->id)->first();
+        $modelCars = Cars::find($request->car_id);
         if (!$modelCars) {
             return $this->error('Cars not found', 400);
         }
+        $modelCars->reg_certificate = $request->reg_certificate_number;
+        $modelCars->save();
 
         // Create and save a new driver
         $newDriver = new Driver();
