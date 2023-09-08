@@ -1140,7 +1140,7 @@ class OrderController extends Controller
                         $this->sendNotification($device, $user_id, "Offer", $title, $message);
                         
                         $id=auth()->id();
-                        $data=$this->getOffer($id);
+                        $data=$this->getOffer($id , $language);
                        
                         return $this->success(translate_api('Offer accepted', $language), 200, $data);
                         
@@ -1318,7 +1318,7 @@ class OrderController extends Controller
     }
 
 
-    public function getOffer($id){
+    public function getOffer($id , $language){
 
 
 
