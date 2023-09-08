@@ -53,11 +53,11 @@ class SocketController extends Controller implements MessageComponentInterface
     
             $from_to_name=table_translate($order,'city',$language);
             $array=[];
-            $start_dates= DB::table('yy_chats')
-            ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-            ->where('order_id',$id)
-            ->get();
-            $from->send(json_encode($start_dates , JSON_UNESCAPED_UNICODE));
+            // $start_dates= DB::table('yy_chats')
+            // ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+            // ->where('order_id',$id)
+            // ->get();
+            $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
 
 
             // if (!empty($start_dates)) {    
