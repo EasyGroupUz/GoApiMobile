@@ -566,7 +566,7 @@ class OrderDetailsController extends Controller
                     'name' => $offer->color_name,
                     'code' => $offer->color_code
                 ],
-                'production_date' => date('d.m.Y', strtotime($offer->production_date)),
+                'production_date' => date('Y', strtotime($offer->production_date)),
                 'class' => $offer->class_name,
                 'reg_certificate' => $offer->reg_certificate,
                 'reg_certificate_img' => ($offer->reg_certificate_image) ? asset('storage/cars/' . $offer->reg_certificate_image) : '',

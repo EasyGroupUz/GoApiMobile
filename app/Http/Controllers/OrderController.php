@@ -83,7 +83,7 @@ class OrderController extends Controller
             $car_information = [
                 'name' => $car->name ?? '',
                 'color' => $color,
-                'production_date' => date('d.m.Y', strtotime($car->production_date)) ?? ''
+                'production_date' => date('Y', strtotime($car->production_date)) ?? ''
             ];
 
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
@@ -288,7 +288,7 @@ class OrderController extends Controller
                 $arrCarInfo['id'] = $arr_orde_car->id;
                 $arrCarInfo['name'] = $arr_orde_car->car->name ?? '';
                 $arrCarInfo['color'] = ($arr_orde_car->color) ? ['name' => $arr_orde_car->color->name, 'code' => $arr_orde_car->color->code] : [];
-                $arrCarInfo['production_date'] = date('d.m.Y', strtotime($arr_orde_car->production_date));
+                $arrCarInfo['production_date'] = date('Y', strtotime($arr_orde_car->production_date));
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
                 $arrCarInfo['reg_certificate_img'] = $arr_orde_car->reg_certificate_image;
@@ -832,7 +832,7 @@ class OrderController extends Controller
                     $arrCar['id'] = $valCar->id;
                     $arrCar['name'] = $valCar->car->name ?? '';
                     $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
-                    $arrCar['production_date'] = date('d.m.Y', strtotime($valCar->production_date));
+                    $arrCar['production_date'] = date('Y', strtotime($valCar->production_date));
                     $arrCar['class'] = $valCar->class->name ?? '';
                     $arrCar['reg_certificate'] = $valCar->reg_certificate;
                     $arrCar['reg_certificate_img'] = asset('storage/cars/' . $valCar->reg_certificate_image);
