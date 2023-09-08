@@ -48,63 +48,63 @@ class SocketController extends Controller implements MessageComponentInterface
             // $chat= Chat::find($data['id']);
             // dd($chat->order_id);
             $order = Order::find($data['order_id']);
-            
-            $id=$order->id;
+            $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
+            // $id=$order->id;
             // dd($order);
     
-            $from_to_name=table_translate($order,'city',$language);
-            $array=[];
-            $start_dates= DB::table('yy_chats')
-            ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-            ->where('order_id',$id)
-            ->get();
+            // $from_to_name=table_translate($order,'city',$language);
+            // $array=[];
+            // $start_dates= DB::table('yy_chats')
+            // ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+            // ->where('order_id',$id)
+            // ->get();
 
-            if (!empty($start_dates)) {    
-                
-                foreach ($start_dates as $key => $value) {
+            // if (!empty($start_dates)) {    
+
+            //     foreach ($start_dates as $key => $value) {
     
-                    $get_chats= DB::table('yy_chats')
-                    // ->select('')
-                    ->where('order_id',$id)
-                    ->get();
+            //         $get_chats= DB::table('yy_chats')
+            //         // ->select('')
+            //         ->where('order_id',$id)
+            //         ->get();
     
-                    foreach ($get_chats as $key => $chat) {
-                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-                        // dd($date);
-                        if ($date==$value->start_date ) {
+            //         foreach ($get_chats as $key => $chat) {
+            //             $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+            //             // dd($date);
+            //             if ($date==$value->start_date ) {
                         
-                            $time=Carbon::parse($chat->created_at)->format('H:i');
-                            $user_from=User::find($chat->user_from_id);
-                            $user_to=User::find($chat->user_to_id);
-                            if ($chat->user_from_id==$data['user_id']) {
-                                $is_your=true;
-                            } else {
-                                $is_your=false;
-                            }
+            //                 $time=Carbon::parse($chat->created_at)->format('H:i');
+            //                 $user_from=User::find($chat->user_from_id);
+            //                 $user_to=User::find($chat->user_to_id);
+            //                 if ($chat->user_from_id==$data['user_id']) {
+            //                     $is_your=true;
+            //                 } else {
+            //                     $is_your=false;
+            //                 }
                             
-                            $array[$value->start_date][]=[
-                                'is_your'=>$is_your,
-                                'text'=>$chat->text,
-                                'time'=>$time
-                            ];
-                        }
+            //                 $array[$value->start_date][]=[
+            //                     'is_your'=>$is_your,
+            //                     'text'=>$chat->text,
+            //                     'time'=>$time
+            //                 ];
+            //             }
                         
                         
-                    }
+            //         }
     
-                }
-            }
+            //     }
+            // }
             
            
 
-            $list=[
-                'user_id'=>$data['user_id'],
-                'order_id'=>$id,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'data'=>$array
-            ];
+            // $list=[
+            //     'user_id'=>$data['user_id'],
+            //     'order_id'=>$id,
+            //     'start_date'=>$order->start_date,
+            //     'from_name'=>$from_to_name['from_name'],
+            //     'to_name'=>$from_to_name['to_name'],
+            //     'data'=>$array
+            // ];
     
     
             $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
@@ -150,14 +150,14 @@ class SocketController extends Controller implements MessageComponentInterface
                 $new_chat = Chat::create($new_chat);
                 
                 // Send Notification start
-                    $userSend = User::find($user_to_id);
+                    // $userSend = User::find($user_to_id);
                     
-                    $device = ($userSend) ? json_decode($userSend->device_type) : [];
-                    $title = translate_api("You've got mail", $userSend->language);
-                    $message = $text;
-                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
+                    // $device = ($userSend) ? json_decode($userSend->device_type) : [];
+                    // $title = translate_api("You've got mail", $userSend->language);
+                    // $message = $text;
+                    // $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
 
-                    $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
+                    // $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
                 // Send Notification end
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
