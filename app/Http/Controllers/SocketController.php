@@ -58,47 +58,42 @@ class SocketController extends Controller implements MessageComponentInterface
                 ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
                 ->where('order_id',$id)
                 ->get();
-                $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
+
+                foreach ($start_dates as $key => $value) {
+    
+                    $get_chats= DB::table('yy_chats')
+                    // ->select('')
+                    ->where('order_id',$id)
+                    ->get();
+    
+                    foreach ($get_chats as $key => $chat) {
+                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                        // dd($date);
+                        if ($date==$value->start_date ) {
+                        
+                            $time=Carbon::parse($chat->created_at)->format('H:i');
+                            $user_from=User::find($chat->user_from_id);
+                            $user_to=User::find($chat->user_to_id);
+                            if ($chat->user_from_id==$data['user_id']) {
+                                $is_your=true;
+                            } else {
+                                $is_your=false;
+                            }
+                            
+                            $array[$value->start_date][]=[
+                                'is_your'=>$is_your,
+                                'text'=>$chat->text,
+                                'time'=>$time
+                            ];
+                        }
+                        
+                        
+                    }
+    
+                }
+                
             }
             // $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
-            
-
-
-            // if (!empty($start_dates)) {    
-
-            //     foreach ($start_dates as $key => $value) {
-    
-            //         $get_chats= DB::table('yy_chats')
-            //         // ->select('')
-            //         ->where('order_id',$id)
-            //         ->get();
-    
-            //         foreach ($get_chats as $key => $chat) {
-            //             $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-            //             // dd($date);
-            //             if ($date==$value->start_date ) {
-                        
-            //                 $time=Carbon::parse($chat->created_at)->format('H:i');
-            //                 $user_from=User::find($chat->user_from_id);
-            //                 $user_to=User::find($chat->user_to_id);
-            //                 if ($chat->user_from_id==$data['user_id']) {
-            //                     $is_your=true;
-            //                 } else {
-            //                     $is_your=false;
-            //                 }
-                            
-            //                 $array[$value->start_date][]=[
-            //                     'is_your'=>$is_your,
-            //                     'text'=>$chat->text,
-            //                     'time'=>$time
-            //                 ];
-            //             }
-                        
-                        
-            //         }
-    
-            //     }
-            // }
             
            
 
