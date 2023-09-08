@@ -1138,8 +1138,12 @@ class OrderController extends Controller
                         $user_id = ($order->driver) ? $order->driver->id : 0;
 
                         $this->sendNotification($device, $user_id, "Offer", $title, $message);
-
-                        return $this->success(translate_api('Offer accepted', $language), 200);
+                        
+                        $id=auth()->id();
+                        $data=$this->getOffer($id);
+                       
+                        return $this->success(translate_api('Offer accepted', $language), 200, $data);
+                        
                     } elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
                         return $this->success(translate_api('Sorry this offer canceled', $language), 200);
                     } else {
@@ -1311,6 +1315,80 @@ class OrderController extends Controller
         $maxPrice = round((int)($distance['distance_value'] / 1000 * Constants::MAX_DESTINATION_PRICE) / 1000) * 1000;
 
         return $this->success('success', 200, ['min_price' => $minPrice, 'max_price' => $maxPrice]);
+    }
+
+
+    public function getOffer($id){
+
+
+
+
+        // if ($offer) {
+                            
+            $offers = DB::table('yy_offers as dt1')
+            ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
+            ->Leftjoin('yy_orders as dt3', 'dt3.id', '=', 'dt1.order_id')
+            ->Leftjoin('yy_statuses as dt4', 'dt4.type_id', '=', 'dt1.status')
+            ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
+            ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
+            ->where('dt3.driver_id', $id)
+            ->orWhere('dt2.client_id', $id)
+            ->select('dt1.id as offer_id','dt1.order_id','dt1.status as status_id ', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt2.seats_count as seats_count','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
+            ->get();
+            // ->toArray();
+            // dd($offers);
+
+
+            $data=[];
+            foreach ($offers as $key => $offer) {
+                // dd($offer);
+                $from_to_name=table_translate($offer,'city',$language);
+
+
+                if(isset($offer->avatar)){
+                    $avatar = storage_path('app/public/avatar/'.$offer->avatar);
+                    if(file_exists($avatar)){
+                        $offer->avatar = asset('storage/avatar/'.$offer->avatar);
+                    }
+                    else {
+                        $offer->avatar=null;
+                    }
+                }
+                if ($offer->status_id == Constants::NEW) {
+                    
+
+                    if ($offer->client_id==$id) {
+                        $is_your=true;
+                    }else {
+                        $is_your=false;
+                    }
+                    $list=[
+                        'offer_id'=>$offer->offer_id,
+                        'order_id'=>$offer->order_id,
+                        'order_detail_id'=>$offer->order_detail_id,
+                        'start_date'=>$offer->start_date,
+                        'status'=>$offer->status,
+                        'rating'=>$offer->rating,
+                        'from_name' => $from_to_name['from_name'],
+                        'to_name' => $from_to_name['to_name'],
+                        'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
+                        'avatar'=>$offer->avatar,
+                        'seats_count'=>$offer->seats_count,
+                        'is_your'=>$is_your
+                    ];
+                    array_push($data , $list);
+
+                }
+
+               
+            }
+
+
+        // }
+
+
+
+
     }
 
 }
