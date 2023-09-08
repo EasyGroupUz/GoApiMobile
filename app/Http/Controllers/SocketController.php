@@ -91,7 +91,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     }
     
                 }
-                
+
             }
             // $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
             
@@ -150,14 +150,14 @@ class SocketController extends Controller implements MessageComponentInterface
                 $new_chat = Chat::create($new_chat);
                 
                 // Send Notification start
-                    // $userSend = User::find($user_to_id);
+                    $userSend = User::find($user_to_id);
                     
-                    // $device = ($userSend) ? json_decode($userSend->device_type) : [];
-                    // $title = translate_api("You've got mail", $userSend->language);
-                    // $message = $text;
-                    // $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
+                    $device = ($userSend) ? json_decode($userSend->device_type) : [];
+                    $title = translate_api("You've got mail", $userSend->language);
+                    $message = $text;
+                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
 
-                    // $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
+                    $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
                 // Send Notification end
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
