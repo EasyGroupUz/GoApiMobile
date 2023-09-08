@@ -1323,7 +1323,6 @@ class OrderController extends Controller
 
 
 
-        // if ($offer) {
                             
             $offers = DB::table('yy_offers as dt1')
             ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
@@ -1379,15 +1378,10 @@ class OrderController extends Controller
                     array_push($data , $list);
 
                 }
-                
-                return $data;
 
-               
             }
 
-
-        // }
-
+            return $data;
 
 
 
