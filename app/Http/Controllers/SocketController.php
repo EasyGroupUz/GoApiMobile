@@ -60,7 +60,7 @@ class SocketController extends Controller implements MessageComponentInterface
                 ->get();
                 $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
             }
-            $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
+            // $from->send(json_encode($order , JSON_UNESCAPED_UNICODE));
             
 
 
@@ -102,17 +102,17 @@ class SocketController extends Controller implements MessageComponentInterface
             
            
 
-            // $list=[
-            //     'user_id'=>$data['user_id'],
-            //     'order_id'=>$id,
-            //     'start_date'=>$order->start_date,
-            //     'from_name'=>$from_to_name['from_name'],
-            //     'to_name'=>$from_to_name['to_name'],
-            //     'data'=>$array
-            // ];
+            $list=[
+                'user_id'=>$data['user_id'],
+                'order_id'=>$id,
+                'start_date'=>$order->start_date,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
+                'data'=>$array
+            ];
     
     
-            // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
+            $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
 
 
