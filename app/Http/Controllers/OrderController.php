@@ -1079,14 +1079,15 @@ class OrderController extends Controller
 
     public function booking(Request $request)
     {
-        // dd($request->all());
+        $language = $request->header('language');
+
         if (!$request['order_id'])
-            return $this->error('order_id parameter is missing', 400);
+            return $this->error(translate_api('order_id parameter is missing', $language), 400);
 
         $order_id = $request['order_id'];
 
         if (!$request['order_detail_id'])
-            return $this->error('order_detail_id parameter is missing', 400);
+            return $this->error(translate_api('order_detail_id parameter is missing', $language), 400);
         
         $order_detail_id = $request['order_detail_id'];
 
@@ -1094,28 +1095,18 @@ class OrderController extends Controller
         $orderDetail = OrderDetail::find($order_detail_id);
 
         if (!$order)
-            return $this->success('Order not found', 204);
+            return $this->success(translate_api('Order not found', $language), 204);
 
         if (!$orderDetail)
-            return $this->success('Order Detail not found', 204);
-        // else
-        //     if ($orderDetail->order_id != null)
-        //         return $this->error('This order detail is booked already', 400);
-
+            return $this->success(translate_api('Order Detail not found', $language), 204);
      
         $options=json_decode($order->options);
         
         $seats_count = ($order->seats) - ($order->booking_place);
         if ($request['offer_id'] != '') {
-            // dd($request['offer_id']);
-            
-            if ($offer=Offer::where('id', $request['offer_id'])->first()) {
-                // dd($offer);
+            if ($offer = Offer::where('id', $request['offer_id'])->first()) {
                  if ($offer->status !== Constants::ACCEPT) {
-                    
-    
                     if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
-    
                         $offer->update(['status' => Constants::ACCEPT]);
                    
                         $orderDetail->order_id = $order->id;
@@ -1124,103 +1115,78 @@ class OrderController extends Controller
                         $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats ): $offer->seats;
                         $saveOrder = $order->save();
     
-                        if ($order->booking_place==$order->seats) {
-                            $cancel_offers=Offer::where('order_id', $order->id)->where('order_detail_id','!=',$orderDetail->id)->where('status' , Constants::NEW)->get();
+                        if ($order->booking_place == $order->seats) {
+                            $cancel_offers = Offer::where('order_id', $order->id)->where('order_detail_id', '!=', $orderDetail->id)->where('status', Constants::NEW)->get();
                             if (!empty($cancel_offers)) {
                                 foreach ($cancel_offers as  $value) {
+                                    $offersOrderDetail = $value->orderDetail;
                                     $value->update(['status' => Constants::CANCEL]);
-    
-                                    // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                                    // $title = 'Offer canceled';
-                                    // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                                    // $user_id = ($order->driver) ? $order->driver->id : 0;
-    
-                                    // $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                                    $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_type) : [];
+                                    $title = translate_api('Your request has been denied', $language);
+                                    $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
+                                    $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
+                        
+                                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
                                 }
                             }
-                        }
-    
+                        }    
     
                         $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                        $title = 'Offer accepted';
-                        $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                        $title = translate_api('Your request has been accepted', $language);
+                        $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                         $user_id = ($order->driver) ? $order->driver->id : 0;
-    
-                        $this->sendNotification($device, $user_id, "Offer", $title, $message);
-    
-                        return $this->success('offer accepted', 200);
-                    }
-                    elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
-    
-                        return $this->success('sorry this offer canceled', 200);
-                    } 
-                    else {
-                        return $this->success('sorry we only have '. $seats_count .' spaces available', 200);
-                    }
-                    
-    
-                 }
-                 else {
-                    return $this->success('Sorry, this booking has been cancelled or accepted', 200);
-                 }
-            }
 
-        }
-        elseif ($options->quick_booking==1) {
+                        $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                        return $this->success(translate_api('Offer accepted', $language), 200);
+                    } elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
+                        return $this->success(translate_api('Sorry this offer canceled', $language), 200);
+                    } else {
+                        return $this->success(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 200);
+                    }
+                } else {
+                    return $this->success(translate_api('Sorry, this booking has been cancelled or accepted', $language), 200);
+                }
+            }
+        } elseif ($options->quick_booking == 1) {
             if (($order->booking_place + $request['seats']) <= $order->seats) {
+                $id = auth()->id();
+                $create_type = ($id == $orderDetail->client_id) ? 0 : 1;
+                
                 $offer = new Offer();
-                $id=auth()->id();
-                $create_type = ($id==$order_detail->client_id) ? 0 : 1;
                 $offer->order_id = $order->id;
                 $offer->seats = $request['seats'];
-                $offer->order_detail_id = $order_detail->id;
+                $offer->order_detail_id = $orderDetail->id;
                 $offer->create_type = $create_type;
                 $offer->status = Constants::ACCEPT;
                 $offer->save();
 
-
-                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count ): $orderDetail->seats_count;
+                $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $orderDetail->seats_count): $orderDetail->seats_count;
                 $saveOrder = $order->save();
-
-            }
-            else {
-                return $this->success('sorry we only have '. $seats_count .' spaces available', 200);
+            } else {
+                return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
             }
 
+            $orderDetail->order_id = $order->id;
+            $saveOrderDetail = $orderDetail->save();
 
-                $orderDetail->order_id = $order->id;
-                $saveOrderDetail = $orderDetail->save();
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $title = translate_api('Your request has been accepted', $language);
+            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+            $user_id = ($order->driver) ? $order->driver->id : 0;
 
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
-                $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                $title = 'Offer accepted';
-                $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                $user_id = ($order->driver) ? $order->driver->id : 0;
-
-                $this->sendNotification($device, $user_id, "Offer", $title, $message);
-
-                return $this->success('offer created', 204);
-            
+            return $this->success(translate_api('offer created', $language), 204);  
+        } else {
+            return $this->success(translate_api('Offer not found', $language), 204);
         }
-        else{
-
-            return $this->success('Offer not found', 204);
-        }
-
-
-        // if ($saveOrderDetail && $saveOrder) {
-        //     $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-        //     $title = 'Offer Accepted';
-        //     $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-        //     $user_id = ($order->driver) ? $order->driver->id : 0;
-            
-        //     $this->sendNotification($device, $user_id, "Offer", $title, $message);
-
-        //     return $this->success('success', 200);
-        // }
     }
+
     public function bookingCancel(Request $request)
     {
+        $language = $request->header('language');
         if (!$request['order_id'])
             return $this->error('order_id parameter is missing', 400);
 
@@ -1239,32 +1205,24 @@ class OrderController extends Controller
 
         if (!$orderDetail)
             return $this->success('Order Detail not found', 204);
-        // else
-        //     if ($orderDetail->order_id != null)
-        //         return $this->error('This order detail is booked already', 400);
-
 
         $orderDetail->order_id = null;
         $saveOrderDetail = $orderDetail->save();
 
-       
-
         $timezone = 'Asia/Tashkent';
         $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
-        $id=auth()->id();
-        // $cencel_type=$id ;
-        if ($id==$orderDetail->client_id) {
-            // dd(auth()->id());
-           
-            $cancel_type=0;
-        }
-        else {
-            $cancel_type=1;
-        }
-        if ($first_offer=Offer::where('id',$request['offer_id'] )->first()) {
-
+        $id = auth()->id();
+        if ($id == $orderDetail->client_id) {
+            $cancel_type = 0;
+        } else {
+            $cancel_type = 1;
+        } 
+        
+        if ($first_offer = Offer::where('id', $request['offer_id'])->first()) {
             $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
             $saveOrder = $order->save();
+
+            $old_offer_status = $first_offer->status;
 
             $offer = [
                 'cancel_type' => $cancel_type,
@@ -1274,29 +1232,37 @@ class OrderController extends Controller
             ];
 
             $cancel_offer = $first_offer->update($offer);
-            
-            // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-            // $title = 'Предложение отменено';
-            // $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-            // $user_id = ($order->driver) ? $order->driver->id : 0;
 
-            // $this->sendNotification($device, $user_id, "Offer", $title, $message);
-          
-        }
-        else {
+            $title = '';
+            $user_id = ($order->driver) ? $order->driver->id : 0;
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            if ($old_offer_status == Constants::NEW) {
+                $title = translate_api('Your request has been denied', $language);
+                if ($id == $order->driver_id) {
+                    $user_id = $order->driver->id;
+                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                } else {
+                    $user_id = $orderDetail->client->id;
+                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
+                }
+            } else {
+                if ($id == $order->driver_id) {
+                    $title = translate_api('Your order has been cancelled', $language);
+                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                } else {
+                    $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
+                    $title = translate_api('Passenger canceled the booking', $language);
+                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
+                }
+            }
+             
+            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+        } else {
             return $this->success('Offer not found', 204);
         }
 
-
-        // if ($offer) {
-        //     $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-        //     $title = 'Предложение отменено';
-        //     $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-        //     $user_id = ($order->driver) ? $order->driver->id : 0;
-
-        //     $this->sendNotification($device, $user_id, "Offer", $title, $message);
-
-        // }
         return $this->success('success', 200);
     }
 
