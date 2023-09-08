@@ -1182,7 +1182,13 @@ class OrderController extends Controller
 
             $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
-            return $this->success(translate_api('offer created', $language), 204);  
+            $id=auth()->id();
+            $data=$this->getOffer($id , $language);
+
+            return $this->success(translate_api('offer created', $language), 204 , $data);  
+
+
+
         } else {
             return $this->success(translate_api('Offer not found', $language), 204);
         }
@@ -1266,8 +1272,11 @@ class OrderController extends Controller
         } else {
             return $this->success('Offer not found', 204);
         }
+        
+        $id=auth()->id();
+        $data=$this->getOffer($id , $language);
 
-        return $this->success('success', 200);
+        return $this->success('offer cancelled', 200, $data);
     }
 
 
