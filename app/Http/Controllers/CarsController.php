@@ -21,14 +21,17 @@ class CarsController extends Controller
     public function myTaxi(Request $request)
     {
         $language = $request->header('language');
-        $cars = DB::table('yy_drivers as dt1')
+        $cars = DB::table('yy_users as dt1')
             ->leftJoin('yy_cars as dt2', 'dt2.driver_id', '=', 'dt1.id')
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
-            ->where('dt1.user_id', auth()->id())->where('dt2.deleted_at', NULL)
+            ->where('dt1.id', auth()->id())->where('dt2.deleted_at', NULL)
             ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.updated_at', 'dt2.deleted_at')
             ->get()->toArray();
         foreach ($cars as $car){
+            if(is_null($car->id)){
+                return $this->success('Success', 200, []);
+            }
             $images_array = json_decode($car->images);
             if(gettype($images_array) == 'string'){
                 $str_images = str_replace('[', '', $images_array);
@@ -41,8 +44,8 @@ class CarsController extends Controller
                     $images_[] = asset("storage/cars/$images");
                 }
             }
-            if(file_exists(storage_path("app/public/certificate/$car->reg_certificate_image"))){
-                $reg_certificate_img = asset("storage/certificate/$car->reg_certificate_image");
+            if(file_exists(storage_path("app/public/cars/$car->reg_certificate_image"))){
+                $reg_certificate_img = asset("storage/cars/$car->reg_certificate_image");
             }else{
                 $reg_certificate_img = null;
             }
@@ -229,7 +232,7 @@ class CarsController extends Controller
             $certificate_img = $request->file('reg_certificate_image');
             if(isset($certificate_img)) {
                 $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-                $certificate_img->storeAs('public/certificate/', $image_name);
+                $certificate_img->storeAs('public/cars/', $image_name);
                 $cars->reg_certificate_image = $image_name;
             }
         }
@@ -244,17 +247,8 @@ class CarsController extends Controller
             }
             $cars->images = json_encode($images_array);
         }
-        $is_driver = Driver::where('user_id', $user->id)->first();
 
-        if(!isset($is_driver)){
-            $driver = new Driver();
-            $driver->user_id = $user->id;
-            $driver->status_id = 1;
-            $driver->save();
-        }else{
-            $driver = $is_driver;
-        }
-        $cars->driver_id = $driver->id;
+        $cars->driver_id = $user->id;
         $cars->save();
         return $this->success('Success', 201);
     }
@@ -297,7 +291,10 @@ class CarsController extends Controller
         }
         $letters = range('a', 'z');
         if(isset($field['reg_certificate_image'])){
-            $sms_avatar = storage_path('app/public/certificate/'.$cars->reg_certificate_image);
+            if(!isset($cars->reg_certificate_image)){
+                $cars->reg_certificate_image = 'noimage';
+            }
+            $sms_avatar = storage_path('app/public/cars/'.$cars->reg_certificate_image);
             if(file_exists($sms_avatar)){
                 unlink($sms_avatar);
             }
@@ -306,7 +303,7 @@ class CarsController extends Controller
             $certificate_img = $request->file('reg_certificate_image');
             if(isset($certificate_img)) {
                 $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-                $certificate_img->storeAs('public/certificate/', $image_name);
+                $certificate_img->storeAs('public/cars/', $image_name);
                 $cars->reg_certificate_image = $image_name;
             }
         }
@@ -315,6 +312,9 @@ class CarsController extends Controller
         if(isset($images)){
             $model_images = json_decode($cars->images);
             foreach ($model_images as $model_image){
+                if(!isset($model_image)){
+                    $model_image = 'noimage';
+                }
                 $sms_image = storage_path('app/public/cars/'.$model_image);
                 if(file_exists($sms_image)){
                     unlink($sms_image);
@@ -329,17 +329,8 @@ class CarsController extends Controller
             }
             $cars->images = json_encode($images_array);
         }
-        $is_driver = Driver::where('user_id', $user->id)->first();
 
-        if(!isset($is_driver)){
-            $driver = new Driver();
-            $driver->user_id = $user->id;
-            $driver->status_id = 1;
-            $driver->save();
-        }else{
-            $driver = $is_driver;
-        }
-        $cars->driver_id = $driver->id;
+        $cars->driver_id = $user->id;
         $cars->save();
         return $this->success('Success', 201);
     }
