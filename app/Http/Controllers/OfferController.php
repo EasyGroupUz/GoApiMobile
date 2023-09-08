@@ -44,13 +44,14 @@ class OfferController extends Controller
         if(!isset($order_detail)){
             return $this->error(translate_api('Order detail not found', $language), 400);
         }
+
         if(!isset($order)){
             return $this->error(translate_api('Order not found', $language), 400);
         }
 
         // $old_offer=
-        $seats_count=($order->seats)-($order->booking_place);
-        if ($old_offer=Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first()) {
+        $seats_count = ($order->seats) - ($order->booking_place);
+        if ($old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first()) {
             // dd($old_offer);
             if ($old_offer->status==Constants::NEW) 
             {
@@ -78,6 +79,13 @@ class OfferController extends Controller
                         $offer->create_type = $create_type;
                         $offer->status = Constants::NEW;
                         $offer->save();
+
+                        $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                        $title = translate_api('You have a new offer', $language);
+                        $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                        $user_id = ($order->driver) ? $order->driver->id : 0;
+
+                        $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
                         return $this->success(translate_api('Offer created', $language), 201);
 
@@ -107,12 +115,12 @@ class OfferController extends Controller
         }
         $offer->save();
         // if ($offer->save()) {
-        //     $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-        //     $title = translate_api('Offer created', $language);
-        //     $message = (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-        //     $user_id = ($order->driver) ? $order->driver->id : 0;
+            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $title = translate_api('You have a new offer', $language);
+            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+            $user_id = ($order->driver) ? $order->driver->id : 0;
 
-        //     $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            $this->sendNotification($device, $user_id, "Offer", $title, $message);
         // }
 
         return $this->success(translate_api('Offer created', $language), 201);
