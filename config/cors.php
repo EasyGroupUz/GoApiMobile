@@ -19,9 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*', 'http://api.easygo.uz', 'http://api.easygo.uz'],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => ['/http?:\/\/api.easygo\.uz\/?\z/'],
 
     'allowed_headers' => ['*'],
 
