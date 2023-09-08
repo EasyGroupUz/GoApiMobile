@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 define('LARAVEL_START', microtime(true));
 
 $allowedOrigins = array(
-    'http://api.easygo.uz/',
+    'http://api.easygo.uz',
     'http://localhost:3000'
 );
 if(isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] != ''){
