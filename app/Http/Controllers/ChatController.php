@@ -320,6 +320,7 @@ class ChatController extends Controller implements MessageComponentInterface
 
             $list=[
                 'id'=>$chat->id,
+                'order_id'=>$chat->order_id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
