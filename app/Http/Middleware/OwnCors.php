@@ -15,11 +15,9 @@ class OwnCors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request)
-        ->header('Access-Control-Allow-Origin', '*')
-        ->header('Access-Control-Allow-Methods', '*')
-        ->header('Access-Control-Allow-Credentials', true)
-        ->header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,X-Token-Auth,Authorization')
-        ->header('Accept', 'application/json');
+        header('Access-Control-Allow-Origin : *');
+        header('Access-Control-Allow-Headers : Content-Type, X-Auth-Token, Authorization, Origin');
+
+        return $next($request);
     }
 }
