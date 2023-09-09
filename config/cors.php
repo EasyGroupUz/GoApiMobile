@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [$_SERVER['HTTP_ORIGIN']],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
