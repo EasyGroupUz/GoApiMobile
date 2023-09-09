@@ -16,9 +16,8 @@ class OwnCors
     public function handle(Request $request, Closure $next): Response
     {
         return $next($request)
-            ->header('Access-Control-Allow-Origin', 'http://localhost:4200')
-//            ->header('Access-Control-Allow-Origin', 'http://api.example.com')
+            ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-            ->header('Access-Control-Allow-Headers', 'Content-Type');
+            ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type');
     }
 }
