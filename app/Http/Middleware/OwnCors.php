@@ -15,9 +15,10 @@ class OwnCors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request)
-            ->header('Access-Control-Allow-Origin', '*')
+        $response = $next($request);
+            $response->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
             ->header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type');
+            return $response;
     }
 }
