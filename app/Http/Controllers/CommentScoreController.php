@@ -156,10 +156,12 @@ class CommentScoreController extends Controller
             $getComments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get();
             $comments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get()->groupBy('score');
             $average_score = 0;
+            $comment_count = 0;
             foreach ($comments as $key => $comm){
                 if(isset($key) && $key>0){
                     foreach ($comm as $com){
                         $average_score = $average_score + $com->score;
+                        $comment_count = $comment_count+1;
                         switch ($key){
                             case 1:
                                 $ratings_list_1[] = [
@@ -266,8 +268,8 @@ class CommentScoreController extends Controller
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
-                'rating'=>$average_score/count($comments),
-                'comment_count'=>count($comments)
+                'rating'=>$average_score/$comment_count,
+                'comment_count'=>$comment_count
             ];
             foreach ($getComments as $getComment){
                 if($getComment->to_whom == $getComment->client_id){
