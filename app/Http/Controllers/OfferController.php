@@ -164,7 +164,7 @@ class OfferController extends Controller
             }else {
                 $is_your=false;
             }
-            if (($offer->status_id ,'!=', Constants::CANCEL)) {
+            if ($offer->status_id !== Constants::CANCEL) {
                 $list=[
                     'offer_id'=>$offer->offer_id,
                     'order_id'=>$offer->order_id,
