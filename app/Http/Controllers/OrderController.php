@@ -40,7 +40,7 @@ class OrderController extends Controller
 
         $date=Carbon::parse($request->start_date)->format('Y-m-d');
         $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
-            
+
         $list=[]; 
         // $orders = DB::table('yy_orders')
         //     ->where('status_id', Constants::ORDERED)
@@ -54,8 +54,9 @@ class OrderController extends Controller
         $orders = Order::where('status_id', Constants::ORDERED)
             ->where('from_id', $request->from_id)
             ->where('to_id', $request->to_id)
-            ->where('start_date','>=',$date)
-            ->where('start_date','<',$tomorrow)
+            ->where('start_date', '>=', $date)
+            ->where('start_date', '<=', $tomorrow)
+            ->where('start_date', '>=', date('Y-m-d H:i:s'))
             ->get();
 
         $order_count = count($orders);
