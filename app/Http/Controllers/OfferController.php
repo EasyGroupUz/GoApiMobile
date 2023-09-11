@@ -135,11 +135,12 @@ class OfferController extends Controller
         ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
         ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
         ->where('dt3.driver_id', auth()->id())
+        ->where('dt1.status','!=',Constants::CANCEL)
         ->orWhere('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt2.from_id' ,'dt2.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt2.seats_count as seats_count','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
+        ->select('dt1.id as offer_id','dt1.order_id', 'dt1.order_detail_id','dt3.from_id' ,'dt3.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt2.seats_count as seats_count','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
         ->get();
         // ->toArray();
-        // dd($offers);
+        dd($offers);
 
 
         $data=[];
