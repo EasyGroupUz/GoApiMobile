@@ -16,12 +16,12 @@ class OwnCors
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-        if($request->hasHeader('Access-Control-Request-Headers')) {
-            $response->header('Access-Control-Allow-Origin', $request->headers('Access-Control-Request-Headers'));
-        }
-        if($request->hasHeader('Access-Control-Request-Methods')) {
-            $response->header('Access-Control-Allow-Methods', $request->headers('Access-Control-Request-Methods'));
-        }
+//        if($request->hasHeader('Access-Control-Request-Headers')) {
+//            $response->header('Access-Control-Allow-Origin', $request->headers('Access-Control-Request-Headers'));
+//        }
+//        if($request->hasHeader('Access-Control-Request-Methods')) {
+//            $response->header('Access-Control-Allow-Methods', $request->headers('Access-Control-Request-Methods'));
+//        }
 //        $response->header('Access-Control-Allow-Ceredentials', 'true');
 
         return $response;
