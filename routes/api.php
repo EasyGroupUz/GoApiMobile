@@ -35,7 +35,6 @@ use App\Http\Controllers\SocketController;
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
 Route::get('/testNotify', [OrderController::class, 'testNotify'])->name('testNotify');
 Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
-Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -44,6 +43,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/phone-update/verify', [AuthController::class, 'resetLoginToken']);
     Route::post('/logout', [AuthController::class, 'Logout']);
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
+    
+    Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
