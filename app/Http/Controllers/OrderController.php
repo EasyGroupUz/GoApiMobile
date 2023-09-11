@@ -1134,10 +1134,10 @@ class OrderController extends Controller
                             }
                         }    
     
-                        $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                        $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
                         $title = translate_api('Your request has been accepted', $language);
                         $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                        $user_id = ($order->driver) ? $order->driver->id : 0;
+                        $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
 
                         $this->sendNotification($device, $user_id, "Offer", $title, $message);
                         
