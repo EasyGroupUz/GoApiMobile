@@ -197,15 +197,5 @@ class OfferController extends Controller
         // }
     }
 
-    // public function destroy(Request $request)
-    // {
-    //     $language = $request->header('language');
-    //     $offer = Offer::find($request->id);
-    //     if(isset($offer)){
-    //         $offer->delete();
-    //         return $this->success('Success', 200);
-    //     }else{
-    //         return $this->error(translate_api('Offer not found', $language), 400);
-    //     }
-    // }
+
 }

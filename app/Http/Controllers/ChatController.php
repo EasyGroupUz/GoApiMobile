@@ -297,6 +297,8 @@ class ChatController extends Controller implements MessageComponentInterface
         // ->Orwhere('user_to_id', $id)
         ->distinct('order_id')
         ->orderBy('order_id')
+        ->where('user_to_id', auth()->id())
+        ->orWhere('user_from_id', auth()->id())
         ->get();
         // dd($chats);
          $data=[];
@@ -317,6 +319,8 @@ class ChatController extends Controller implements MessageComponentInterface
                     $personalInfo->avatar=null;
                 }
             }
+
+
 
             $list=[
                 'id'=>$chat->id,
