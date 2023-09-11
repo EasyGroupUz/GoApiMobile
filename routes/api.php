@@ -82,7 +82,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'chat'], function () {
         Route::get('/details', [SocketController::class, 'chatDetails']);
-        Route::get('/list', [ChatController::class, 'chatList']);
+        Route::get('/list', [SocketController::class, 'chatList']);
     });
 
     Route::group(['prefix' => 'order'], function () {

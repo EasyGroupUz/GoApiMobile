@@ -259,4 +259,80 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
+
+
+    public function chatList(Request $request)
+    {
+        $language = $request->header('language');
+        // dd($request->all());
+
+        // $id=auth()->id();
+        // $order = Order::find($order_id);
+        // dd($order);
+        
+        $chats= DB::table('yy_chats')
+        // ->where('user_from_id', $id)
+        // ->Orwhere('user_to_id', $id)
+        ->distinct('order_id')
+        ->orderBy('order_id')
+        ->where('user_to_id', auth()->id())
+        ->orWhere('user_from_id', auth()->id())
+        ->get();
+        // dd($chats);
+         $data=[];
+        foreach ($chats as $key => $chat) {
+            $order = Order::where('id',$chat->order_id)->first();
+            // $order = Order::find();
+            
+            // dd($order); 
+            $from_to_name=table_translate($order,'city',$language);
+            $personalInfo=PersonalInfo::where('id',User::where('id',$order->driver_id)->first()->personal_info_id)->first();
+
+            if(isset($personalInfo->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
+                if(file_exists($avatar)){
+                    $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                }
+                else {
+                    $personalInfo->avatar=null;
+                }
+            }
+
+
+
+            $list=[
+                'id'=>$chat->id,
+                'order_id'=>$chat->order_id,
+                'start_date'=>$order->start_date,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
+                'name'=>$personalInfo->first_name,
+                'image'=>$personalInfo->avatar,
+
+            ];
+            array_push($data,$list);
+        }
+
+        // $data=[];
+        
+        
+        // $list=[
+        //     'start_date'=>$order->start_date,
+        //     'from_name'=>$from_to_name['from_name'],
+        //     'to_name'=>$from_to_name['to_name'],
+        //     // 'data'=>$data
+        // ];
+
+
+        return response()->json([
+            'data' => $data,
+            'status' => true,
+            'message' => 'success',
+        ], 200);
+
+
+    }
+
+
+
 }
