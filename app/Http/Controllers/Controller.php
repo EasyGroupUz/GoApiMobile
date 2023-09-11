@@ -161,7 +161,7 @@ class Controller extends BaseController
                 'entity_type' => $action,
                 'title' => $title,
                 'body' => $message,
-                'bigPicture' => 'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
+                'bigPicture' => NULL, //'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
                 'largeIcon' => $largeIcon,
                 // 'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
                 'channelKey' => 'basic_channel',
