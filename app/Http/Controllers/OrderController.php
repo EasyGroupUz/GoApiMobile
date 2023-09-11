@@ -1108,9 +1108,10 @@ class OrderController extends Controller
                  if ($offer->status !== Constants::ACCEPT) {
                     if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
                         $offer->update(['status' => Constants::ACCEPT]);
-                   
+                     
                         $orderDetail->order_id = $order->id;
                         $saveOrderDetail = $orderDetail->save();
+                        dd($orderDetail);
     
                         $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats ): $offer->seats;
                         $saveOrder = $order->save();
