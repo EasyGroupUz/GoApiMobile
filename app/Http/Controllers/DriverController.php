@@ -15,7 +15,7 @@ class DriverController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'driver_id' => 'required',
+            // 'driver_id' => 'required',
             'license_number' => 'required',
             'license_expired_date' => 'required',
             'reg_certificate_number' => 'required',
@@ -26,8 +26,9 @@ class DriverController extends Controller
             return $this->error($validator->errors()->first(), 400);
         }
 
+        $id = auth()->id();
         // Find user and check if driver exists
-        $model = User::find($request->driver_id);
+        $model = User::find($id);
         if (!$model) {
             return $this->error('Driver not found', 400);
         }
