@@ -15,12 +15,15 @@ class OwnCors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        header('Content-Type: application/json');
-//        header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET POST PUT DELETE');
-            header('Access-Control-Allow-Ceredentials: true');
-            header('Access-Control-Allow-Headers: Authorization, Accept, Content-Type');
+        $response = $next($request);
+        if($request->hasHeader('Access-Control-Request-Headers')) {
+            $response->header('Access-Control-Allow-Origin', $request->headers('Access-Control-Request-Headers'));
+        }
+        if($request->hasHeader('Access-Control-Request-Methods')) {
+            $response->header('Access-Control-Allow-Methods', $request->headers('Access-Control-Request-Methods'));
+        }
+//        $response->header('Access-Control-Allow-Ceredentials', 'true');
 
-        return $next($request);
+        return $response;
     }
 }
