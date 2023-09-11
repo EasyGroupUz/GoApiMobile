@@ -47,50 +47,72 @@ class SocketController extends Controller implements MessageComponentInterface
             // dd($request->all());
             // $chat= Chat::find($data['id']);
             // dd($chat->order_id);
+            $order_id=$data['order_id'];
+            $user_from_id=$data['user_from_id'];
+            $user_to_id=$data['user_to_id'];
+
             $order = Order::find($data['order_id']);
             $id=$order->id;
             // dd($order);
     
             $from_to_name=table_translate($order,'city',$language);
             $array=[];
-            if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
-                $start_dates= DB::table('yy_chats')
-                ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
-                ->where('order_id',$id)
-                ->get();
 
-                foreach ($start_dates as $key => $value) {
+
+
+
+            if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
+                // $start_dates= DB::table('yy_chats')
+                // ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+                // ->where('order_id',$id)
+                // ->get();
+
+
+
+                $chat_data = DB::table('yy_chats')
+                ->select(DB::raw('DISTINCT DATE(created_at) as start_date'))
+                ->where(function($query) use ($user_from_id,$user_to_id){
+                    $query->where('user_from_id', $user_from_id)->where('user_to_id', $user_to_id)->where('order_id', $order->id);
+                })
+                ->orWhere(function($query) use ($user_to_id){
+                    $query->where('user_from_id', $user_to_id)->where('user_to_id', $user_from_id)->where('order_id', $order->id);
+                })->orderBy('id', 'ASC')->get();
+
+                dd($chat_data);
+
+
+                // foreach ($start_dates as $key => $value) {
     
-                    $get_chats= DB::table('yy_chats')
-                    // ->select('')
-                    ->where('order_id',$id)
-                    ->get();
+                //     $get_chats= DB::table('yy_chats')
+                //     // ->select('')
+                //     ->where('order_id',$id)
+                //     ->get();
     
-                    foreach ($get_chats as $key => $chat) {
-                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-                        // dd($date);
-                        if ($date==$value->start_date ) {
+                //     foreach ($get_chats as $key => $chat) {
+                //         $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+                //         // dd($date);
+                //         if ($date==$value->start_date ) {
                         
-                            $time=Carbon::parse($chat->created_at)->format('H:i');
-                            $user_from=User::find($chat->user_from_id);
-                            $user_to=User::find($chat->user_to_id);
-                            if ($chat->user_from_id==$data['user_id']) {
-                                $is_your=true;
-                            } else {
-                                $is_your=false;
-                            }
+                //             $time=Carbon::parse($chat->created_at)->format('H:i');
+                //             $user_from=User::find($chat->user_from_id);
+                //             $user_to=User::find($chat->user_to_id);
+                //             if ($chat->user_from_id==$data['user_id']) {
+                //                 $is_your=true;
+                //             } else {
+                //                 $is_your=false;
+                //             }
                             
-                            $array[$value->start_date][]=[
-                                'is_your'=>$is_your,
-                                'text'=>$chat->text,
-                                'time'=>$time
-                            ];
-                        }
+                //             $array[$value->start_date][]=[
+                //                 'is_your'=>$is_your,
+                //                 'text'=>$chat->text,
+                //                 'time'=>$time
+                //             ];
+                //         }
                         
                         
-                    }
+                //     }
     
-                }
+                // }
 
             }
             else {
