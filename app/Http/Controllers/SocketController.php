@@ -57,18 +57,18 @@ class SocketController extends Controller implements MessageComponentInterface
             
             $personalInfo = User::find($user_to_id)->personalInfo;
             
-            if ($personalInfo && isset($personalInfo->avatar)) {
-                $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-                if (file_exists($avatarPath)) {
-                    $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-                } else {
-                    $personalInfo->avatar = null;
-                }
-            }
+            // if ($personalInfo && isset($personalInfo->avatar)) {
+            //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            //     if (file_exists($avatarPath)) {
+            //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            //     } else {
+            //         $personalInfo->avatar = null;
+            //     }
+            // }
             
             
             $from_to_name=table_translate($order,'city',$language);
-            $array=[];
+            // $array=[];
             
             $from->send(json_encode($from_to_name));
             // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
