@@ -47,28 +47,29 @@ class SocketController extends Controller implements MessageComponentInterface
             // $data=$request->all();
             // //    dd($data['type']);
         
-            $language = $data['language'];
+            // $language = $data['language'];
             $order_id=$data['order_id'];
             $user_from_id=$data['user_from_id'];
             $user_to_id=$data['user_to_id'];
 
-            $order = Order::find($data['order_id']);
-            $id=$order->id;
+            $from->send(json_encode($data));
+            // $order = Order::find($data['order_id']);
+            // $id=$order->id;
 
-            $personalInfo = User::find($user_to_id)->personalInfo;
+            // $personalInfo = User::find($user_to_id)->personalInfo;
 
-            if ($personalInfo && isset($personalInfo->avatar)) {
-                $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-                if (file_exists($avatarPath)) {
-                    $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-                } else {
-                    $personalInfo->avatar = null;
-                }
-            }
+            // if ($personalInfo && isset($personalInfo->avatar)) {
+            //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            //     if (file_exists($avatarPath)) {
+            //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            //     } else {
+            //         $personalInfo->avatar = null;
+            //     }
+            // }
 
 
-            $from_to_name=table_translate($order,'city',$language);
-            $array=[];
+            // $from_to_name=table_translate($order,'city',$language);
+            // $array=[];
 
             // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
@@ -141,7 +142,7 @@ class SocketController extends Controller implements MessageComponentInterface
             // return $list;
     
     
-            $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
+            // $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
 
 
 
