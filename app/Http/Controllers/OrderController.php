@@ -57,6 +57,7 @@ class OrderController extends Controller
             ->where('start_date', '>=', $date)
             ->where('start_date', '<=', $tomorrow)
             ->where('start_date', '>=', date('Y-m-d H:i:s'))
+            ->where('driver_id', '!=', auth()->id())
             ->get();
 
         $order_count = count($orders);
@@ -352,6 +353,8 @@ class OrderController extends Controller
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
+            // $arr['status'] = ($order->status) ? $order->status->type_id : 0;
+            // $arr['status_name'] = $order->status->name;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;

@@ -13,6 +13,7 @@ use App\Models\ClassList;
 use App\Models\CarTypes;
 use App\Http\Requests\CarsRequest;
 use Illuminate\Support\Facades\DB;
+use Image;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -224,33 +225,57 @@ class CarsController extends Controller
         $cars->class_list_id =  $request->class_id;
         $cars->production_date =  $request->production_date;
         $cars->wheel_side =  $request->wheel_side;
-
-        $letters = range('a', 'z');
         if(isset($request->reg_certificate_image)){
-            $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-            $certificate_random = implode("", $certificate_random_array);
             $certificate_img = $request->file('reg_certificate_image');
             if(isset($certificate_img)) {
-                $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-                $certificate_img->storeAs('public/cars/', $image_name);
+                $image_name = $this->ImageShriker($certificate_img, 'app/public/cars');
                 $cars->reg_certificate_image = $image_name;
             }
         }
         $images = $request->file('images');
         if(isset($images)){
             foreach ($images as $image){
-                $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-                $images_random = implode("", $images_random_array);
-                $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
-                $image->storeAs('public/cars/', $image_name);
-                $images_array[] = $image_name;
+                $image_name_ = $this->ImageShriker($image, 'app/public/cars');
+                $images_array[] = $image_name_;
             }
             $cars->images = json_encode($images_array);
         }
-
         $cars->driver_id = $user->id;
         $cars->save();
         return $this->success('Success', 201);
+    }
+
+    public function ImageShriker($file, $path){
+        $letters = range('a', 'z');
+        $random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
+        $name_random = implode("", $random_array);
+        $image_name = $name_random . '' . date('Y-m-dh-i-s') . '.' . $file->extension();
+        $file_size = round($file->getSize()/1024);
+        if($file_size>50000){
+            $x = 600;
+        }
+        elseif($file_size>20000){
+            $x = 240;
+        }
+        elseif($file_size>10000){
+            $x = 120;
+        }elseif($file_size>5000){
+            $x = 60;
+        }elseif($file_size>1000){
+            $x = 12;
+        }elseif($file_size>500){
+            $x = 7;
+        }elseif($file_size>250){
+            $x = 3;
+        }elseif($file_size>125){
+            $x = 50;
+        }elseif($file_size>75){
+            $x = 100;
+        }
+//            dd($file_size, $x);
+        $img = Image::make($file->path());
+        $img->save(storage_path($path.'/'.$image_name), $x);
+        return $image_name;
     }
 
 
@@ -289,8 +314,7 @@ class CarsController extends Controller
         if(isset($request->class_id)){
             $cars->reg_certificate = $request->state_number;
         }
-        $letters = range('a', 'z');
-        if(isset($field['reg_certificate_image'])){
+        if(isset($request->reg_certificate_image)){
             if(!isset($cars->reg_certificate_image)){
                 $cars->reg_certificate_image = 'noimage';
             }
@@ -298,12 +322,9 @@ class CarsController extends Controller
             if(file_exists($sms_avatar)){
                 unlink($sms_avatar);
             }
-            $certificate_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-            $certificate_random = implode("", $certificate_random_array);
             $certificate_img = $request->file('reg_certificate_image');
             if(isset($certificate_img)) {
-                $image_name = $certificate_random . '' . date('Y-m-dh-i-s') . '.' . $certificate_img->extension();
-                $certificate_img->storeAs('public/cars/', $image_name);
+                $image_name = $this->ImageShriker($certificate_img, 'app/public/cars');
                 $cars->reg_certificate_image = $image_name;
             }
         }
@@ -321,10 +342,7 @@ class CarsController extends Controller
                 }
             }
             foreach ($images as $image){
-                $images_random_array = [$letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)], $letters[rand(0,25)]];
-                $images_random = implode("", $images_random_array);
-                $image_name = $images_random . '' . date('Y-m-dh-i-s') . '.' . $image->extension();
-                $image->storeAs('public/cars/', $image_name);
+                $image_name = $this->ImageShriker($image, 'app/public/cars');
                 $images_array[] = $image_name;
             }
             $cars->images = json_encode($images_array);

@@ -75,6 +75,11 @@ class CommentScoreController extends Controller
             if($user->id == $request->to_user_id){
                 return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
             }
+            $is_driver = Driver::Select('id')->where('user_id', $to_user->id)->first();
+            $you_driver = Driver::Select('id')->where('user_id', $user->id)->first();
+            if(!isset($is_driver->id) && !isset($you_driver->id)){
+                return $this->error(translate_api('you or to_user_id must be driver', $language), 400);
+            }
             if(isset($to_user->id)){
                 $driver = Driver::where('user_id', $to_user->id)->first();
                 if(isset($driver->id)){
@@ -83,6 +88,7 @@ class CommentScoreController extends Controller
                     $comment->client_id = $user->id;
                     $comment->to_whom = $request->to_user_id;
                 }else{
+                    $comment->type = 2;
                     $comment->client_id = $request->to_user_id;
                     $comment->to_whom = $request->to_user_id;
                     $comment->driver_id = $user->id;
@@ -268,7 +274,7 @@ class CommentScoreController extends Controller
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
-                'rating'=>$average_score/$comment_count,
+                'rating'=>round($average_score/$comment_count),
                 'comment_count'=>$comment_count
             ];
             foreach ($getComments as $getComment){
