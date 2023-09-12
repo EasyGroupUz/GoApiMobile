@@ -153,12 +153,12 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_to_id=$data['user_to_id'];
             $order_id=$data['order_id'];
             $text=$data['text'];
-
-            $user_from=User::find($user_id);
+            $from->send(json_encode($data));
+            // $user_from=User::find($user_id);
 
                 $new_chat = [
                     'order_id' =>$order_id,
-                    'user_from_id' =>$user_from->id,
+                    'user_from_id' =>$user_from_id,
                     'user_to_id' =>$user_to_id,
                     'text' => $text
                 ];
