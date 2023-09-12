@@ -149,35 +149,16 @@ class SocketController extends Controller implements MessageComponentInterface
         }
         if ($data['type'] == 'send_message') {
 
-            $user_id=$data['user_id'];
+            $user_from_id=$data['user_from_id'];
+            $user_to_id=$data['user_to_id'];
             $order_id=$data['order_id'];
             $text=$data['text'];
 
             $user_from=User::find($user_id);
-            // dd($user_from);
-            // $from->send(json_encode($user_from));
-    
-                // $order=Order::where('id',$order_id)->first();
-               
-                if ($chat=Chat::where('order_id',$order_id)->first()) {
-                    if ($chat->user_from_id==$user_from->id) {
-                        $user_to_id=$chat->user_to_id;
-                    } else {
-                        $user_to_id=$chat->user_from_id;
-                    }
-                    
-                } else {
-                    $order=Order::find($order_id);
-                    $user_to_id=$order->driver_id;
-                //    dd($user_to_id);
-                }
-                
-                // $from->send(json_encode($user_to_id));
-
 
                 $new_chat = [
-                    'order_id' => $order_id,
-                    'user_from_id' => $user_from->id,
+                    'order_id' =>$order_id,
+                    'user_from_id' =>$user_from->id,
                     'user_to_id' =>$user_to_id,
                     'text' => $text
                 ];
