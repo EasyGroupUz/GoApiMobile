@@ -83,6 +83,7 @@ class CommentScoreController extends Controller
                     $comment->client_id = $user->id;
                     $comment->to_whom = $request->to_user_id;
                 }else{
+                    $comment->type = 2;
                     $comment->client_id = $request->to_user_id;
                     $comment->to_whom = $request->to_user_id;
                     $comment->driver_id = $user->id;
@@ -268,7 +269,7 @@ class CommentScoreController extends Controller
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
-                'rating'=>$average_score/$comment_count,
+                'rating'=>round($average_score/$comment_count),
                 'comment_count'=>$comment_count
             ];
             foreach ($getComments as $getComment){
