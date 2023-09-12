@@ -54,8 +54,10 @@ class SocketController extends Controller implements MessageComponentInterface
 
             $order = Order::find($data['order_id']);
             $id=$order->id;
+
+            $from->send(json_encode($order));
             
-            $personalInfo = User::find($user_to_id)->personalInfo;
+            // $personalInfo = User::find($user_to_id)->personalInfo;
             
             // if ($personalInfo && isset($personalInfo->avatar)) {
             //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
@@ -67,10 +69,9 @@ class SocketController extends Controller implements MessageComponentInterface
             // }
             
             
-            $from_to_name=table_translate($order,'city',$language);
+            // $from_to_name=table_translate($order,'city',$language);
             // $array=[];
             
-            $from->send(json_encode($from_to_name));
             // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
             //     $chat_data = DB::table('yy_chats as dt1')
