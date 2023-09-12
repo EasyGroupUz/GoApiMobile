@@ -153,7 +153,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_to_id=$data['user_to_id'];
             $order_id=$data['order_id'];
             $text=$data['text'];
-            $from->send(json_encode($data));
+            // $from->send(json_encode($data));
             // $user_from=User::find($user_id);
 
                 $new_chat = [
@@ -178,7 +178,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
 
-                if ($data['user_from_id']==$chat->user_from_id) {
+                if ($user_from_id==$chat->user_from_id) {
                     $is_your=true;
                 } else {
                     $is_your=false;
