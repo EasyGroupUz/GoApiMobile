@@ -142,7 +142,7 @@ class SocketController extends Controller implements MessageComponentInterface
             // return $list;
     
     
-            $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
+            $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
 
 
