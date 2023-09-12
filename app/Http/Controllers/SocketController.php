@@ -52,25 +52,25 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_from_id=$data['user_from_id'];
             $user_to_id=$data['user_to_id'];
 
-            $from->send(json_encode($data));
-            // $order = Order::find($data['order_id']);
-            // $id=$order->id;
-
-            // $personalInfo = User::find($user_to_id)->personalInfo;
-
-            // if ($personalInfo && isset($personalInfo->avatar)) {
-            //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-            //     if (file_exists($avatarPath)) {
-            //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-            //     } else {
-            //         $personalInfo->avatar = null;
-            //     }
-            // }
-
-
-            // $from_to_name=table_translate($order,'city',$language);
-            // $array=[];
-
+            $order = Order::find($data['order_id']);
+            $id=$order->id;
+            
+            $personalInfo = User::find($user_to_id)->personalInfo;
+            
+            if ($personalInfo && isset($personalInfo->avatar)) {
+                $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+                if (file_exists($avatarPath)) {
+                    $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+                } else {
+                    $personalInfo->avatar = null;
+                }
+            }
+            
+            
+            $from_to_name=table_translate($order,'city',$language);
+            $array=[];
+            
+            $from->send(json_encode($from_to_name));
             // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
             //     $chat_data = DB::table('yy_chats as dt1')
