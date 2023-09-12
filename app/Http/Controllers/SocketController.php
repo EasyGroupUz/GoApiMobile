@@ -70,78 +70,78 @@ class SocketController extends Controller implements MessageComponentInterface
             $from_to_name=table_translate($order,'city',$language);
             $array=[];
 
-            if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
+            // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
-                $chat_data = DB::table('yy_chats as dt1')
-                ->select('dt1.id', 'dt1.user_from_id', 'dt1.user_to_id', 'dt1.text', 'dt1.order_id', 'dt1.created_at')
-                ->where(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_from_id'])
-                          ->where('user_to_id', $data['user_to_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orWhere(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_to_id'])
-                          ->where('user_to_id', $data['user_from_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orderBy('created_at', 'ASC')
-                ->get();
-                // dd($chat_data);
+            //     $chat_data = DB::table('yy_chats as dt1')
+            //     ->select('dt1.id', 'dt1.user_from_id', 'dt1.user_to_id', 'dt1.text', 'dt1.order_id', 'dt1.created_at')
+            //     ->where(function ($query) use ($data) {
+            //         $query->where('user_from_id', $data['user_from_id'])
+            //               ->where('user_to_id', $data['user_to_id'])
+            //               ->where('order_id', $data['order_id']);
+            //     })
+            //     ->orWhere(function ($query) use ($data) {
+            //         $query->where('user_from_id', $data['user_to_id'])
+            //               ->where('user_to_id', $data['user_from_id'])
+            //               ->where('order_id', $data['order_id']);
+            //     })
+            //     ->orderBy('created_at', 'ASC')
+            //     ->get();
+            //     // dd($chat_data);
             
-                $distinct_dates = $chat_data->pluck('created_at')->map(function ($item) {
-                    return Carbon::parse($item)->format('Y-m-d'); // Format the date as 'YYYY-MM-DD'
-                })->unique();
-                // dd($distinct_dates);
+            //     $distinct_dates = $chat_data->pluck('created_at')->map(function ($item) {
+            //         return Carbon::parse($item)->format('Y-m-d'); // Format the date as 'YYYY-MM-DD'
+            //     })->unique();
+            //     // dd($distinct_dates);
 
-                foreach ($distinct_dates as $key => $value) {
-                    // dd($value);
-                    foreach ($chat_data as $key => $chat) {
-                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-                        // dd($date);
-                        if ($date==$value) {
+            //     foreach ($distinct_dates as $key => $value) {
+            //         // dd($value);
+            //         foreach ($chat_data as $key => $chat) {
+            //             $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+            //             // dd($date);
+            //             if ($date==$value) {
                         
-                            $time=Carbon::parse($chat->created_at)->format('H:i');
-                            $user_from=User::find($chat->user_from_id);
-                            $user_to=User::find($chat->user_to_id);
-                            if ($chat->user_from_id==$data['user_from_id']) {
-                                $is_your=true;
-                            } else {
-                                $is_your=false;
-                            }
+            //                 $time=Carbon::parse($chat->created_at)->format('H:i');
+            //                 $user_from=User::find($chat->user_from_id);
+            //                 $user_to=User::find($chat->user_to_id);
+            //                 if ($chat->user_from_id==$data['user_from_id']) {
+            //                     $is_your=true;
+            //                 } else {
+            //                     $is_your=false;
+            //                 }
                             
-                            $array[$value][]=[
-                                'is_your'=>$is_your,
-                                'text'=>$chat->text,
-                                'time'=>$time
-                            ];
-                        }
+            //                 $array[$value][]=[
+            //                     'is_your'=>$is_your,
+            //                     'text'=>$chat->text,
+            //                     'time'=>$time
+            //                 ];
+            //             }
                         
                         
-                    }
+            //         }
     
-                }
+            //     }
 
-            }
-            else {
-                $array=json_decode ("{}");
+            // }
+            // else {
+            //     $array=json_decode ("{}");
                 
-            }
+            // }
 
-            $list=[
-                'name' => $personalInfo->first_name ?? null,
-                'image' => $personalInfo->avatar ?? null,
-                'order_id'=>$id,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'data'=>$array
-            ];
+            // $list=[
+            //     'name' => $personalInfo->first_name ?? null,
+            //     'image' => $personalInfo->avatar ?? null,
+            //     'order_id'=>$id,
+            //     'start_date'=>$order->start_date,
+            //     'from_name'=>$from_to_name['from_name'],
+            //     'to_name'=>$from_to_name['to_name'],
+            //     'data'=>$array
+            // ];
     
 
             // return $list;
     
     
-            $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
+            $from->send(json_encode($from_to_name , JSON_UNESCAPED_UNICODE));
 
 
 
