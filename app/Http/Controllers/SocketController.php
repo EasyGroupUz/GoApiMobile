@@ -37,7 +37,7 @@ class SocketController extends Controller implements MessageComponentInterface
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
-
+            //  Socket spease ni ham oqiydi  masalan order va  order + spease teng emas
 
         $data = json_decode($msg, true); // Assuming JSON data
         
@@ -53,21 +53,20 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_to_id=$data['user_to_id'];
 
             $order=Order::find($data['order_id']);
-            // $id=$order->id;
+            $id=$order->id;
 
-            $from->send(json_encode($order));
+            $personalInfo=User::find($user_to_id)->personalInfo;
             
-            // $personalInfo = User::find($user_to_id)->personalInfo;
+            if ($personalInfo && isset($personalInfo->avatar)) {
+                $avatarPath=storage_path('app/public/avatar/' . $personalInfo->avatar);
+                if (file_exists($avatarPath)) {
+                    $personalInfo->avatar=asset('storage/avatar/' . $personalInfo->avatar);
+                } else {
+                    $personalInfo->avatar=null;
+                }
+            }
             
-            // if ($personalInfo && isset($personalInfo->avatar)) {
-            //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-            //     if (file_exists($avatarPath)) {
-            //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-            //     } else {
-            //         $personalInfo->avatar = null;
-            //     }
-            // }
-            
+            $from->send(json_encode($personalInfo));
             
             // $from_to_name=table_translate($order,'city',$language);
             // $array=[];
