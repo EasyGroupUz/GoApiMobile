@@ -344,24 +344,6 @@ class SocketController extends Controller implements MessageComponentInterface
         // $id=auth()->id();
         // $order = Order::find($order_id);
         // dd($order);
-        
-
-        $chat_data=DB::table('yy_chats as dt1')
-                ->select('dt1.id', 'dt1.user_from_id', 'dt1.user_to_id', 'dt1.text', 'dt1.order_id', 'dt1.created_at')
-                ->where(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_from_id'])
-                          ->where('user_to_id', $data['user_to_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orWhere(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_to_id'])
-                          ->where('user_to_id', $data['user_from_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orderBy('created_at', 'ASC')
-                ->get();
-
-
         $chats= DB::table('yy_chats')
         // ->where('user_from_id', $id)
         // ->Orwhere('user_to_id', $id)
