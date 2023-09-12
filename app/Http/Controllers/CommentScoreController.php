@@ -75,6 +75,11 @@ class CommentScoreController extends Controller
             if($user->id == $request->to_user_id){
                 return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
             }
+            $is_driver = Driver::Select('id')->where('user_id', $to_user->id)->first();
+            $you_driver = Driver::Select('id')->where('user_id', $user->id)->first();
+            if(!isset($is_driver->id) && !isset($you_driver->id)){
+                return $this->error(translate_api('you or to_user_id must be driver', $language), 400);
+            }
             if(isset($to_user->id)){
                 $driver = Driver::where('user_id', $to_user->id)->first();
                 if(isset($driver->id)){
