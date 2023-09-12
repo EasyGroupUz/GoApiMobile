@@ -179,12 +179,12 @@ class SocketController extends Controller implements MessageComponentInterface
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
 
                 $is_your=true;
-                $from->send(json_encode($chat));
-                // if ($user_from_id==$chat->user_from_id) {
-                //     $is_your=true;
-                // } else {
-                //     $is_your=false;
-                // }
+                // $from->send(json_encode($chat));
+                if ($user_from_id==$new_chat->user_from_id) {
+                    $is_your=true;
+                } else {
+                    $is_your=false;
+                }
                 
 
                 $list=[
