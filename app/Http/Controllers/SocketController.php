@@ -55,7 +55,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $order = Order::find($data['order_id']);
             $id=$order->id;
 
-            $from->send(json_encode($order));
+            $from->send(json_encode($id));
             
             // $personalInfo = User::find($user_to_id)->personalInfo;
             
