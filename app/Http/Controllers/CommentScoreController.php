@@ -90,7 +90,7 @@ class CommentScoreController extends Controller
                         $count_comment = $count_comment +1;
                         $all_score_sum = $all_score_sum + $all_comment->score;
                     }
-                    $to_user->rating = ($all_score_sum + $request->score)/($count_comment+1);
+                    $to_user->rating = round(($all_score_sum + $request->score)*10/($count_comment+1))/10;
                 }
                 if(isset($driver->id)){
                     $comment->type = 1;
@@ -226,6 +226,9 @@ class CommentScoreController extends Controller
                     }
                 }
             }
+            $to_user = User::where('id', $comment->to_whom)->first();
+            $to_user->rating = round($average_score*10/$comment_count)/10;
+            $to_user->save();
             if(isset($to_user->personalInfo)){
                 if(isset($to_user->personalInfo->first_name)){
                     $first_name = $to_user->personalInfo->first_name.' ';
@@ -284,7 +287,7 @@ class CommentScoreController extends Controller
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
-                'rating'=>round($average_score/$comment_count),
+                'rating'=>round($average_score*10/$comment_count)/10,
                 'comment_count'=>$comment_count
             ];
             foreach ($getComments as $getComment){
