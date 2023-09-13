@@ -271,7 +271,7 @@ class OrderController extends Controller
                 $arrDriverInformation['doc_status'] = ($driver_info->driver) ? true : false;
                 $arrDriverInformation['type'] = $driver_info->type ?? 0;
                 $arrDriverInformation['count_comments'] = count($arrComments);
-                $arrDriverInformation['comments'] = $arrComments;
+                // $arrDriverInformation['comments'] = $arrComments;
             }
 
             $arrCarInfo = [];
@@ -354,7 +354,7 @@ class OrderController extends Controller
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
             // $arr['status'] = ($order->status) ? $order->status->type_id : 0;
-            // $arr['status_name'] = $order->status->name;
+            $arr['status'] = ($order->status) ? $order->status->name : '';
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
@@ -878,12 +878,6 @@ class OrderController extends Controller
         } else {
             return $this->success('Order table is empty', 200, $arr);
         }
-
-        // return response()->json([
-        //     'data' => $arr,
-        //     'status' => true,
-        //     'message' => "success"
-        // ], 200);
     }
 
     /* ========================= Order hostory start ========================= */
@@ -1104,26 +1098,26 @@ class OrderController extends Controller
         if (!$orderDetail)
             return $this->success(translate_api('Order Detail not found', $language), 204);
      
-        $options=json_decode($order->options);
+        $options = json_decode($order->options);
         
         $seats_count = ($order->seats) - ($order->booking_place);
         if ($request['offer_id'] != '') {
             if ($offer = Offer::where('id', $request['offer_id'])->first()) {
-                 if ($offer->status !== Constants::ACCEPT) {
+                if ($offer->status !== Constants::ACCEPT) {
                     if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
                         $offer->update(['status' => Constants::ACCEPT]);
                      
                         $orderDetail->order_id = $order->id;
                         $saveOrderDetail = $orderDetail->save();
-                        // dd($orderDetail);
     
                         $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats ): $offer->seats;
                         $saveOrder = $order->save();
     
                         if ($order->booking_place == $order->seats) {
                             $cancel_offers = Offer::where('order_id', $order->id)->where('order_detail_id', '!=', $orderDetail->id)->where('status', Constants::NEW)->get();
+
                             if (!empty($cancel_offers)) {
-                                foreach ($cancel_offers as  $value) {
+                                foreach ($cancel_offers as $value) {
                                     $offersOrderDetail = $value->orderDetail;
                                     $value->update(['status' => Constants::CANCEL]);
 
@@ -1144,8 +1138,8 @@ class OrderController extends Controller
 
                         $this->sendNotification($device, $user_id, "Offer", $title, $message);
                         
-                        $id=auth()->id();
-                        $data=$this->getOffer($id , $language);
+                        $id = auth()->id();
+                        $data = $this->getOffer($id , $language);
                        
                         return $this->success(translate_api('Offer accepted', $language), 200, $data);
                         
@@ -1187,13 +1181,10 @@ class OrderController extends Controller
 
             $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
-            $id=auth()->id();
-            $data=$this->getOffer($id , $language);
+            $id = auth()->id();
+            $data = $this->getOffer($id , $language);
 
             return $this->success(translate_api('offer created', $language), 204 , $data);  
-
-
-
         } else {
             return $this->success(translate_api('Offer not found', $language), 204);
         }
