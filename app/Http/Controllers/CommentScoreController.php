@@ -67,8 +67,8 @@ class CommentScoreController extends Controller
         $language = $request->header('language');
         $user = Auth::user();
         $comment = new CommentScore();
+        $to_user = User::find($request->to_user_id);
         if(isset($request->to_user_id)){
-            $to_user = User::find($request->to_user_id);
             if(isset($to_user->deleted_at)){
                 return $this->error(translate_api('This user was deleted', $language), 400);
             }
@@ -82,6 +82,16 @@ class CommentScoreController extends Controller
             }
             if(isset($to_user->id)){
                 $driver = Driver::where('user_id', $to_user->id)->first();
+                if(isset($request->score)){
+                    $all_comments = CommentScore::select('score')->where('to_whom', $request->to_user_id)->get();
+                    $all_score_sum = 0;
+                    $count_comment = 0;
+                    foreach($all_comments as $all_comment){
+                        $count_comment = $count_comment +1;
+                        $all_score_sum = $all_score_sum + $all_comment->score;
+                    }
+                    $to_user->rating = round(($all_score_sum + $request->score)*10/($count_comment+1))/10;
+                }
                 if(isset($driver->id)){
                     $comment->type = 1;
                     $comment->driver_id = $request->to_user_id;
@@ -115,6 +125,7 @@ class CommentScoreController extends Controller
         if(!isset($order)){
             return $this->error(translate_api('Order is not exist', $language), 400);
         }
+        $to_user->save();
         $comment->save();
         return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
     }
@@ -150,17 +161,17 @@ class CommentScoreController extends Controller
     {
         date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
-        $user = User::where('deleted_at', NULL)->where('id', $request->user_id)->first();
+        $user = User::where('id', $request->user_id)->first();
         if(!isset($user)){
             return $this->error(translate_api('This user is not exist', $language), 400);
         }
         $personal_info = null;
         $ratings_list = [];
         $comments_list = [];
-        $comment = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->first();
+        $comment = CommentScore::where('to_whom', $request->user_id)->first();
         if(isset($comment)){
-            $getComments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get();
-            $comments = CommentScore::where('to_whom', $request->user_id)->where('deleted_at', NULL)->get()->groupBy('score');
+            $getComments = CommentScore::where('to_whom', $request->user_id)->get();
+            $comments = CommentScore::where('to_whom', $request->user_id)->get()->groupBy('score');
             $average_score = 0;
             $comment_count = 0;
             foreach ($comments as $key => $comm){
@@ -215,7 +226,6 @@ class CommentScoreController extends Controller
                     }
                 }
             }
-            $to_user = User::where('id', $comment->to_whom)->where('deleted_at', NULL)->first();
             if(isset($to_user->personalInfo)){
                 if(isset($to_user->personalInfo->first_name)){
                     $first_name = $to_user->personalInfo->first_name.' ';
@@ -274,7 +284,7 @@ class CommentScoreController extends Controller
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
-                'rating'=>round($average_score/$comment_count),
+                'rating'=>round($average_score*10/$comment_count)/10,
                 'comment_count'=>$comment_count
             ];
             foreach ($getComments as $getComment){
@@ -403,7 +413,7 @@ class CommentScoreController extends Controller
                     'img'=>$img_,
                     'full_name'=>$full_name,
 //                    'doc_status'=>$doc_status??null,
-                    'rating'=>0,
+                    'rating'=>4.5,
                     'comment_count'=> 0
                 ];
             }else{

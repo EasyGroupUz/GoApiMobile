@@ -73,7 +73,6 @@ class UserController extends Controller
                 'img'=>$model->personalInfo->avatar??null,
                 'first_name'=>$model->personalInfo->first_name??null,
                 'last_name'=>$model->personalInfo->last_name??null,
-                'middle_name'=>$model->personalInfo->middle_name??null,
                 'full_name'=>$full_name,
                 'birth_date'=>$model->personalInfo->birth_date??null,
                 'email'=>$model->personalInfo->email??null,
