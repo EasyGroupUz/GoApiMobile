@@ -226,9 +226,6 @@ class CommentScoreController extends Controller
                     }
                 }
             }
-            $to_user = User::where('id', $comment->to_whom)->first();
-            $to_user->rating = round($average_score*10/$comment_count)/10;
-            $to_user->save();
             if(isset($to_user->personalInfo)){
                 if(isset($to_user->personalInfo->first_name)){
                     $first_name = $to_user->personalInfo->first_name.' ';
