@@ -16,6 +16,7 @@ use App\Models\Chat;
 use App\Models\PersonalInfo;
 
 use App\Models\Order;
+use App\Models\OrderDetail;
 
 use Carbon\Carbon;
 
