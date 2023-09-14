@@ -343,11 +343,11 @@ class OrderController extends Controller
             if ($order->driver_id != auth()->id()) {
                 $start_date_formatted = date('Y-m-d', strtotime($order->start_date));
                 $orderDetail = OrderDetail::where('from_id', $order->from_id)
-                                            ->where('to_id', $order->to_id)
-                                            ->where('client_id', auth()->id())
-                                            // ->where(DB::raw('DATE(start_date)'))
-                                            ->latest()
-                                            ->first();
+                                                ->where('to_id', $order->to_id)
+                                                ->where('client_id', auth()->id())
+                                                // ->where(DB::raw('DATE_FORMAT(start_date, "%Y-%m-%d")'), $start_date_formatted)
+                                                ->latest()
+                                                ->first();
                                             dd($orderDetail);
                 if ($orderDetail) {
                     $orderDetailId=$orderDetail->id;
