@@ -339,7 +339,17 @@ class OrderController extends Controller
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
             $chat_id = $this->getChatId($order->id, auth()->id());
 
+            $start_date_formatted = date('Y-m-d', strtotime($order->start_date));
+            $orderDetail=OrderDetail::where('from_id',$order->from_id)
+                                     ->where('to_id',$order->to_id)
+                                     ->where('start_date',$start_date_formatted)
+                                     ->latest()
+                                     ->first();
+
+
+
             $arr['id'] = $order->id;
+            $arr['order_detail_id'] = $orderDetail->id ?? null;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['isYour'] = ($order->driver_id == auth()->id()) ? true : false;
             $arr['from'] = ($order->from) ? $order->from->name : '';
