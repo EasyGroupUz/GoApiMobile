@@ -348,7 +348,7 @@ class OrderController extends Controller
                                                 ->whereRaw('TO_CHAR(start_date, ?) = ?', ['YYYY-MM-DD', $start_date_formatted])
                                                 ->latest()
                                                 ->first();
-                                            dd($orderDetail);
+                                            // dd($orderDetail);
                 if ($orderDetail) {
                     $orderDetailId=$orderDetail->id;
                 } else {
