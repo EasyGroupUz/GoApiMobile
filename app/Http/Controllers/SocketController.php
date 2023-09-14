@@ -347,7 +347,11 @@ class SocketController extends Controller implements MessageComponentInterface
         foreach ($chats as $key => $chat) {
             $order = Order::where('id',$chat->order_id)->first();
             // $order = Order::find();
-            
+
+            $orderDetail = OrderDetail::where('order_id', $order->id)
+            ->where('client_id', auth()->id())
+            ->latest()
+            ->first();
             // dd($order); 
             $from_to_name=table_translate($order,'city',$language);
             if ($chat->user_to_id==auth()->id()) {
@@ -373,6 +377,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $list=[
                 'id'=>$chat->id,
                 'order_id'=>$chat->order_id,
+                'order_detail_id'=>$orderDetail->id ?? null,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
