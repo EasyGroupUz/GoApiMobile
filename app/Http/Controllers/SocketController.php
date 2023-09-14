@@ -50,6 +50,7 @@ class SocketController extends Controller implements MessageComponentInterface
         
             // $language = $data['language'];
             $order_id=$data['order_id'];
+            $order_detail_id=$data['order_detail_id'];
             $user_from_id=$data['user_from_id'];
             $user_to_id=$data['user_to_id'];
 
@@ -66,6 +67,16 @@ class SocketController extends Controller implements MessageComponentInterface
                     $personalInfo->avatar=null;
                 }
             }
+
+            $new_chat = [
+                'order_id' =>$order_id,
+                'user_from_id' =>$user_from_id,
+                'user_to_id' =>$user_to_id,
+                'order_detail_id'=>$order_detail_id,
+                'text' =>null
+            ];
+
+            $new_chat = Chat::create($new_chat);
             
             // $from->send(json_encode($personalInfo));
             
@@ -133,6 +144,7 @@ class SocketController extends Controller implements MessageComponentInterface
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
+                'order_detail_id'=>$order_detail_id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
@@ -153,16 +165,18 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_from_id=$data['user_from_id'];
             $user_to_id=$data['user_to_id'];
             $order_id=$data['order_id'];
+            $order_detail_id=$data['order_detail_id'];
             $text=$data['text'];
             // $from->send(json_encode($data));
             // $user_from=User::find($user_id);
 
-                $new_chat = [
-                    'order_id' =>$order_id,
-                    'user_from_id' =>$user_from_id,
-                    'user_to_id' =>$user_to_id,
-                    'text' => $text
-                ];
+            $new_chat = [
+                'order_id' =>$order_id,
+                'user_from_id' =>$user_from_id,
+                'user_to_id' =>$user_to_id,
+                'order_detail_id'=>$order_detail_id,
+                'text' => $text
+            ];
 
                 $new_chat = Chat::create($new_chat);
                 
@@ -346,49 +360,56 @@ class SocketController extends Controller implements MessageComponentInterface
         // dd($chats);
          $data=[];
         foreach ($chats as $key => $chat) {
-            $order = Order::where('id',$chat->order_id)->first();
-            // $order = Order::find();
+            if ($chat->text!=null) {
+                
 
-            $orderDetail = OrderDetail::where('order_id', $order->id)
-            ->where('client_id', auth()->id())
-            ->latest()
-            ->first();
-            // dd($order); 
-            $from_to_name=table_translate($order,'city',$language);
-            if ($chat->user_to_id==auth()->id()) {
-                $user_from_id=$chat->user_to_id;
-                $user_to_id=$chat->user_from_id;
-                $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_from_id)->first()->personal_info_id)->first();
-            }else{
-                $user_from_id=$chat->user_from_id;
-                $user_to_id=$chat->user_to_id;
-                $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_to_id)->first()->personal_info_id)->first();
-            }
+                $order = Order::where('id',$chat->order_id)->first();
+                // $order = Order::find();
 
-            if(isset($personalInfo->avatar)){
-                $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
-                if(file_exists($avatar)){
-                    $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                // $orderDetail = OrderDetail::where('order_id', $order->id)
+                // ->where('client_id', auth()->id())
+                // ->latest()
+                // ->first();
+                // dd($order); 
+                $from_to_name=table_translate($order,'city',$language);
+                if ($chat->user_to_id==auth()->id()) {
+                    $user_from_id=$chat->user_to_id;
+                    $user_to_id=$chat->user_from_id;
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_from_id)->first()->personal_info_id)->first();
+                }else{
+                    $user_from_id=$chat->user_from_id;
+                    $user_to_id=$chat->user_to_id;
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_to_id)->first()->personal_info_id)->first();
                 }
-                else {
-                    $personalInfo->avatar=null;
+
+                if(isset($personalInfo->avatar)){
+                    $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
+                    if(file_exists($avatar)){
+                        $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                    }
+                    else {
+                        $personalInfo->avatar=null;
+                    }
                 }
+
+                $list=[
+                    'id'=>$chat->id,
+                    'order_id'=>$chat->order_id,
+                    'order_detail_id'=>$chat->order_detail_id,
+                    'start_date'=>$order->start_date,
+                    'from_name'=>$from_to_name['from_name'],
+                    'to_name'=>$from_to_name['to_name'],
+                    'user_from_id'=>$user_from_id,
+                    'user_to_id'=>$user_to_id,
+                    'name'=>$personalInfo->first_name,
+                    'image'=>$personalInfo->avatar,
+
+                ];
+                array_push($data,$list);
+
+
             }
-
-            $list=[
-                'id'=>$chat->id,
-                'order_id'=>$chat->order_id,
-                'order_detail_id'=>$orderDetail->id ?? null,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'user_from_id'=>$user_from_id,
-                'user_to_id'=>$user_to_id,
-                'name'=>$personalInfo->first_name,
-                'image'=>$personalInfo->avatar,
-
-            ];
-            array_push($data,$list);
+            
         }
 
         // $data=[];
