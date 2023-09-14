@@ -15,6 +15,7 @@ class Chat extends Model
         'user_from_id',
         'user_to_id',
         'order_id',
+        'order_detail_id',
         'text'
     ];
 
