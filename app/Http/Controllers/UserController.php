@@ -67,6 +67,11 @@ class UserController extends Controller
                     $model->personalInfo->avatar = asset('storage/avatar/'.$model->personalInfo->avatar);
                 }
             }
+            if(isset($model->driver) && isset($model->driver->doc_status)){
+                $doc_status = $model->driver->doc_status;
+            }else{
+                $doc_status = null;
+            }
             $list = [
                 'id'=>$model->id,
                 'device'=>$device??[],
@@ -75,6 +80,7 @@ class UserController extends Controller
                 'last_name'=>$model->personalInfo->last_name??null,
                 'full_name'=>$full_name,
                 'birth_date'=>$model->personalInfo->birth_date??null,
+                'doc_status'=>$doc_status,
                 'email'=>$model->personalInfo->email??null,
                 'gender'=>$model->personalInfo->gender??null,
                 'phone_number'=>$model->personalInfo->phone_number??null,
