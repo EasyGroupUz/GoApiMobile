@@ -345,7 +345,7 @@ class OrderController extends Controller
                 $orderDetail = OrderDetail::where('from_id', $order->from_id)
                                             ->where('to_id', $order->to_id)
                                             ->where('client_id', auth()->id())
-                                            ->where(DB::raw('DATE(start_date)'))
+                                            // ->where(DB::raw('DATE(start_date)'))
                                             ->latest()
                                             ->first();
                                             dd($orderDetail);
