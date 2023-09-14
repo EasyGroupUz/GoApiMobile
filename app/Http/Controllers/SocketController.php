@@ -90,11 +90,13 @@ class SocketController extends Controller implements MessageComponentInterface
                 ->where(function ($query) use ($data) {
                     $query->where('user_from_id', $data['user_from_id'])
                         ->where('user_to_id', $data['user_to_id'])
+                        ->where('text','!='null,)
                         ->where('order_id', $data['order_id']);
                 })
                 ->orWhere(function ($query) use ($data) {
                     $query->where('user_from_id', $data['user_to_id'])
                         ->where('user_to_id', $data['user_from_id'])
+                        ->where('text','!='null,)
                         ->where('order_id', $data['order_id']);
                 })
                 ->orderBy('created_at', 'ASC')
