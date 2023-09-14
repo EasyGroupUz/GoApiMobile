@@ -452,35 +452,13 @@ class AuthController extends Controller
                 $user->password = Hash::make($user_verify->verify_code);
                 $token = $user->createToken('myapptoken')->plainTextToken;
                 $user->token = $token;
-                if($fields['device_id'] != null && $fields['device_id'] != ''){
-                    if($user->device_id == null || $user->device_id == ''){
-                        if($user->device_type == null || $user->device_type == ''){
-                            if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                $user->device_type = json_encode([$fields['device_type']]);
-                            }
-                        }else{
-                            $device_type = json_decode($user->device_type);
-                            if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
-                            }
-                        }
-                        $user->device_id = json_encode([$fields['device_id']]);
-                    }else{
-                        $device_id = json_decode($user->device_id);
-                        if(!in_array($fields['device_id'], $device_id)){
-                            $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']]));
-                            if($user->device_type == null || $user->device_type == ''){
-                                if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                    $user->device_type = json_encode([$fields['device_type']]);
-                                }
-                            }else{
-                                $device_type = json_decode($user->device_type);
-                                if($fields['device_type'] != null && $fields['device_type'] != ''){
-                                    $user->device_type = json_encode(array_merge($device_type, [$fields['device_type']]));
-                                }
-                            }
-                        }
-                    }
+                if($user->device_id == null || $user->device_id == ''){
+                    $this->savingDeviceType($fields['device_type']??'', $user);
+                    $user->device_id = json_encode([$fields['device_id']??'']);
+                }else{
+                    $device_id = json_decode($user->device_id);
+                    $user->device_id = json_encode(array_merge($device_id, [$fields['device_id']??'']));
+                    $this->savingDeviceType($fields['device_type']??'', $user??'');
                 }
                 if($user->rating == null || $user->rating == ''){
                     $user->rating = 4.5;
@@ -663,6 +641,8 @@ class AuthController extends Controller
         ];
         $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
         $res = $client->sendAsync($guzzle_request, $options)->wait();
+
+
         $result = $res->getBody();
         $result = json_decode($result);
         if(isset($result)){
