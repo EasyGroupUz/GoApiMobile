@@ -351,18 +351,19 @@ class SocketController extends Controller implements MessageComponentInterface
         // $id=auth()->id();
         // $order = Order::find($order_id);
         // dd($order);
-        $chats= DB::table('yy_chats')
-        // ->where('user_from_id', $id)
-        // ->Orwhere('user_to_id', $id)
-        ->distinct('order_id')
-        ->orderBy('order_id')
-        ->where('user_to_id', auth()->id())
-        ->orWhere('user_from_id', auth()->id())
-        ->get();
+        $chats = DB::table('yy_chats')
+            ->distinct('order_id') // Get distinct records based on the 'order_id' column
+            ->orderBy('order_id') // Order the results by 'order_id'
+            ->where('text','!=',null) // Filter for non-null 'text' values
+            ->where(function ($query) {
+                $user_id = auth()->id();
+                $query->where('user_to_id', $user_id)
+                    ->orWhere('user_from_id', $user_id);
+            })
+            ->get();
         // dd($chats);
          $data=[];
         foreach ($chats as $key => $chat) {
-            if ($chat->text!=null) {
                 
 
                 $order = Order::where('id',$chat->order_id)->first();
@@ -410,7 +411,6 @@ class SocketController extends Controller implements MessageComponentInterface
                 array_push($data,$list);
 
 
-            }
             
         }
 
