@@ -60,7 +60,7 @@ class Driver extends Model
 
     public function cars()
     {
-        return $this->hasMany(Cars::class, 'driver_id', 'id');
+        return $this->hasMany(Cars::class, 'driver_id', 'user_id');
     }
 
     public function balanceHistory()
