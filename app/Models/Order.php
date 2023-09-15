@@ -34,10 +34,16 @@ class Order extends Model
         parent::boot();
      
         self::deleted(function($model) {
-            $orderDetails = OrderDetail::where('order_id', $model->id)->first();
+            $orderDetails = OrderDetail::where('order_id', $model->id)->get();
+            if (!empty($orderDetails))
+                foreach ($orderDetails as $orderDetail)
+                    $orderDetail->delete();
+            
+            $offers = Offer::where('order_id', $model->id)->get();
+            if (!empty($offers))
+                foreach ($offers as $offer)
+                    $offer->delete();
 
-            if ($orderDetails)
-                $orderDetails->delete();
         });
     }
 
@@ -99,5 +105,14 @@ class Order extends Model
     // public function status(): HasOne
     // {
     //     return $this->hasOne(Status::class);
+    // }
+
+    // public function removeInSchedule()
+    // {
+    //     $orders = self::all();
+    //     foreach ($orders as $order) {
+    //         $order->delete();
+    //     }
+    //     // return "test";
     // }
 }
