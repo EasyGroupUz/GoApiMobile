@@ -1317,7 +1317,6 @@ class OrderController extends Controller
                         'status' => Constants::ACCEPT,
                         'seats' =>$field['seats'],
                         'accepted' => Constants::ACCEPTED
-
                     ]);
 
 
@@ -1372,15 +1371,16 @@ class OrderController extends Controller
     public function bookingCancel(Request $request)
     {
         $language = $request->header('language');
-        if (!$request['order_id'])
-            return $this->error('order_id parameter is missing', 400);
+        $first_offer = Offer::where('id', $request['offer_id'])->first()
+        // if (!$request['order_id'])
+        //     return $this->error('order_id parameter is missing', 400);
 
-        $order_id = $request['order_id'];
+        $order_id = $first_offer->order_id;
 
-        if (!$request['order_detail_id'])
-            return $this->error('order_detail_id parameter is missing', 400);
+        // if (!$request['order_detail_id'])
+        //     return $this->error('order_detail_id parameter is missing', 400);
         
-        $order_detail_id = $request['order_detail_id'];
+        $order_detail_id = $first_offer->order_detail_id;
 
         $order = Order::find($order_id);
         $orderDetail = OrderDetail::find($order_detail_id);
