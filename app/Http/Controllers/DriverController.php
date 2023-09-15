@@ -82,6 +82,7 @@ class DriverController extends Controller
             $model->save();
         }
     }
+    
 
     // public function accept(Request $request)
     // {
