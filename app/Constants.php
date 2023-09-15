@@ -31,8 +31,8 @@ class Constants {
       const CANCELED_OFFER = 3;
 
    // Offer accepted
-      const  = ACCEPTED = 1;
-      const  = NOT_ACCEPTED = 0;
+      const ACCEPTED = 1;
+      const NOT_ACCEPTED = 0;
 
    // Offer    create_type  and cancel_type
    const ORDER_DETAIL= 0;
