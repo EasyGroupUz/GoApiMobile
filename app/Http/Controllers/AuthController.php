@@ -183,19 +183,18 @@ class AuthController extends Controller
             $model = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone_number'])->first();
             if(!isset($model->id)) {
                 $model = new UserVerify();
-                $model->phone_number = (int)$request->phone;
+                $model->phone_number = (int)$fields['phone_number'];
                 $model->status_id = 1;
                 $model->verify_code = 111111;
             }else{
                 if ($model->verify_code != 111111) {
                     $model->verify_code = 111111;
                 }
+                if(isset($model->deleted_at)){
+                    $model->status_id = 1;
+                    $model->deleted_at = NULL;
+                }
             }
-            if(isset($model->deleted_at)){
-                $model->status_id = 1;
-                $model->deleted_at = NULL;
-            }
-            $model->save();
             if($fields['verify_code'] == 111111) {
                 if ($model->verify_code != 111111) {
                     $model->verify_code = 111111;

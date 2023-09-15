@@ -45,7 +45,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/set-name-surname', [AuthController::class, 'Set_name_surname']);
     
     Route::post('/driver-accept', [DriverController::class, 'accept'])->name('driver-accept');
-    Route::get('/driver-documents', [DriverController::class, 'driverDocuments']);
 
     Route::group(['prefix' => 'orderDetail'], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
