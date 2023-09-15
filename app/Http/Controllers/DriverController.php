@@ -83,6 +83,22 @@ class DriverController extends Controller
         }
     }
 
+    public function driverDocuments(Request $request){
+        $language = $request->header('language');
+        $driver = Driver::where('user_id', $request->user_id)->first();
+        if(!isset($driver->id)){
+            return $this->error(translate_api('This driver is not exist', $language), 400);
+        }
+        $data = [];
+        $data['licence_number'] = $driver->licence_number;
+        $data['license_expired_date'] = $driver->license_expired_date;
+        $data['doc_status'] = $driver->doc_status;
+        foreach ($driver->cars as $car){
+            $data['reg_certificate'][] = $car->reg_certificate;
+        }
+        return $this->success('Success', 400, $data);
+    }
+
     // public function accept(Request $request)
     // {
     //     if (!isset($request['driver_id']) || $request['driver_id'] == '')
