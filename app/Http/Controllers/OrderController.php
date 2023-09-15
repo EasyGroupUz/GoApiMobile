@@ -361,20 +361,24 @@ class OrderController extends Controller
 
             // offer status
             $offer_status=Constants::NOT_OFFER;
-            // dd($offer_status);
-            $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order_id)->where('accepted',Constants::NOT_ACCEPTED)->first();
+            // dd($orderDetail);
 
-            if ($offer) {
-                if ($offer->status == Constants::NEW_OFFER) {
-                    $offer_status=Constants::NEW_OFFER;
-                }
-                elseif ($offer->status == Constants::ACCEPT_OFFER) {
-                    $offer_status=Constants::ACCEPT_OFFER;
-                }
-                else{
-                    $offer_status=Constants::NOT_OFFER;
-                }
+            if ($orderDetail) {
+                $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order_id)->where('accepted',Constants::NOT_ACCEPTED)->first();
+
+                        if ($offer) {
+                            if ($offer->status == Constants::NEW_OFFER) {
+                                $offer_status=Constants::NEW_OFFER;
+                            }
+                            elseif ($offer->status == Constants::ACCEPT_OFFER) {
+                                $offer_status=Constants::ACCEPT_OFFER;
+                            }
+                            else{
+                                $offer_status=Constants::NOT_OFFER;
+                            }
+                        }
             }
+            
 
 
 
@@ -1310,8 +1314,8 @@ class OrderController extends Controller
         } elseif ($options->quick_booking == 1) {
             if (($order->booking_place + $request['seats']) <= $order->seats) {
 
-                $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first()
-
+                $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first();
+                // dd($old_offer);
                 if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
                     $old_offer->update([
                         'status' => Constants::ACCEPT,
@@ -1371,18 +1375,19 @@ class OrderController extends Controller
     public function bookingCancel(Request $request)
     {
         $language = $request->header('language');
-        $first_offer = Offer::where('id', $request['offer_id'])->first()
+        $first_offer = Offer::where('id', $request['offer_id'])->first();
         // if (!$request['order_id'])
         //     return $this->error('order_id parameter is missing', 400);
 
-        $order_id = $first_offer->order_id;
+        $order_id = $first_offer;
 
         // if (!$request['order_detail_id'])
         //     return $this->error('order_detail_id parameter is missing', 400);
         
         $order_detail_id = $first_offer->order_detail_id;
 
-        $order = Order::find($order_id);
+        $order = Order::where('id',$first_offer->order_id)->first();
+        // dd($order);
         $orderDetail = OrderDetail::find($order_detail_id);
 
         if (!$order)
@@ -1404,6 +1409,7 @@ class OrderController extends Controller
         } 
         
         if ($first_offer = Offer::where('id', $request['offer_id'])->first()) {
+            // dd($order);
             $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
             $saveOrder = $order->save();
 
