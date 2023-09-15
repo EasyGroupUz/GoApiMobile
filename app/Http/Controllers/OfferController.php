@@ -58,7 +58,7 @@ class OfferController extends Controller
                 // dd('dfawdawdaw');
                 return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
             }
-            elseif($old_offer->accepted == Constants::ACCEPTED && $old_offer->status==Constants::CANCEL)
+            elseif($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL)
             {
                 return $this->success(translate_api('Sorry, you cannot make another offer for this order', $language), 200);
                 
