@@ -113,6 +113,7 @@ class OrderController extends Controller
                 'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
                 'seats' => $order->seats, // obshi joylar soni
+                'is_full' => ($order->seats <= $order->booking_place) ? true : false,
                 'car_information' => $car_information,
 
                 'from' => ($order->from) ? $order->from->name : '',
@@ -339,20 +340,20 @@ class OrderController extends Controller
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
             $chat_id = $this->getChatId($order->id, auth()->id());
 
-            $orderDetailId=null;
+            $orderDetailId = null;
             if ($order->driver_id != auth()->id()) {
                 $start_date_formatted = date('Y-m-d', strtotime($order->start_date));
                 $orderDetail = OrderDetail::where('from_id', $order->from_id)
-                                                ->where('to_id', $order->to_id)
-                                                ->where('client_id', auth()->id())
-                                                ->whereRaw('TO_CHAR(start_date, ?) = ?', ['YYYY-MM-DD', $start_date_formatted])
-                                                ->latest()
-                                                ->first();
-                                            // dd($orderDetail);
+                    ->where('to_id', $order->to_id)
+                    ->where('client_id', auth()->id())
+                    ->whereRaw('TO_CHAR(start_date, ?) = ?', ['YYYY-MM-DD', $start_date_formatted])
+                    ->latest()
+                    ->first();
+
                 if ($orderDetail) {
-                    $orderDetailId=$orderDetail->id;
+                    $orderDetailId = $orderDetail->id;
                 } else {
-                    $orderDetailId=null;
+                    $orderDetailId = null;
                 }
             }
            
@@ -791,6 +792,58 @@ class OrderController extends Controller
         // }
     /* ========================= Order delete end ========================= */
 
+
+    public function cancel(Request $request)
+    {
+        $language = $request->header('language');
+
+        if (!isset($request->id))
+            return $this->error(translate_api('id parameter is missing', $language), 400);
+
+        $id = $request->id;
+
+        $order = Order::find($id);
+        if (!isset($order))
+            return $this->error(translate_api('id parameter is not correct. Order not found', $language), 400);
+        
+        if ($order->status_id == Constants::CANCEL_ORDER)
+            return $this->error(translate_api('This order has already been canceled', $language), 400);
+
+        $order->status_id = Constants::CANCEL_ORDER;
+        $order->save();
+
+        $offers = $this->findOffers($id);
+        $this->cancelOffers($offers, $language);
+
+        return $this->success(translate_api('success', $language), 200);
+    }
+
+    private function findOffers($id)
+    {
+        $offers = Offer::where('order_id', $id)->where('status', '!=', Constants::CANCEL)->get();
+
+        return $offers;
+    }
+
+    private function cancelOffers($offers, $language)
+    {
+        if (!empty($offers)) {
+            foreach ($offers as $offer) {
+                $offer->status = Constants::CANCEL;
+                $offer->cancel_type = Constants::ORDER;
+                $offer->cancel_date = date('Y-m-d H:i:s');
+                $offer->save();
+
+                $offersOrderDetail = $offer->orderDetail;
+                $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_type) : [];
+                $title = translate_api('Your request has been denied', $language);
+                $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
+                $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
+    
+                $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            }
+        }
+    }
 
 
     public function history(Request $request)

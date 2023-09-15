@@ -16,6 +16,7 @@ class Constants {
    const ORDERED = 3;
    const ON_THE_WAY = 4;
    const COMPLETED = 5;
+   const CANCEL_ORDER = 8;
 
    // Offer    type_ids
    const NEW = 6;
