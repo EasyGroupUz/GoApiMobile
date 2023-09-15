@@ -58,9 +58,10 @@ class OfferController extends Controller
                 // dd('dfawdawdaw');
                 return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
             }
-            elseif($old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL)
+            elseif($old_offer->accepted == Constants::ACCEPTED && $old_offer->status==Constants::CANCEL)
             {
-                return $this->success(translate_api('Sorry, but you cannot make another offer for this order', $language), 200);
+                return $this->success(translate_api('Sorry, you cannot make another offer for this order', $language), 200);
+                
             }
             else 
             {
@@ -70,24 +71,43 @@ class OfferController extends Controller
                         return $this->success(translate_api('Sorry, seats are full', $language), 200);
                     }
                     if ($seats_count >= $field['seats'] ) {
-                        $offer = new Offer();
-                        $id=auth()->id();
-                        $create_type = ($id==$order_detail->client_id) ? 0 : 1;
-                        $offer->order_id = $order->id;
-                        $offer->order_detail_id = $order_detail->id;
-                        $offer->seats = $field['seats'];
-                        $offer->create_type = $create_type;
-                        $offer->status = Constants::NEW;
-                        $offer->save();
 
-                        $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                        $title = translate_api('You have a new offer', $language);
-                        $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                        $user_id = ($order->driver) ? $order->driver->id : 0;
+                        if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                            $old_offer->update([
+                                'status' => Constants::NEW,
+                                'seats' =>$field['seats']
+                            ]);
 
-                        $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                            $title = translate_api('You have a new offer', $language);
+                            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                            $user_id = ($order->driver) ? $order->driver->id : 0;
+    
+                            $this->sendNotification($device, $user_id, "Offer", $title, $message);
 
-                        return $this->success(translate_api('Offer created', $language), 201);
+                            return $this->success(translate_api('Offer updates', $language), 201);
+                        }
+
+
+
+                        // $offer = new Offer();
+                        // $id=auth()->id();
+                        // $create_type = ($id==$order_detail->client_id) ? 0 : 1;
+                        // $offer->order_id = $order->id;
+                        // $offer->order_detail_id = $order_detail->id;
+                        // $offer->seats = $field['seats'];
+                        // $offer->create_type = $create_type;
+                        // $offer->status = Constants::NEW;
+                        // $offer->save();
+
+                        // $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                        // $title = translate_api('You have a new offer', $language);
+                        // $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                        // $user_id = ($order->driver) ? $order->driver->id : 0;
+
+                        // $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                        // return $this->success(translate_api('Offer created', $language), 201);
 
                         // $offer->comment = $field['comment'] ?? '';
                     }
@@ -96,6 +116,9 @@ class OfferController extends Controller
                         return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
                     }
 
+                }
+                else {
+                    return $this->success(translate_api('Sorry, this  order status is not Ordered ', $language), 200);
                 }
                 
             }

@@ -359,6 +359,25 @@ class OrderController extends Controller
            
 
 
+            // offer status
+            $offer_status=Constants::NOT_OFFER;
+            // dd($offer_status);
+            $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order_id)->where('accepted',Constants::NOT_ACCEPTED)->first();
+
+            if ($offer) {
+                if ($offer->status == Constants::NEW_OFFER) {
+                    $offer_status=Constants::NEW_OFFER;
+                }
+                elseif ($offer->status == Constants::ACCEPT_OFFER) {
+                    $offer_status=Constants::ACCEPT_OFFER;
+                }
+                else{
+                    $offer_status=Constants::NOT_OFFER;
+                }
+            }
+
+
+
 
             $arr['id'] = $order->id;
             $arr['order_detail_id'] = $orderDetailId;
@@ -376,8 +395,8 @@ class OrderController extends Controller
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
-            // $arr['status'] = ($order->status) ? $order->status->type_id : 0;
             $arr['status'] = ($order->status) ? $order->status->name : '';
+            $arr['offer_status'] = $offer_status;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
@@ -1238,7 +1257,10 @@ class OrderController extends Controller
             if ($offer = Offer::where('id', $request['offer_id'])->first()) {
                 if ($offer->status !== Constants::ACCEPT) {
                     if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
-                        $offer->update(['status' => Constants::ACCEPT]);
+                        $offer->update([
+                            'status' => Constants::ACCEPT,
+                            'accepted' => Constants::ACCEPTED
+                        ]);
                      
                         $orderDetail->order_id = $order->id;
                         $saveOrderDetail = $orderDetail->save();
@@ -1287,6 +1309,30 @@ class OrderController extends Controller
             }
         } elseif ($options->quick_booking == 1) {
             if (($order->booking_place + $request['seats']) <= $order->seats) {
+
+                $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first()
+
+                if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                    $old_offer->update([
+                        'status' => Constants::ACCEPT,
+                        'seats' =>$field['seats'],
+                        'accepted' => Constants::ACCEPTED
+
+                    ]);
+
+
+                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    $title = translate_api('Your request has been accepted', $language);
+                    $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                    $user_id = ($order->driver) ? $order->driver->id : 0;
+        
+                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                    return $this->success(translate_api('offer created', $language), 204 , $data);  
+
+                }
+
+
                 $id = auth()->id();
                 $create_type = ($id == $orderDetail->client_id) ? 0 : 1;
                 

@@ -23,6 +23,17 @@ class Constants {
    const ACCEPT = 7;
    const CANCEL = 8;
 
+
+   // Offer status for Order show
+      const NEW_OFFER = 0;
+      const ACCEPT_OFFER = 1;
+      const NOT_OFFER = 2;
+      const CANCELED_OFFER = 3;
+
+   // Offer accepted
+      const  = ACCEPTED = 1;
+      const  = NOT_ACCEPTED = 0;
+
    // Offer    create_type  and cancel_type
    const ORDER_DETAIL= 0;
    const ORDER = 1;
