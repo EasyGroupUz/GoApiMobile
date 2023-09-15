@@ -152,16 +152,17 @@ class OfferController extends Controller
     public function getOffer(Request $request){
         $language = $request->header('language');
         $offers = DB::table('yy_offers as dt1')
-        ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
-        ->Leftjoin('yy_orders as dt3', 'dt3.id', '=', 'dt1.order_id')
-        ->Leftjoin('yy_statuses as dt4', 'dt4.type_id', '=', 'dt1.status')
-        ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
-        ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
-        ->where('dt3.driver_id', auth()->id())
-        // ->where('dt1.status','!==',Constants::CANCEL)
-        // ->where('dt2.client_id', auth()->id())
-        ->select('dt1.id as offer_id','dt1.order_id','dt1.seats as seats_count', 'dt1.order_detail_id','dt1.status as status_id','dt3.from_id' ,'dt3.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar')
-        ->get();
+            ->Leftjoin('yy_order_details as dt2', 'dt2.id', '=', 'dt1.order_detail_id')
+            ->Leftjoin('yy_orders as dt3', 'dt3.id', '=', 'dt1.order_id')
+            ->Leftjoin('yy_statuses as dt4', 'dt4.type_id', '=', 'dt1.status')
+            ->Leftjoin('yy_users as dt5', 'dt5.id', '=', 'dt2.client_id')
+            ->Leftjoin('yy_personal_infos as dt6', 'dt6.id', '=', 'dt5.personal_info_id')
+            ->Leftjoin('yy_drivers as dt7', 'dt7.user_id', '=', 'dt5.id')
+            ->where('dt3.driver_id', auth()->id())
+            // ->where('dt1.status','!==',Constants::CANCEL)
+            // ->where('dt2.client_id', auth()->id())
+            ->select('dt1.id as offer_id','dt1.order_id','dt1.seats as seats_count', 'dt1.order_detail_id','dt1.status as status_id','dt3.from_id' ,'dt3.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar','dt7.doc_status')
+            ->get();
         // ->toArray();
         // dd($offers);
 
@@ -198,6 +199,7 @@ class OfferController extends Controller
                     'from_name' => $from_to_name['from_name'],
                     'to_name' => $from_to_name['to_name'],
                     'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
+                    'doc_status'=> $offer->doc_status,
                     'avatar'=>$offer->avatar,
                     'seats_count'=>$offer->seats_count,
                     'is_your'=>$is_your
