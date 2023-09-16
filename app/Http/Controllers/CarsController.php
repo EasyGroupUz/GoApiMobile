@@ -52,13 +52,13 @@ class CarsController extends Controller
             //         $reg_certificate_img = null;
             //     }
             // }
-            else{
-                if(get_headers('http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image) == "HTTP/1.1 200 OK"){
-                    $reg_certificate_img = 'http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image;
-                }else {
-                    $reg_certificate_img = null;
-                }
+            // else{
+            if(get_headers('http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image) == "HTTP/1.1 200 OK"){
+                $reg_certificate_img = 'http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image;
+            }else {
+                $reg_certificate_img = null;
             }
+            // }
             $color_table = table_translate($car, 'color', $language);
             $car_array[] = [
                 'id'=>$car->id,
