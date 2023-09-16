@@ -45,6 +45,7 @@ class DriverController extends Controller
             return $this->error('Cars not found', 400);
         }
         $modelCars->reg_certificate = $request->reg_certificate_number;
+        $modelCars->from_admin = 0;
         $modelCars->save();
 
         // Create and save a new driver
@@ -79,6 +80,7 @@ class DriverController extends Controller
             $image->storeAs('public/' . $folderName . '/', $imageNameGen);
 
             $model->{$imageName} = $imageNameGen;
+            $model->from_admin = 0;
             $model->save();
         }
     }
