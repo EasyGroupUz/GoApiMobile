@@ -51,7 +51,8 @@ class CarsController extends Controller
             //     } else {
             //         $reg_certificate_img = null;
             //     }
-            }else{
+            // }
+            else{
                 if(get_headers('http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image) == "HTTP/1.1 200 OK"){
                     $reg_certificate_img = 'http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image;
                 }else {
