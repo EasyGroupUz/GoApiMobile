@@ -22,7 +22,8 @@ class Offer extends Model
         'create_type',
         'cancel_type',
         'cancel_date',
-        'seats'
+        'seats',
+        'accepted'
     ];
 
 //    public function driver()

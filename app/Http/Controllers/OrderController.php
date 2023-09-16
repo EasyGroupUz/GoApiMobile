@@ -108,7 +108,7 @@ class OrderController extends Controller
                     'phone_number' => $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
-                    'doc_status' => ($driver_info->dr_id) ? true : false
+                    'doc_status' => ($driver_info) ? $driver_info->doc_status : NULL
                 ],
                 'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
@@ -270,7 +270,7 @@ class OrderController extends Controller
                 $arrDriverInformation['img'] = $d_img;
                 $arrDriverInformation['rating'] = $driver_info->rating;
                 $arrDriverInformation['created_at'] = date('d.m.Y H:i', strtotime($driver_info->created_at));
-                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? true : false;
+                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? $driver_info->driver->doc_status : NULL;
                 $arrDriverInformation['type'] = $driver_info->type ?? 0;
                 $arrDriverInformation['count_comments'] = count($arrComments);
                 // $arrDriverInformation['comments'] = $arrComments;
@@ -359,6 +359,29 @@ class OrderController extends Controller
            
 
 
+            // offer status
+            $offer_status=Constants::NOT_OFFER;
+            // dd($orderDetail);
+
+            if ($orderDetail) {
+                $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order->id)->where('accepted',Constants::NOT_ACCEPTED)->first();
+
+                        if ($offer) {
+                            if ($offer->status == Constants::NEW_OFFER) {
+                                $offer_status=Constants::NEW_OFFER;
+                            }
+                            elseif ($offer->status == Constants::ACCEPT_OFFER) {
+                                $offer_status=Constants::ACCEPT_OFFER;
+                            }
+                            else{
+                                $offer_status=Constants::NOT_OFFER;
+                            }
+                        }
+            }
+            
+
+
+
 
             $arr['id'] = $order->id;
             $arr['order_detail_id'] = $orderDetailId;
@@ -376,8 +399,8 @@ class OrderController extends Controller
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
-            // $arr['status'] = ($order->status) ? $order->status->type_id : 0;
             $arr['status'] = ($order->status) ? $order->status->name : '';
+            $arr['offer_status'] = $offer_status;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
@@ -892,7 +915,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
-                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? $valDriver->driver->doc_status : NULL;
                 }
 
                 $arrCar = [];
@@ -1117,7 +1140,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
-                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? true : false;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? $valDriver->driver->doc_status : NULL;
                 }
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
@@ -1238,7 +1261,10 @@ class OrderController extends Controller
             if ($offer = Offer::where('id', $request['offer_id'])->first()) {
                 if ($offer->status !== Constants::ACCEPT) {
                     if (($order->booking_place + $offer->seats) <= $order->seats && $offer->cancel_type !== Constants::ORDER_DETAIL) {
-                        $offer->update(['status' => Constants::ACCEPT]);
+                        $offer->update([
+                            'status' => Constants::ACCEPT,
+                            'accepted' => Constants::OFFER_ACCEPTED
+                        ]);
                      
                         $orderDetail->order_id = $order->id;
                         $saveOrderDetail = $orderDetail->save();
@@ -1287,6 +1313,29 @@ class OrderController extends Controller
             }
         } elseif ($options->quick_booking == 1) {
             if (($order->booking_place + $request['seats']) <= $order->seats) {
+
+                $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first();
+                // dd($old_offer);
+                if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                    $old_offer->update([
+                        'status' => Constants::ACCEPT,
+                        'seats' =>$field['seats'],
+                        'accepted' => Constants::OFFER_ACCEPTED
+                    ]);
+
+
+                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    $title = translate_api('Your request has been accepted', $language);
+                    $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                    $user_id = ($order->driver) ? $order->driver->id : 0;
+        
+                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
+
+                    return $this->success(translate_api('offer created', $language), 204 , $data);  
+
+                }
+
+
                 $id = auth()->id();
                 $create_type = ($id == $orderDetail->client_id) ? 0 : 1;
                 
@@ -1326,17 +1375,19 @@ class OrderController extends Controller
     public function bookingCancel(Request $request)
     {
         $language = $request->header('language');
-        if (!$request['order_id'])
-            return $this->error('order_id parameter is missing', 400);
+        $first_offer = Offer::where('id', $request['offer_id'])->first();
+        // if (!$request['order_id'])
+        //     return $this->error('order_id parameter is missing', 400);
 
-        $order_id = $request['order_id'];
+        $order_id = $first_offer;
 
-        if (!$request['order_detail_id'])
-            return $this->error('order_detail_id parameter is missing', 400);
+        // if (!$request['order_detail_id'])
+        //     return $this->error('order_detail_id parameter is missing', 400);
         
-        $order_detail_id = $request['order_detail_id'];
+        $order_detail_id = $first_offer->order_detail_id;
 
-        $order = Order::find($order_id);
+        $order = Order::where('id',$first_offer->order_id)->first();
+        // dd($order);
         $orderDetail = OrderDetail::find($order_detail_id);
 
         if (!$order)
@@ -1358,6 +1409,7 @@ class OrderController extends Controller
         } 
         
         if ($first_offer = Offer::where('id', $request['offer_id'])->first()) {
+            // dd($order);
             $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
             $saveOrder = $order->save();
 
