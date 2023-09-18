@@ -836,7 +836,8 @@ class OrderController extends Controller
         $order->save();
 
         $offers = $this->findOffers($id);
-        $this->cancelOffers($offers, $language);
+        $order_id = $order->id;
+        $this->cancelOffers($offers, $language, $order_id);
 
         return $this->success(translate_api('success', $language), 200);
     }
@@ -848,7 +849,7 @@ class OrderController extends Controller
         return $offers;
     }
 
-    private function cancelOffers($offers, $language)
+    private function cancelOffers($offers, $language, $order_id = 0)
     {
         if (!empty($offers)) {
             foreach ($offers as $offer) {
@@ -862,8 +863,9 @@ class OrderController extends Controller
                 $title = translate_api('Your request has been denied', $language);
                 $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
                 $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
+                $entity_id = $order_id;
     
-                $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
             }
         }
     }
@@ -1284,8 +1286,9 @@ class OrderController extends Controller
                                     $title = translate_api('Your request has been denied', $language);
                                     $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
                                     $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
-                        
-                                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                                    $entity_id = $order->id;
+    
+                                    $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
                                 }
                             }
                         }    
@@ -1294,8 +1297,9 @@ class OrderController extends Controller
                         $title = translate_api('Your request has been accepted', $language);
                         $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                         $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
-
-                        $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                        $entity_id = $order->id;
+    
+                        $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
                         
                         $id = auth()->id();
                         $data = $this->getOffer($id , $language);
@@ -1328,8 +1332,9 @@ class OrderController extends Controller
                     $title = translate_api('Your request has been accepted', $language);
                     $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                     $user_id = ($order->driver) ? $order->driver->id : 0;
-        
-                    $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                    $entity_id = $order->id;
+    
+                    $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
 
                     return $this->success(translate_api('offer created', $language), 204 , $data);  
 
@@ -1360,8 +1365,9 @@ class OrderController extends Controller
             $title = translate_api('Your request has been accepted', $language);
             $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
-
-            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            $entity_id = $order->id;
+    
+            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
 
             $id = auth()->id();
             $data = $this->getOffer($id , $language);
@@ -1448,8 +1454,9 @@ class OrderController extends Controller
             }
              
             $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-
-            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            $entity_id = $order->id;
+    
+            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
         } else {
             return $this->success('Offer not found', 204);
         }
