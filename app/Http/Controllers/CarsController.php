@@ -27,7 +27,7 @@ class CarsController extends Controller
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.id', auth()->id())->where('dt2.deleted_at', NULL)
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.updated_at', 'dt2.deleted_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate_image', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.from_admin', 'dt2.updated_at', 'dt2.deleted_at')
             ->get()->toArray();
         foreach ($cars as $car){
             if(is_null($car->id)){
@@ -45,20 +45,19 @@ class CarsController extends Controller
                     $images_[] = asset("storage/cars/$images");
                 }
             }
-            // if($car->from_admin == 0) {
-            //     if (file_exists(storage_path("app/public/cars/$car->reg_certificate_image"))) {
-            //         $reg_certificate_img = asset("storage/cars/$car->reg_certificate_image");
-            //     } else {
-            //         $reg_certificate_img = null;
-            //     }
-            // }
-            // else{
-            if(get_headers('http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image) == "HTTP/1.1 200 OK"){
-                $reg_certificate_img = 'http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image;
-            }else {
-                $reg_certificate_img = null;
+            if($car->from_admin == 0) {
+                if (file_exists(storage_path("app/public/cars/$car->reg_certificate_image"))) {
+                    $reg_certificate_img = asset("storage/cars/$car->reg_certificate_image");
+                } else {
+                    $reg_certificate_img = null;
+                }
+            }else{
+                if(get_headers('http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image) == "HTTP/1.1 200 OK"){
+                    $reg_certificate_img = 'http://admin.easygo.uz/storage/cars/'.$car->reg_certificate_image;
+                }else {
+                    $reg_certificate_img = null;
+                }
             }
-            // }
             $color_table = table_translate($car, 'color', $language);
             $car_array[] = [
                 'id'=>$car->id,
