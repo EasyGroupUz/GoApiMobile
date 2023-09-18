@@ -427,6 +427,40 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
+    public function chatInformation(Request $request)
+    {
+        $chat_id=$request->chat_id;
+        
+        $chat=Chat::find($chat_id);
+        $order = Order::find($chat->order_id);
+        //   $id=$order->id;
+   
+        $personalInfo = User::find($chat->user_to_id)->personalInfo;
+
+        if ($personalInfo && isset($personalInfo->avatar)) {
+            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            if (file_exists($avatarPath)) {
+                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            } else {
+                $personalInfo->avatar = null;
+            }
+        }
+
+        $from_to_name=table_translate($order,'city',$language);
+
+        $list=[
+            'order_id'=>$id,
+            'start_date'=>$order->start_date,
+            'from_name'=>$from_to_name['from_name'],
+            'to_name'=>$from_to_name['to_name'],
+            'user_to_id'=>$chat->user_to_id,
+            'name' => $personalInfo->first_name ?? null,
+            'image' => $personalInfo->avatar ?? null,
+            
+        ];
+
+    }
+
 
 
 
