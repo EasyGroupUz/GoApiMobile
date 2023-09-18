@@ -460,6 +460,12 @@ class SocketController extends Controller implements MessageComponentInterface
             
         ];
 
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'success',
+        ], 200);
+
     }
 
 
