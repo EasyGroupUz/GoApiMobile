@@ -167,6 +167,7 @@ class SocketController extends Controller implements MessageComponentInterface
                 $new_chat = Chat::create($new_chat);
                 
                 // Send Notification start
+                    $order=Order::find($data['order_id']);
                     $userSend = User::find($user_to_id);
                     $userSender = User::find($user_from_id);
                     
@@ -212,7 +213,8 @@ class SocketController extends Controller implements MessageComponentInterface
                 'data'=>$list
                 ];
 
-                $from->send(json_encode($response));
+                $from->send(json_encode($response , JSON_UNESCAPED_UNICODE));
+                // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
         }
 
     }
