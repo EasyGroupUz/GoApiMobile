@@ -295,7 +295,7 @@ class OrderController extends Controller
                 $arrCarInfo['production_date'] = date('Y', strtotime($arr_orde_car->production_date));
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
-                $arrCarInfo['reg_certificate_img'] = $arr_orde_car->reg_certificate_image;
+                // $arrCarInfo['reg_certificate_img'] = $arr_orde_car->reg_certificate_image;
                 $arrCarInfo['images'] = $arrCarImg;
             }
 
