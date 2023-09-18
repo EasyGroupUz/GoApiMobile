@@ -114,7 +114,7 @@ class CarsController extends Controller
         $language = $request->header('language');
         $car_types = CarTypes::select('id', 'name')->get();
         $class_lists = ClassList::select('id', 'name')->get()->toArray();
-//        $class_lists = table_translate('', 'class_list', $language);
+        //        $class_lists = table_translate('', 'class_list', $language);
         $color_lists = table_translate('', 'color_list', $language);
         foreach ($car_types as $car_type){
             $model = $car_type->name;
