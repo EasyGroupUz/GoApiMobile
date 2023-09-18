@@ -169,25 +169,27 @@ class SocketController extends Controller implements MessageComponentInterface
                 // Send Notification start
                     $order=Order::find($data['order_id']);
                     $userSend = User::find($user_to_id);
-                    $userSender = User::find($user_from_id);
+                    // $userSender = User::find($user_from_id);
                     
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
                     $title = translate_api("You've got mail", $userSend->language);
                     $message = $text;
                     $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
-                    $order_data = [
-                        'order_id' => $order->id,
-                        'start_date' => $order->start_date,
-                        'from_name' => ($order->from) ? $order->from->name : '',
-                        'to_name' => ($order->to) ? $order->to->name : '',
-                        'user_from_id' => $user_from_id,
-                        'user_to_id' => $user_to_id,
-                        'name' => ($userSender->personalInfo) ? $userSender->personalInfo->first_name : '',
-                        'image' => ($userSender->personalInfo) ? asset('storage/avatar/' . $userSender->personalInfo->avatar) : '',
-                    ];
+                    // $order_data = [
+                    //     'order_id' => $order->id,
+                    //     'start_date' => $order->start_date,
+                    //     'from_name' => ($order->from) ? $order->from->name : '',
+                    //     'to_name' => ($order->to) ? $order->to->name : '',
+                    //     'user_from_id' => $user_from_id,
+                    //     'user_to_id' => $user_to_id,
+                    //     'name' => ($userSender->personalInfo) ? $userSender->personalInfo->first_name : '',
+                    //     'image' => ($userSender->personalInfo) ? asset('storage/avatar/' . $userSender->personalInfo->avatar) : '',
+                    // ];
+
+                    $chat_id = $new_chat->id;
 
                     // $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
-                    $this->sendNotificationChat($device, $user_to_id, $order_data, $title, $message, $largeIcon);
+                    $this->sendNotificationChat($device, $user_to_id, $chat_id, $title, $message, $largeIcon);
                 // Send Notification end
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');

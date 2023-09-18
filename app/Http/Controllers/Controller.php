@@ -199,17 +199,17 @@ class Controller extends BaseController
 
 
 
-    public function sendNotificationChat($device, $user_id, $order_data = [], $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
+    public function sendNotificationChat($device, $user_id, $chat_id, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
     {
         $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
         $action = 'chat';
 
-        $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
-        $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        // $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
+        // $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
         
         $newSendNotif = new SendNotif();
         $newSendNotif->user_id = $user_id;
-        $newSendNotif->entity_id = $inc;
+        $newSendNotif->entity_id = $chat_id;
         $newSendNotif->entity_type = $action;
         $newSendNotif->title = $title;
         $newSendNotif->body = $message;
@@ -222,7 +222,7 @@ class Controller extends BaseController
 
         $data = [
             'data' => [
-                'entity_id' => $order_data,
+                'entity_id' => $chat_id,
                 'entity_type' => $action,
                 'title' => $title,
                 'body' => $message,
