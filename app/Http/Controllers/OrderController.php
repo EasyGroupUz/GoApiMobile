@@ -319,8 +319,8 @@ class OrderController extends Controller
                         $c_first_name = $c_personal_info->first_name;
                         $c_middle_name = $c_personal_info->middle_name;
                         $c_phone_number = $c_personal_info->phone_number;
-                        $c_img = asset('storage/avatar/' . $d_personal_info->avatar);
-                        $c_gender = $d_personal_info->gender;
+                        $c_img = asset('storage/avatar/' . $c_personal_info->avatar);
+                        $c_gender = $c_personal_info->gender;
                     }
 
                     $arrClients[$oo]['id'] = $order_details_client->id;
