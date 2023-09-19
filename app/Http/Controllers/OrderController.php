@@ -341,6 +341,7 @@ class OrderController extends Controller
             $chat_id = $this->getChatId($order->id, auth()->id());
 
             $orderDetailId = null;
+            $orderDetail=null;
             if ($order->driver_id != auth()->id()) {
                 $start_date_formatted = date('Y-m-d', strtotime($order->start_date));
                 $orderDetail = OrderDetail::where('from_id', $order->from_id)
@@ -363,7 +364,7 @@ class OrderController extends Controller
             $offer_status=Constants::NOT_OFFER;
             // dd($orderDetail);
 
-            if ($orderDetail) {
+            if ($orderDetail != null) {
                 $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order->id)->where('accepted',Constants::NOT_ACCEPTED)->first();
 
                         if ($offer) {
