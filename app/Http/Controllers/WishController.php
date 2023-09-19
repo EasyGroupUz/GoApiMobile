@@ -32,7 +32,7 @@ class WishController extends Controller
         $user_id = 25;
         $entity_id = 104;
 
-        $this->sendNotificationOrder($device, $user_id, $entity_id, $title = 'GoEasy', $message = 'Hello GoEasy');
+        $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
 
         return 'success';
     }
