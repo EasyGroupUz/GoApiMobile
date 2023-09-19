@@ -221,10 +221,10 @@ class CarsController extends Controller
         if(!isset($color_list)){
             return $this->error(translate_api('Color is not exist', $language), 400);
         }
-        $color_list = ClassList::find($request->class_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Class list is not exist', $language), 400);
-        }
+//        $class_list = ClassList::find($request->class_id);
+//        if(!isset($class_list)){
+//            return $this->error(translate_api('Class list is not exist', $language), 400);
+//        }
         $user = Auth::user();
         $cars = new Cars();
         $cars->status_id = 1;
