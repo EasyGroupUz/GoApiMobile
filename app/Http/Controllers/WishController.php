@@ -23,4 +23,17 @@ class WishController extends Controller
 
         return $this->success('success', 200);
     }
+
+    public function testNotif()
+    {
+        $device = ["ewv7EW_sQoGFWYzJA3h6Rs:APA91bFvYlLqw6KMWWDfCALNJmJzLGMJGuAouftn7JbE9EJnMs7SGY8xLggfAkgrCQxxpeVsgQeeKIEtctPpbLzcM1RRyJSf-tIE5Y-ckDSt5N27SC6R-cGqPdi-DkwqQ54mL6E_iW3N","dVsggUt_Qb2zxh1pygl2QG:APA91bF3nj-PIqssJz20bPySMTq8az841rlztcizGFYCjZeTk2jScrgaOZaYFirpk5GmB3mJk5q9J1bwz-fq3EbN_Q8i67gO5PBnWJtOFlN3l93SKpO6CH9V81jSRjpVAGy94iaZGO5a"];
+        $title = 'Your request has been accepted';
+        $message = 'Route';
+        $user_id = 25;
+        $entity_id = 104;
+
+        $this->sendNotificationOrder($device, $user_id, $entity_id, $title = 'GoEasy', $message = 'Hello GoEasy');
+
+        return 'success';
+    }
 }

@@ -860,7 +860,7 @@ class OrderController extends Controller
                 $offer->save();
 
                 $offersOrderDetail = $offer->orderDetail;
-                $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_type) : [];
+                $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_id) : [];
                 $title = translate_api('Your request has been denied', $language);
                 $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
                 $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
@@ -1283,7 +1283,7 @@ class OrderController extends Controller
                                     $offersOrderDetail = $value->orderDetail;
                                     $value->update(['status' => Constants::CANCEL]);
 
-                                    $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_type) : [];
+                                    $device = ($offersOrderDetail->client) ? json_decode($offersOrderDetail->client->device_id) : [];
                                     $title = translate_api('Your request has been denied', $language);
                                     $message = translate_api('Route', $language) . ': ' . (($offersOrderDetail && $offersOrderDetail->from) ? $offersOrderDetail->from->name : '') . ' - ' . (($offersOrderDetail && $offersOrderDetail->to) ? $offersOrderDetail->to->name : '');
                                     $user_id = ($offersOrderDetail->client) ? $offersOrderDetail->client->id : 0;
@@ -1294,7 +1294,7 @@ class OrderController extends Controller
                             }
                         }    
     
-                        $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
+                        $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
                         $title = translate_api('Your request has been accepted', $language);
                         $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                         $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
@@ -1320,26 +1320,30 @@ class OrderController extends Controller
             if (($order->booking_place + $request['seats']) <= $order->seats) {
 
                 $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first();
-                // dd($old_offer);
-                if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
-                    $old_offer->update([
-                        'status' => Constants::ACCEPT,
-                        'seats' =>$field['seats'],
-                        'accepted' => Constants::OFFER_ACCEPTED
-                    ]);
 
-
-                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                    $title = translate_api('Your request has been accepted', $language);
-                    $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                    $user_id = ($order->driver) ? $order->driver->id : 0;
-                    $entity_id = $order->id;
+                if ($old_offer) {
+                    if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                        $old_offer->update([
+                            'status' => Constants::ACCEPT,
+                            'seats' =>$request['seats'],
+                            'accepted' => Constants::OFFER_ACCEPTED
+                        ]);
     
-                    $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
-
-                    return $this->success(translate_api('offer created', $language), 204 , $data);  
-
+    
+                        $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+                        $title = translate_api('Your request has been accepted', $language);
+                        $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                        $user_id = ($order->driver) ? $order->driver->id : 0;
+                        $entity_id = $order->id;
+        
+                        $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+    
+                        return $this->success(translate_api('offer created', $language), 204 , $data);  
+    
+                    }
                 }
+                // dd($old_offer);
+               
 
 
                 $id = auth()->id();
@@ -1362,7 +1366,7 @@ class OrderController extends Controller
             $orderDetail->order_id = $order->id;
             $saveOrderDetail = $orderDetail->save();
 
-            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
             $title = translate_api('Your request has been accepted', $language);
             $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
@@ -1433,24 +1437,24 @@ class OrderController extends Controller
 
             $title = '';
             $user_id = ($order->driver) ? $order->driver->id : 0;
-            $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+            $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
             if ($old_offer_status == Constants::NEW) {
                 $title = translate_api('Your request has been denied', $language);
                 if ($id == $order->driver_id) {
                     $user_id = $order->driver->id;
-                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 } else {
                     $user_id = $orderDetail->client->id;
-                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
+                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
                 }
             } else {
                 if ($id == $order->driver_id) {
                     $title = translate_api('Your order has been cancelled', $language);
-                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 } else {
                     $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
                     $title = translate_api('Passenger canceled the booking', $language);
-                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_type) : [];
+                    $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
                 }
             }
              

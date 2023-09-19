@@ -33,8 +33,8 @@ use App\Http\Controllers\SocketController;
 
 //
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback');
-Route::get('/testNotify', [OrderController::class, 'testNotify'])->name('testNotify');
 Route::post('/wishes', [WishController::class, 'store'])->name('wishes');
+Route::post('/testNotif', [WishController::class, 'testNotif'])->name('testNotif');
 Route::post('/login', [AuthController::class, 'Login'])->name('loginPhone');
 Route::post('/verify', [AuthController::class, 'loginToken'])->name('loginToken');
 Route::group(['middleware' => ['auth:sanctum']], function () {
