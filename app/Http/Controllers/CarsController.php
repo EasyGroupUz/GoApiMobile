@@ -221,10 +221,10 @@ class CarsController extends Controller
         if(!isset($color_list)){
             return $this->error(translate_api('Color is not exist', $language), 400);
         }
-        $color_list = ClassList::find($request->class_id);
-        if(!isset($color_list)){
-            return $this->error(translate_api('Class list is not exist', $language), 400);
-        }
+//        $class_list = ClassList::find($request->class_id);
+//        if(!isset($class_list)){
+//            return $this->error(translate_api('Class list is not exist', $language), 400);
+//        }
         $user = Auth::user();
         $cars = new Cars();
         $cars->status_id = 1;
@@ -260,28 +260,30 @@ class CarsController extends Controller
         $name_random = implode("", $random_array);
         $image_name = $name_random . '' . date('Y-m-dh-i-s') . '.' . $file->extension();
         $file_size = round($file->getSize()/1024);
+
         if($file_size>50000){
-            $x = 600;
+            $x = 0.2;
         }
         elseif($file_size>20000){
-            $x = 240;
+            $x = 0.5;
         }
         elseif($file_size>10000){
-            $x = 120;
+            $x = 1;
         }elseif($file_size>5000){
-            $x = 60;
+            $x = 2;
         }elseif($file_size>1000){
-            $x = 12;
+            $x = 10;
         }elseif($file_size>500){
-            $x = 7;
+            $x = 20;
         }elseif($file_size>250){
-            $x = 3;
-        }elseif($file_size>125){
             $x = 50;
+        }elseif($file_size>125){
+            $x = 100;
         }elseif($file_size>75){
             $x = 100;
+        }else{
+            $x = 100;
         }
-//            dd($file_size, $x);
         $img = Image::make($file->path());
         $img->save(storage_path($path.'/'.$image_name), $x);
         return $image_name;
@@ -313,13 +315,13 @@ class CarsController extends Controller
             }
             $cars->color_list_id = $request->color_id;
         }
-        if(isset($request->class_id)){
-            $class_list = ClassList::find($request->class_id);
-            if(!isset($class_list)){
-                return $this->error(translate_api('Class list is not exist', $language), 400);
-            }
-            $cars->class_list_id = $request->class_id;
-        }
+//        if(isset($request->class_id)){
+//            $class_list = ClassList::find($request->class_id);
+//            if(!isset($class_list)){
+//                return $this->error(translate_api('Class list is not exist', $language), 400);
+//            }
+//            $cars->class_list_id = $request->class_id;
+//        }
         if(isset($request->class_id)){
             $cars->reg_certificate = $request->state_number;
         }
