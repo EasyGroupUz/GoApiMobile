@@ -365,13 +365,13 @@ class OrderController extends Controller
             // dd($orderDetail);
 
             if ($orderDetail != null) {
-                $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order->id)->where('accepted',Constants::NOT_ACCEPTED)->first();
+                $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order->id)->where('status','!=',Constants::CANCEL)->first();
 
                         if ($offer) {
-                            if ($offer->status == Constants::NEW_OFFER) {
+                            if ($offer->status == Constants::NEW) {
                                 $offer_status=Constants::NEW_OFFER;
                             }
-                            elseif ($offer->status == Constants::ACCEPT_OFFER) {
+                            elseif ($offer->status == Constants::ACCEPT) {
                                 $offer_status=Constants::ACCEPT_OFFER;
                             }
                             else{
