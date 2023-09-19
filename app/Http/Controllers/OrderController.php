@@ -1320,26 +1320,30 @@ class OrderController extends Controller
             if (($order->booking_place + $request['seats']) <= $order->seats) {
 
                 $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$orderDetail->id)->first();
-                // dd($old_offer);
-                if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
-                    $old_offer->update([
-                        'status' => Constants::ACCEPT,
-                        'seats' =>$field['seats'],
-                        'accepted' => Constants::OFFER_ACCEPTED
-                    ]);
 
-
-                    $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
-                    $title = translate_api('Your request has been accepted', $language);
-                    $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                    $user_id = ($order->driver) ? $order->driver->id : 0;
-                    $entity_id = $order->id;
+                if ($old_offer) {
+                    if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                        $old_offer->update([
+                            'status' => Constants::ACCEPT,
+                            'seats' =>$field['seats'],
+                            'accepted' => Constants::OFFER_ACCEPTED
+                        ]);
     
-                    $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
-
-                    return $this->success(translate_api('offer created', $language), 204 , $data);  
-
+    
+                        $device = ($order->driver) ? json_decode($order->driver->device_type) : [];
+                        $title = translate_api('Your request has been accepted', $language);
+                        $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                        $user_id = ($order->driver) ? $order->driver->id : 0;
+                        $entity_id = $order->id;
+        
+                        $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+    
+                        return $this->success(translate_api('offer created', $language), 204 , $data);  
+    
+                    }
                 }
+                // dd($old_offer);
+               
 
 
                 $id = auth()->id();
