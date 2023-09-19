@@ -82,8 +82,9 @@ class OfferController extends Controller
                             $title = translate_api('You have a new offer', $language);
                             $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                             $user_id = ($order->driver) ? $order->driver->id : 0;
+                            $entity_id = $order->id;
     
-                            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+                            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
 
                             return $this->success(translate_api('Offer updates', $language), 201);
                         }
@@ -142,8 +143,9 @@ class OfferController extends Controller
             $title = translate_api('You have a new offer', $language);
             $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
-
-            $this->sendNotification($device, $user_id, "Offer", $title, $message);
+            $entity_id = $order->id;
+    
+            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
         // }
 
         return $this->success(translate_api('Offer created', $language), 201);

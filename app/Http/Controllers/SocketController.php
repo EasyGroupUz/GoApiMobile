@@ -167,14 +167,29 @@ class SocketController extends Controller implements MessageComponentInterface
                 $new_chat = Chat::create($new_chat);
                 
                 // Send Notification start
+                    $order=Order::find($data['order_id']);
                     $userSend = User::find($user_to_id);
+                    // $userSender = User::find($user_from_id);
                     
                     $device = ($userSend) ? json_decode($userSend->device_type) : [];
                     $title = translate_api("You've got mail", $userSend->language);
                     $message = $text;
                     $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
+                    // $order_data = [
+                    //     'order_id' => $order->id,
+                    //     'start_date' => $order->start_date,
+                    //     'from_name' => ($order->from) ? $order->from->name : '',
+                    //     'to_name' => ($order->to) ? $order->to->name : '',
+                    //     'user_from_id' => $user_from_id,
+                    //     'user_to_id' => $user_to_id,
+                    //     'name' => ($userSender->personalInfo) ? $userSender->personalInfo->first_name : '',
+                    //     'image' => ($userSender->personalInfo) ? asset('storage/avatar/' . $userSender->personalInfo->avatar) : '',
+                    // ];
 
-                    $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
+                    $chat_id = $new_chat->id;
+
+                    // $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
+                    $this->sendNotificationChat($device, $user_to_id, $chat_id, $title, $message, $largeIcon);
                 // Send Notification end
 
                 $time=Carbon::parse($new_chat->created_at)->format('H:i');
@@ -200,7 +215,8 @@ class SocketController extends Controller implements MessageComponentInterface
                 'data'=>$list
                 ];
 
-                $from->send(json_encode($response));
+                $from->send(json_encode($response , JSON_UNESCAPED_UNICODE));
+                // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
         }
 
     }
@@ -408,6 +424,47 @@ class SocketController extends Controller implements MessageComponentInterface
             'message' => 'success',
         ], 200);
 
+
+    }
+
+    public function chatInformation(Request $request)
+    {
+        $language = $request->header('language');
+        $chat_id=$request->chat_id;
+
+        $chat=Chat::find($chat_id);
+        $order = Order::find($chat->order_id);
+        //   $id=$order->id;
+   
+        $personalInfo = User::find($chat->user_to_id)->personalInfo;
+
+        if ($personalInfo && isset($personalInfo->avatar)) {
+            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            if (file_exists($avatarPath)) {
+                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            } else {
+                $personalInfo->avatar = null;
+            }
+        }
+
+        $from_to_name=table_translate($order,'city',$language);
+
+        $list=[
+            'order_id'=>$order->id,
+            'start_date'=>$order->start_date,
+            'from_name'=>$from_to_name['from_name'],
+            'to_name'=>$from_to_name['to_name'],
+            'user_to_id'=>$chat->user_to_id,
+            'name' => $personalInfo->first_name ?? null,
+            'image' => $personalInfo->avatar ?? null,
+            
+        ];
+
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'success',
+        ], 200);
 
     }
 

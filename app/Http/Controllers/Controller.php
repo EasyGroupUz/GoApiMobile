@@ -132,19 +132,17 @@ class Controller extends BaseController
     }
 
 
-    public function sendNotification($device, $user_id, $action, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
+    public function sendNotificationOrder($device, $user_id, $entity_id, $title = 'GoEasy', $message = 'Hello GoEasy')
     {
-        if ($action == 'Offer')
-            $largeIcon = 'https://cdn.vectorstock.com/i/preview-1x/10/38/avatar-man-with-special-offer-message-vector-28301038.webp';
-        else if ($action == 'Chat' && $largeIcon == '')
-            $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
+        $largeIcon = 'https://cdn.vectorstock.com/i/preview-1x/10/38/avatar-man-with-special-offer-message-vector-28301038.webp';
+        $action = 'order';
 
-        $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
-        $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        // $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
+        // $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
         
         $newSendNotif = new SendNotif();
         $newSendNotif->user_id = $user_id;
-        $newSendNotif->entity_id = $inc;
+        $newSendNotif->entity_id = $entity_id;
         $newSendNotif->entity_type = $action;
         $newSendNotif->title = $title;
         $newSendNotif->body = $message;
@@ -157,7 +155,7 @@ class Controller extends BaseController
 
         $data = [
             'data' => [
-                'entity_id' => $inc,
+                'entity_id' => $entity_id,
                 'entity_type' => $action,
                 'title' => $title,
                 'body' => $message,
@@ -201,69 +199,131 @@ class Controller extends BaseController
 
 
 
-    function send_firebase_notification($data)
+    public function sendNotificationChat($device, $user_id, $chat_id, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
     {
+        $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
+        $action = 'chat';
+
+        // $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
+        // $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        
+        $newSendNotif = new SendNotif();
+        $newSendNotif->user_id = $user_id;
+        $newSendNotif->entity_id = $chat_id;
+        $newSendNotif->entity_type = $action;
+        $newSendNotif->title = $title;
+        $newSendNotif->body = $message;
+        $newSendNotif->largeIcon = $largeIcon;
+        $newSendNotif->registration_ids = json_encode($device);
+        $newSendNotif->save();
+
+        $firebaseServerKey = 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u'; // Replace with your Firebas>
+        $fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+
         $data = [
             'data' => [
-                "entity_id" => "12312",
-                "entity_type" => "salom",
-                "title" => "saloooooom",
-                "body" => "saloooooom",
-                "bigPicture" => "https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg",
-                "largeIcon" => "https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg",
-                "channelKey" => "basic_channel",
-                "notificationLayout" => "BigPicture",
-                "showWhen" => true,
-                "autoDismissible" => true,
-                "privacy" => "Private"
+                'entity_id' => $chat_id,
+                'entity_type' => $action,
+                'title' => $title,
+                'body' => $message,
+                'bigPicture' => NULL, //'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
+                'largeIcon' => $largeIcon,
+                // 'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
+                'channelKey' => 'basic_channel',
+                'notificationLayout' => 'BigPicture',
+                'showWhen' => true,
+                'autoDismissible' => true,
+                'privacy' => 'Private',
             ],
-            "mutable_content" => true,
-            "content_available" => true,
-            "priority" => "high",
-            "click_action" => "FLUTTER_NOTIFICVATION_CLICK",
-            "registration_ids" => ["23454456451","cCtBccxZTw-ZSjO9LykcOy:APA91bExx63UnnfIT08laAzkJBfbP4pGniDzTlYRjEpdpkIqrkV6COTruGyWIQtibtXnb79TW16pUv2I3Pmzh-STxEpHBgAPcuVSeJVh6HvYhzOatul_G20UoZUfaF1CzWzV0e9k_xff","fIyTEwH7Q-aPUqRSfVhsdi:APA91bG0ze0GandYWPQM9offNiW0pBeSQ6kDCH7a9D1-Jyhtr93A1XPH2iGm4xXSUczedZt75QLtRA9Rup21CmCzOZVYzGt2jwkC6xdryhXAXFM3KpU9jvuGGzY5shE9uGgQDU1FYW4M","fe8Oh7KQQHmXfrh4XuhMQ3:APA91bEL-DeRzckmcC51n-nrpHwjjzZmGE1-ZD4K02uzmwhPVdSbk_d2KuoFKwSWmuhQZk3ST4nICeFuQjDmyXe-yApYplEpTugkJh5kDFOsj6t7aE5s26TZ_FeKVKnqXlo-Fya4SJme"]
+            'mutable_content' => true,
+            'content_available' => true,
+            'priority' => 'high',
+            'click_action' => 'FLUTTER_NOTIFICVATION_CLICK',
+            'registration_ids' => $device
         ];
 
-
-        $url = 'https://fcm.googleapis.com/fcm/send';
-        $serverKey = env('FCM_SERVER_KEY', 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u');
         $headers = [
-            'Authorization:key=' . $serverKey,
+            'Authorization: key=' . $firebaseServerKey,
             'Content-Type: application/json',
         ];
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $fcmEndpoint);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        // Disabling SSL Certificate support temporarly
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        // Execute post
-        $result = curl_exec($ch);
-        if ($result === FALSE) {
-            return [
-                'data'=>[
-                    'request'=>$data,
-                    'response'=>json_decode($result)
-                ],
-                'success' => false,
-                'message' => 'Error:'.curl_error($ch)
-            ];
-        }
-        // Close connection
-        curl_close($ch);
-        // FCM response
-        return [
-            'data'=>[
-                'request'=>$data,
-                'response'=>json_decode($result)
-            ],
-            'success' => true,
-            'message' => 'Notification successfully sent!'
-        ];
 
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        // Handle the response, e.g., log it or return it as a JSON response
+        return response()->json(['message' => 'Notification sent', 'response' => json_decode($response)]);
     }
+
+    // public function sendNotification($device, $user_id, $action, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
+    // {
+    //     if ($action == 'Offer')
+    //         $largeIcon = 'https://cdn.vectorstock.com/i/preview-1x/10/38/avatar-man-with-special-offer-message-vector-28301038.webp';
+    //     else if ($action == 'Chat' && $largeIcon == '')
+    //         $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
+
+    //     $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
+    //     $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        
+    //     $newSendNotif = new SendNotif();
+    //     $newSendNotif->user_id = $user_id;
+    //     $newSendNotif->entity_id = $inc;
+    //     $newSendNotif->entity_type = $action;
+    //     $newSendNotif->title = $title;
+    //     $newSendNotif->body = $message;
+    //     $newSendNotif->largeIcon = $largeIcon;
+    //     $newSendNotif->registration_ids = json_encode($device);
+    //     $newSendNotif->save();
+
+    //     $firebaseServerKey = 'AAAALY3M0oo:APA91bGJJDSZvBSBEiebiZ5aCI_17Z8UqJy8OjcnljqnALtl3ocdeelYGwGn9lFpqx9dj3KK8tC3zcUDa814jNAjpYB83vmTXlFs4u5diz3BAJa4YOeg7xq8m_c63xPL_LRbLUw-YZ3u'; // Replace with your Firebas>
+    //     $fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+
+    //     $data = [
+    //         'data' => [
+    //             'entity_id' => $inc,
+    //             'entity_type' => $action,
+    //             'title' => $title,
+    //             'body' => $message,
+    //             'bigPicture' => NULL, //'https://thumbs.dreamstime.com/z/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-thailand-36703721.jpg',
+    //             'largeIcon' => $largeIcon,
+    //             // 'largeIcon' => 'https://i.pinimg.com/originals/cd/87/f1/cd87f1de80c88d68812cf311b4e682e5.jpg',
+    //             'channelKey' => 'basic_channel',
+    //             'notificationLayout' => 'BigPicture',
+    //             'showWhen' => true,
+    //             'autoDismissible' => true,
+    //             'privacy' => 'Private',
+    //         ],
+    //         'mutable_content' => true,
+    //         'content_available' => true,
+    //         'priority' => 'high',
+    //         'click_action' => 'FLUTTER_NOTIFICVATION_CLICK',
+    //         'registration_ids' => $device
+    //     ];
+
+    //     $headers = [
+    //         'Authorization: key=' . $firebaseServerKey,
+    //         'Content-Type: application/json',
+    //     ];
+
+    //     $ch = curl_init();
+    //     curl_setopt($ch, CURLOPT_URL, $fcmEndpoint);
+    //     curl_setopt($ch, CURLOPT_POST, true);
+    //     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+    //     $response = curl_exec($ch);
+    //     curl_close($ch);
+
+    //     // Handle the response, e.g., log it or return it as a JSON response
+    //     return response()->json(['message' => 'Notification sent', 'response' => json_decode($response)]);
+    // }
 }
