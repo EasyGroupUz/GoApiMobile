@@ -313,13 +313,13 @@ class CarsController extends Controller
             }
             $cars->color_list_id = $request->color_id;
         }
-        if(isset($request->class_id)){
-            $class_list = ClassList::find($request->class_id);
-            if(!isset($class_list)){
-                return $this->error(translate_api('Class list is not exist', $language), 400);
-            }
-            $cars->class_list_id = $request->class_id;
-        }
+//        if(isset($request->class_id)){
+//            $class_list = ClassList::find($request->class_id);
+//            if(!isset($class_list)){
+//                return $this->error(translate_api('Class list is not exist', $language), 400);
+//            }
+//            $cars->class_list_id = $request->class_id;
+//        }
         if(isset($request->class_id)){
             $cars->reg_certificate = $request->state_number;
         }
