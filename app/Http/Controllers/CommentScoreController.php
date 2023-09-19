@@ -226,14 +226,14 @@ class CommentScoreController extends Controller
                     }
                 }
             }
-            if(isset($to_user->personalInfo)){
-                if(isset($to_user->personalInfo->first_name)){
-                    $first_name = $to_user->personalInfo->first_name.' ';
+            if(isset($user->personalInfo)){
+                if(isset($user->personalInfo->first_name)){
+                    $first_name = $user->personalInfo->first_name.' ';
                 }else{
                     $first_name = '';
                 }
-                if(isset($to_user->driver->doc_status)){
-                    switch ($to_user->driver->doc_status){
+                if(isset($user->driver->doc_status)){
+                    switch ($user->driver->doc_status){
                         case 1:
                             $doc_status = "Not accepted";
                             break;
@@ -251,20 +251,20 @@ class CommentScoreController extends Controller
                 }else{
                     $doc_status = "Not accepted";
                 }
-                if(isset($to_user->personalInfo->last_name)){
-                    $last_name = mb_strtoupper($to_user->personalInfo->last_name[0].'. ');
+                if(isset($user->personalInfo->last_name)){
+                    $last_name = mb_strtoupper($user->personalInfo->last_name[0].'. ');
                 }else{
                     $last_name = '';
                 }
-                if(isset($to_user->personalInfo->middle_name)){
-                    $middle_name = mb_strtoupper($to_user->personalInfo->middle_name[0].'.');
+                if(isset($user->personalInfo->middle_name)){
+                    $middle_name = mb_strtoupper($user->personalInfo->middle_name[0].'.');
                 }else{
                     $middle_name = '';
                 }
-                if(isset($to_user->personalInfo->avatar) && $to_user->personalInfo->avatar != ''){
-                    $avatar = storage_path('app/public/avatar/'.$to_user->personalInfo->avatar??'no');
+                if(isset($user->personalInfo->avatar) && $user->personalInfo->avatar != ''){
+                    $avatar = storage_path('app/public/avatar/'.$user->personalInfo->avatar??'no');
                     if(file_exists($avatar)){
-                        $img_ = asset('storage/avatar/'.$to_user->personalInfo->avatar);
+                        $img_ = asset('storage/avatar/'.$user->personalInfo->avatar);
                     }else{
                         $img_ = null;
                     }
@@ -280,7 +280,7 @@ class CommentScoreController extends Controller
                 $full_name = null;
             }
             $personal_info = [
-                'user_token'=>$to_user->token??null,
+                'user_token'=>$user->token??null,
                 'img'=>$img_,
                 'full_name'=>$full_name,
 //                'doc_status'=>$doc_status??null,
@@ -375,8 +375,8 @@ class CommentScoreController extends Controller
                 }else{
                     $middle_name = '';
                 }
-                if(isset($to_user->driver->doc_status)){
-                    switch ($to_user->driver->doc_status){
+                if(isset($user->driver->doc_status)){
+                    switch ($user->driver->doc_status){
                         case 1:
                             $doc_status = "Not accepted";
                             break;
