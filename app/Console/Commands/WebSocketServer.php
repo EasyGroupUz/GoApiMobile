@@ -48,6 +48,10 @@ class WebSocketServer extends Command
             8090
         );
 
+        // Set the connection timeout to one day (in seconds)
+        $timeoutInSeconds = 24 * 60 * 60; // 24 hours x 60 minutes x 60 seconds
+        $server->loop->setTimeout($timeoutInSeconds);
+
         $server->run();
     }
 }
