@@ -257,21 +257,21 @@ class SocketController extends Controller implements MessageComponentInterface
     }
 
 
-    public function checkConnectionTimeouts()
-    {
-        $currentTime = time();
+    // public function checkConnectionTimeouts()
+    // {
+    //     $currentTime = time();
 
-        foreach ($this->clients as $client) {
-            if (isset($client->lastMessageTime)) {
-                $elapsedTime = $currentTime - $client->lastMessageTime;
+    //     foreach ($this->clients as $client) {
+    //         if (isset($client->lastMessageTime)) {
+    //             $elapsedTime = $currentTime - $client->lastMessageTime;
 
-                if ($elapsedTime >= 86400) {
-                    // Disconnect the client if there was no activity for one day
-                    $client->close();
-                }
-            }
-        }
-    }
+    //             if ($elapsedTime >= 86400) {
+    //                 // Disconnect the client if there was no activity for one day
+    //                 $client->close();
+    //             }
+    //         }
+    //     }
+    // }
 
 
     public function chatDetails(Request $request)
