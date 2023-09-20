@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 
 use Ratchet\MessageComponentInterface;
 
+
+use React\EventLoop\Factory;
+use React\EventLoop\LoopInterface;
+
+
 use Ratchet\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -25,9 +30,15 @@ use Auth;
 class SocketController extends Controller implements MessageComponentInterface
 {
     protected $clients;
+    protected $loop;
 
-    public function __construct() {
+    public function __construct(LoopInterface $loop)
+    {
         $this->clients = new \SplObjectStorage;
+        $this->loop = $loop;
+
+        // Schedule the checkConnectionTimeouts method to run every minute
+        $this->loop->addPeriodicTimer(60, [$this, 'checkConnectionTimeouts']);
     }
 
     public function onOpen(ConnectionInterface $conn) {
@@ -35,11 +46,20 @@ class SocketController extends Controller implements MessageComponentInterface
         $this->clients->attach($conn);
 
         echo "New connection! ({$conn->resourceId})\n";
+
+       // Set a connection timeout for 24 hours (86400 seconds)
+       $conn->connectedTime = time();
+        
+       // EventLoop-ni ishga tushirib, ulanishni sozlash
+       $this->loop->addTimer($timeoutInSeconds, function () use ($conn) {
+           // Ulanishni yopish
+           $conn->close();
+       });
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
         //  Socket spease ni ham oqiydi  masalan order va  order + spease teng emas
-
+        $from->lastMessageTime = time();
         $data = json_decode($msg, true); // Assuming JSON data
     
         if ($data['type'] == 'chat_detail') {
@@ -237,8 +257,24 @@ class SocketController extends Controller implements MessageComponentInterface
     }
 
 
-    public function chatDetails(Request $request)
+    public function checkConnectionTimeouts()
     {
+        $currentTime = time();
+
+        foreach ($this->clients as $client) {
+            if (isset($client->lastMessageTime)) {
+                $elapsedTime = $currentTime - $client->lastMessageTime;
+
+                if ($elapsedTime >= 86400) {
+                    // Disconnect the client if there was no activity for one day
+                    $client->close();
+                }
+            }
+        }
+    }
+
+
+    public function chatDetails(Request $request){
            $data=$request->all();
             //    dd($data['type']);
         
