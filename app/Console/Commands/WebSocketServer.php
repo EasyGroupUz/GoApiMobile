@@ -14,10 +14,6 @@ use React\EventLoop\Factory;
 
 use App\Http\Controllers\SocketController;
 
-use React\EventLoop\Factory as EventLoopFactory; // EventLoopFactory-ni import qiling
-
-
-
 class WebSocketServer extends Command
 {
     /**
@@ -41,21 +37,21 @@ class WebSocketServer extends Command
      */
     public function handle()
     {
-        // EventLoop-ni o'rnatish
-        $loop = EventLoopFactory::create();
+        //return 0;
 
-        // WebSocket serverni tuzish va EventLoop-ni bering
         $server = IoServer::factory(
             new HttpServer(
                 new WsServer(
                     new SocketController()
                 )
             ),
-            8090,
-            $loop // EventLoop-ni bering
+            8090
         );
 
-        // WebSocket serverni ishga tushirish
+        // Set the connection timeout to one day (in seconds)
+        // $timeoutInSeconds = 24 * 60 * 60; // 24 hours x 60 minutes x 60 seconds
+        // $server->loop->setTimeout($timeoutInSeconds);
+
         $server->run();
     }
 }
