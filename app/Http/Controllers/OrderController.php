@@ -1446,20 +1446,20 @@ class OrderController extends Controller
             if ($old_offer_status == Constants::NEW) {
                 $title = translate_api('Your request has been denied', $language);
                 if ($id == $order->driver_id) {
-                    $user_id = $order->driver->id;
-                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-                } else {
                     $user_id = $orderDetail->client->id;
                     $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
+                } else {
+                    $user_id = $order->driver->id;
+                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 }
             } else {
                 if ($id == $order->driver_id) {
-                    $title = translate_api('Your order has been cancelled', $language);
-                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-                } else {
                     $user_id = ($orderDetail->client) ? $orderDetail->client->id : 0;
                     $title = translate_api('Passenger canceled the booking', $language);
                     $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
+                } else {
+                    $title = translate_api('Your order has been cancelled', $language);
+                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 }
             }
              
