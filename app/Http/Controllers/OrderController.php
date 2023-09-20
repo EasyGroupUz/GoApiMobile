@@ -358,31 +358,23 @@ class OrderController extends Controller
                 }
             }
            
-
-
-            // offer status
-            $offer_status=Constants::NOT_OFFER;
-            // dd($orderDetail);
+            $offer_status = Constants::NOT_OFFER;
+            $offer_id = NULL;
 
             if ($orderDetail != null) {
-                $offer=Offer::where('order_detail_id', $orderDetail->id)->where('order_id',$order->id)->where('status','!=',Constants::CANCEL)->first();
+                $offer = Offer::where('order_detail_id', $orderDetail->id)->where('order_id', $order->id)->where('status', '!=', Constants::CANCEL)->first();
 
-                        if ($offer) {
-                            if ($offer->status == Constants::NEW) {
-                                $offer_status=Constants::NEW_OFFER;
-                            }
-                            elseif ($offer->status == Constants::ACCEPT) {
-                                $offer_status=Constants::ACCEPT_OFFER;
-                            }
-                            else{
-                                $offer_status=Constants::NOT_OFFER;
-                            }
-                        }
+                if ($offer) {
+                    $offer_id = $offer->id;
+                    if ($offer->status == Constants::NEW) {
+                        $offer_status = Constants::NEW_OFFER;
+                    } elseif ($offer->status == Constants::ACCEPT) {
+                        $offer_status = Constants::ACCEPT_OFFER;
+                    } else{
+                        $offer_status = Constants::NOT_OFFER;
+                    }
+                }
             }
-            
-
-
-
 
             $arr['id'] = $order->id;
             $arr['order_detail_id'] = $orderDetailId;
@@ -402,6 +394,7 @@ class OrderController extends Controller
             $arr['price_type'] = $order->price_type;
             $arr['status'] = ($order->status) ? $order->status->name : '';
             $arr['offer_status'] = $offer_status;
+            $arr['offer_id'] = $offer_id;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
