@@ -1378,41 +1378,53 @@ class OrderController extends Controller
 
     public function bookingCancel(Request $request)
     {
+        // agar offer id berilsa order_id and order_detail_id kemidi
+        // agar order_id and order_detail_id berilsa offer_id kemidi
         $language = $request->header('language');
-        $first_offer = Offer::where('id', $request['offer_id'])->first();
-        // if (!$request['order_id'])
-        //     return $this->error('order_id parameter is missing', 400);
 
-        $order_id = $first_offer;
+        if ($request->offer_id) {
 
-        // if (!$request['order_detail_id'])
-        //     return $this->error('order_detail_id parameter is missing', 400);
+            $first_offer = Offer::where('id', $request['offer_id'])->first();
+            if ($first_offer->status != Constants::NEW) {
+                return $this->success('This is offer sttus not new', 204);
+            }
+        }
+        else {
+            
+            $first_offer = Offer::where('order_id', $request['order_id'])->where('order_detail_id', $request['order_detail_id'])->first();
+            
+        }
         
-        $order_detail_id = $first_offer->order_detail_id;
-
-        $order = Order::where('id',$first_offer->order_id)->first();
-        // dd($order);
-        $orderDetail = OrderDetail::find($order_detail_id);
-
-        if (!$order)
-            return $this->success('Order not found', 204);
-
-        if (!$orderDetail)
-            return $this->success('Order Detail not found', 204);
-
-        $orderDetail->order_id = null;
-        $saveOrderDetail = $orderDetail->save();
-
-        $timezone = 'Asia/Tashkent';
-        $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
-        $id = auth()->id();
-        if ($id == $orderDetail->client_id) {
-            $cancel_type = 0;
-        } else {
-            $cancel_type = 1;
-        } 
         
-        if ($first_offer = Offer::where('id', $request['offer_id'])->first()) {
+        
+        if ($first_offer) {
+
+
+
+            $order_detail_id = $first_offer->order_detail_id;
+
+            $order = Order::where('id',$first_offer->order_id)->first();
+            $orderDetail = OrderDetail::find($order_detail_id);
+
+            if (!$order)
+                return $this->success('Order not found', 204);
+
+            if (!$orderDetail)
+                return $this->success('Order Detail not found', 204);
+
+            $orderDetail->order_id = null;
+            $saveOrderDetail = $orderDetail->save();
+
+            $timezone = 'Asia/Tashkent';
+            $date_time = Carbon::now($timezone)->format('Y-m-d H:i:s');
+            $id = auth()->id();
+            if ($id == $orderDetail->client_id) {
+                $cancel_type = 0;
+            } else {
+                $cancel_type = 1;
+            } 
+
+
             // dd($order);
             $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
             $saveOrder = $order->save();
