@@ -35,8 +35,8 @@ class SocketController extends Controller implements MessageComponentInterface
         $this->clients->attach($conn);
 
         // Set a connection timeout for 24 hours (86400 seconds)
-        $conn->setTimeout(86400);
-        
+        // $conn->setTimeout(86400);
+
         echo "New connection! ({$conn->resourceId})\n";
     }
 
