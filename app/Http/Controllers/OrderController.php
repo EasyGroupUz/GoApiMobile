@@ -359,13 +359,13 @@ class OrderController extends Controller
             }
            
             $offer_status = Constants::NOT_OFFER;
-            $offer_id = NULL;
+            // $offer_id = NULL;
 
             if ($orderDetail != null) {
                 $offer = Offer::where('order_detail_id', $orderDetail->id)->where('order_id', $order->id)->where('status', '!=', Constants::CANCEL)->first();
 
                 if ($offer) {
-                    $offer_id = $offer->id;
+                    // $offer_id = $offer->id;
                     if ($offer->status == Constants::NEW) {
                         $offer_status = Constants::NEW_OFFER;
                     } elseif ($offer->status == Constants::ACCEPT) {
@@ -388,13 +388,13 @@ class OrderController extends Controller
             $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
             $arr['distance_km'] = $distance['km'];
             $arr['distance'] = $distance['time'];
-            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date']. ' +' . $distance['time']));
+            $arr['arrived_date'] = date('d.m.Y H:i', strtotime($arr['start_date'] . ' +' . $distance['time']));
             $arr['seats_count'] = $order->seats;
             $arr['price'] = $order->price;
             $arr['price_type'] = $order->price_type;
             $arr['status'] = ($order->status) ? $order->status->name : '';
             $arr['offer_status'] = $offer_status;
-            $arr['offer_id'] = $offer_id;
+            // $arr['offer_id'] = $offer_id;
             $arr['driver_information'] = $arrDriverInformation;
             $arr['car_information'] = (empty($arrCarInfo)) ? NULL : $arrCarInfo;
             $arr['clients_list'] = $arrClients;
