@@ -1331,8 +1331,12 @@ class OrderController extends Controller
         
                         $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
     
-                        return $this->success(translate_api('offer created', $language), 204 , $data);  
+                        return $this->success(translate_api('offer created', $language), 204);  
     
+                    }
+                    if ($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL) {
+                        
+                        return $this->success(translate_api('Sorry, you cannot bid on this warrant', $language), 204);
                     }
                 }
                 // dd($old_offer);
