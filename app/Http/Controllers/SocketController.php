@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
-use React\EventLoop\LoopInterface;
 
+use Ratchet\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
@@ -26,31 +25,18 @@ use Auth;
 class SocketController extends Controller implements MessageComponentInterface
 {
     protected $clients;
-    protected $loop;
 
-    public function __construct(LoopInterface $loop) {
+    public function __construct() {
         $this->clients = new \SplObjectStorage;
-        $this->loop = $loop;
-
     }
 
     public function onOpen(ConnectionInterface $conn) {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
 
-        $conn->connectedTime = time();
+        // Set a connection timeout for 24 hours (86400 seconds)
+        // $conn->setTimeout(86400);
         
-        $this->loop->addPeriodicTimer(60, function () use ($conn) {
-            $currentTime = time();
-            $connectedTime = $conn->connectedTime;
-            $elapsedTime = $currentTime - $connectedTime;
-
-            if ($elapsedTime >= 86400) {
-                // Disconnect the client if connected for more than one day
-                $conn->close();
-            }
-        });
-
         echo "New connection! ({$conn->resourceId})\n";
     }
 
