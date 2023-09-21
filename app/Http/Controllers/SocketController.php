@@ -413,7 +413,7 @@ class SocketController extends Controller implements MessageComponentInterface
     
 
             // return $response;
-            return $this->success('chat cancelled', 200, $list);
+            return $this->success('new chat created', 200, $list);
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
 
