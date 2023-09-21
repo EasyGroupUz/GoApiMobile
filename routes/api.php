@@ -82,6 +82,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
 
     Route::group(['prefix' => 'chat'], function () {
         Route::post('/details', [SocketController::class, 'chatDetails']);
+        Route::post('/send-message', [SocketController::class, 'sendMessage']);
         Route::get('/list', [SocketController::class, 'chatList']);
         Route::get('/information', [SocketController::class, 'chatInformation']);
     });
