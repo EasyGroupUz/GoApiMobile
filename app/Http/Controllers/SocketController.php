@@ -469,6 +469,10 @@ class SocketController extends Controller implements MessageComponentInterface
         ], 200);
 
     }
+    public function index()
+    {
+        return view('index');
+    }
 
 
 
