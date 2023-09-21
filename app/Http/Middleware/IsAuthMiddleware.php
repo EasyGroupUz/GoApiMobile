@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsAuthController
+class IsAuthMiddleware
 {
     /**
      * Handle an incoming request.
@@ -17,10 +17,14 @@ class IsAuthController
     public function handle(Request $request, Closure $next): Response
     {
         date_default_timezone_set("Asia/Tashkent");
-        if(isset(Auth::user()->deleted_at)){
-            return response()->json('Your account had been deleted', 401);
-        }else{
+        if(Auth::user()->token == request()->bearerToken()){
             return $next($request);
+        }else{
+            return response()->json(
+                [
+                    'message'=>'unauthenticated',
+                    'status'=>false
+                ], 401);
         }
     }
 }

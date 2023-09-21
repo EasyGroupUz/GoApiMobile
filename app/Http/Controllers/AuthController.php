@@ -265,7 +265,7 @@ class AuthController extends Controller
                     return $this->success($message, 201, ['token'=>$token]);
                 }
             }else{
-                $message = 'Failed your token didn\'t match';
+                $message = "Failed your token didn't match";
                 return $this->error(translate_api($message, $language), 400);
             }
         }
@@ -353,11 +353,11 @@ class AuthController extends Controller
                     return $this->success($message, 201, ['token'=>$token]);
                 }
             }else{
-                $message = 'Failed your token didn\'t match';
+                $message = "Failed your token didn't match";
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            $message = 'Failed your phone didn\'t match';
+            $message = "Failed your token didn't match";
             return $this->error(translate_api($message, $language), 400);
         }
     }
@@ -468,11 +468,11 @@ class AuthController extends Controller
                 $message = 'Success';
                 return $this->success($message, 201, ['token'=>$token]);
             }else{
-                $message = 'Failed your token didn\'t match';
+                $message = "Failed your token didn't match";
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            $message = 'Failed your token didn\'t match';
+            $message = "Failed your token didn't match";
             return $this->error(translate_api($message, $language), 400);
         }
     }
