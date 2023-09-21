@@ -75,11 +75,11 @@ class CommentScoreController extends Controller
             if($user->id == $request->to_user_id){
                 return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
             }
-            $is_driver = Driver::Select('id')->where('user_id', $to_user->id)->first();
-            $you_driver = Driver::Select('id')->where('user_id', $user->id)->first();
-            if(!isset($is_driver->id) && !isset($you_driver->id)){
-                return $this->error(translate_api('you or to_user_id must be driver', $language), 400);
-            }
+//            $is_driver = Driver::Select('id')->where('user_id', $to_user->id)->first();
+//            $you_driver = Driver::Select('id')->where('user_id', $user->id)->first();
+//            if(!isset($is_driver->id) && !isset($you_driver->id)){
+//                return $this->error(translate_api('you or to_user_id must be driver', $language), 400);
+//            }
             if(isset($to_user->id)){
                 $driver = Driver::where('user_id', $to_user->id)->first();
                 if(isset($request->score)){
@@ -121,10 +121,6 @@ class CommentScoreController extends Controller
             $comment->score = $request->score;
         }
         $comment->date = date("Y-m-d");
-        $order = Order::find($request->order_id);
-        if(!isset($order)){
-            return $this->error(translate_api('Order is not exist', $language), 400);
-        }
         $to_user->save();
         $comment->save();
         return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
