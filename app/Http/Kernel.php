@@ -39,10 +39,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+//             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\OwnCors::class,
         ],
     ];
 
@@ -54,10 +53,9 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $middlewareAliases = [
+        'is_auth'=> \App\Http\Middleware\IsAuthMiddleware::class,
         'language'=> \App\Http\Middleware\Language::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
-        'is_auth' => \App\Http\Middleware\IsAuthController::class,
-        'is_admin' => \App\Http\Middleware\IsAdminMiddleware::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
