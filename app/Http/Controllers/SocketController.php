@@ -330,7 +330,6 @@ class SocketController extends Controller implements MessageComponentInterface
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
-                
                 'data'=>$array
             ];
     
@@ -406,15 +405,15 @@ class SocketController extends Controller implements MessageComponentInterface
                 'time'=>$time
             ];
 
-            $response=[
-            'message'=>'new chat created',
-            'status'=>true,
-            'data'=>$list
-            ];
+            // $response=[
+            // 'message'=>'new chat created',
+            // 'status'=>true,
+            // 'data'=>$list
+            // ];
     
 
             // return $response;
-            return $this->success('chat cancelled', 200, $data);
+            return $this->success('chat cancelled', 200, $list);
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
 
