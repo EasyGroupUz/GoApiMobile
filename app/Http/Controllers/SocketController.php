@@ -335,7 +335,8 @@ class SocketController extends Controller implements MessageComponentInterface
             ];
     
 
-            return $list;
+            // return $list;
+            return $this->success('success', 200, $data);
     
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
@@ -345,6 +346,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
     public function sendMessage(Request $request)
     {
+        $data=$request->all();
         $user_from_id=$data['user_from_id'];
         $user_to_id=$data['user_to_id'];
         $order_id=$data['order_id'];
@@ -411,8 +413,8 @@ class SocketController extends Controller implements MessageComponentInterface
             ];
     
 
-            return $response;
-    
+            // return $response;
+            return $this->success('chat cancelled', 200, $data);
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
 
