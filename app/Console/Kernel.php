@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\City;
 use App\Models\Order;
 use App\Constants;
+use App\Console\Commands\WebsocketRun;
 
 class Kernel extends ConsoleKernel
 {
@@ -17,7 +18,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->everyMinute();
+        $schedule->command('app:websocket-run')->everyMinute();
         
         $schedule->call(function () 
         {
