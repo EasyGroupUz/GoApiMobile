@@ -240,7 +240,7 @@ class SocketController extends Controller implements MessageComponentInterface
     public function chatDetails(Request $request)
     {
            $data=$request->all();
-            //    dd($data['type']);
+            //    dd($data['order_id']);
         
             $language = $data['language'];
             $order_id=$data['order_id'];
@@ -249,7 +249,7 @@ class SocketController extends Controller implements MessageComponentInterface
             if ($user_from_id == null) {
                 $user_from_id=auth()->id();
             }
-            
+
             $user_to_id=$data['user_to_id'];
 
             $order = Order::find($data['order_id']);
@@ -268,7 +268,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
 
             $from_to_name=table_translate($order,'city',$language);
-            // $array=[];
+            $array=[];
             $array=json_decode ("{}");
 
             if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
@@ -340,7 +340,7 @@ class SocketController extends Controller implements MessageComponentInterface
     
 
             // return $list;
-            return $this->success('success', 200, $data);
+            return $this->success('success', 200, $list);
     
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
