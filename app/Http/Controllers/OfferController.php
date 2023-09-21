@@ -56,11 +56,13 @@ class OfferController extends Controller
             if ($old_offer->status==Constants::NEW) 
             {
                 // dd('dfawdawdaw');
-                return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
+                // return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
+                return $this->error(translate_api('Your old offer was not accepted please wait', $language), 400);
             }
             elseif($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL)
             {
-                return $this->success(translate_api('Sorry, you cannot make another offer for this order', $language), 200);
+                // return $this->success(translate_api('Sorry, you cannot make another offer for this order', $language), 200);
+                return $this->error(translate_api('Sorry, you cannot make another offer for this order', $language), 400);
                 
             }
             else 
@@ -68,7 +70,8 @@ class OfferController extends Controller
                 if ($order->status_id==Constants::ORDERED) {
                     
                     if ($seats_count==0) {
-                        return $this->success(translate_api('Sorry, seats are full', $language), 200);
+                        // return $this->success(translate_api('Sorry, seats are full', $language), 200);
+                        return $this->error(translate_api('Sorry, seats are full', $language), 400);
                     }
                     if ($seats_count >= $field['seats'] ) {
 
@@ -114,12 +117,15 @@ class OfferController extends Controller
                     }
                     else {
 
-                        return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
+                        // return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
+                        return $this->error(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 400);
+
                     }
 
                 }
                 else {
-                    return $this->success(translate_api('Sorry, this  order status is not Ordered ', $language), 200);
+                    // return $this->success(translate_api('Sorry, this  order status is not Ordered ', $language), 200);
+                    return $this->error(translate_api('Sorry, this  order status is not Ordered', $language), 400);
                 }
                 
             }

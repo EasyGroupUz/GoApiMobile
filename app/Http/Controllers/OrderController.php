@@ -1301,12 +1301,18 @@ class OrderController extends Controller
                         return $this->success(translate_api('Offer accepted', $language), 200, $data);
                         
                     } elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
-                        return $this->success(translate_api('Sorry this offer canceled', $language), 200);
+                        // return $this->success(translate_api('Sorry this offer canceled', $language), 200);
+                        return $this->error(translate_api('Sorry this offer canceled', $language), 400);
+
                     } else {
-                        return $this->success(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 200);
+                        return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
+
+                        // return $this->success(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 200);
                     }
                 } else {
-                    return $this->success(translate_api('Sorry, this booking has been cancelled or accepted', $language), 200);
+                    return $this->error(translate_api('Sorry, this booking has been cancelled or accepted', $language), 400);
+
+                    // return $this->success(translate_api('Sorry, this booking has been cancelled or accepted', $language), 200);
                 }
             }
         } elseif ($options->quick_booking == 1) {
@@ -1336,7 +1342,9 @@ class OrderController extends Controller
                     }
                     if ($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL) {
 
-                        return $this->success(translate_api('You cannot reserve a seat on this trip because you have already cancelled', $language), 204);
+                        // return $this->success(translate_api('You cannot reserve a seat on this trip because you have already cancelled', $language), 204);           
+                        return $this->error(translate_api('You cannot reserve a seat on this trip because you have already cancelled', $language), 400);
+
                     }
                 }
                 // dd($old_offer);
@@ -1357,7 +1365,8 @@ class OrderController extends Controller
                 $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place + $offer->seats): $offer->seats;
                 $saveOrder = $order->save();
             } else {
-                return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
+                // return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
+                return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
             }
 
             $orderDetail->order_id = $order->id;
@@ -1376,7 +1385,9 @@ class OrderController extends Controller
 
             return $this->success(translate_api('offer created', $language), 204 , $data);  
         } else {
-            return $this->success(translate_api('Offer not found', $language), 204);
+            // return $this->success(translate_api('Offer not found', $language), 204);
+            return $this->error(translate_api('Offer not found', $language), 400);
+
         }
     }
 
@@ -1390,7 +1401,9 @@ class OrderController extends Controller
 
             $first_offer = Offer::where('id', $request['offer_id'])->first();
             if ($first_offer->status != Constants::NEW) {
-                return $this->success('This is offer sttus not new', 204);
+                // return $this->success('This is offer sttus not new', 204);
+                return $this->error(translate_api('This is offer sttus not new', $language), 400);
+
             }
         }
         else {
@@ -1411,10 +1424,14 @@ class OrderController extends Controller
             $orderDetail = OrderDetail::find($order_detail_id);
 
             if (!$order)
-                return $this->success('Order not found', 204);
+                // return $this->success('Order not found', 204);
+                return $this->error(translate_api('Order not found', $language), 400);
+
 
             if (!$orderDetail)
-                return $this->success('Order Detail not found', 204);
+                // return $this->success('Order detail not found', 204);
+                return $this->error(translate_api('Order detail not found', $language), 400);
+
 
             $orderDetail->order_id = null;
             $saveOrderDetail = $orderDetail->save();
@@ -1472,7 +1489,9 @@ class OrderController extends Controller
     
             $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
         } else {
-            return $this->success('Offer not found', 204);
+            // return $this->success('Offer not found', 204);
+            return $this->error(translate_api('Offer not found', $language), 400);
+
         }
 
         $id=auth()->id();
