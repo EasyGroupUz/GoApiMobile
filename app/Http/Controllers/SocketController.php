@@ -70,7 +70,9 @@ class SocketController extends Controller implements MessageComponentInterface
             // $from->send(json_encode($personalInfo));
             
             $from_to_name=table_translate($order,'city',$language);
-            $array=[];
+            // $array=[];
+            
+            $array=json_decode ("{}");
             
             if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
@@ -171,7 +173,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     $userSend = User::find($user_to_id);
                     // $userSender = User::find($user_from_id);
                     
-                    $device = ($userSend) ? json_decode($userSend->device_type) : [];
+                    $device = ($userSend) ? json_decode($userSend->device_id) : [];
                     $title = translate_api("You've got mail", $userSend->language);
                     $message = $text;
                     $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
