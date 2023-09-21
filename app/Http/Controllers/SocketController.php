@@ -263,7 +263,8 @@ class SocketController extends Controller implements MessageComponentInterface
 
 
             $from_to_name=table_translate($order,'city',$language);
-            $array=[];
+            // $array=[];
+            $array=json_decode ("{}");
 
             if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
 
