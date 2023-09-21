@@ -201,7 +201,7 @@ class Controller extends BaseController
 
     public function sendNotificationChat($device, $user_id, $chat_id, $title = 'GoEasy', $message = 'Hello GoEasy', $largeIcon = '')
     {
-        $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
+        // $largeIcon = 'https://cdn.vectorstock.com/i/1000x1000/19/45/user-avatar-icon-sign-symbol-vector-4001945.webp';
         $action = 'chat';
 
         // $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();

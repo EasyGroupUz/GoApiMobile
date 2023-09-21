@@ -176,7 +176,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     $device = ($userSend) ? json_decode($userSend->device_id) : [];
                     $title = translate_api("You've got mail", $userSend->language);
                     $message = $text;
-                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : '';
+                    $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : storage_path('app/public/avatar/default_avatar.png');
                     // $order_data = [
                     //     'order_id' => $order->id,
                     //     'start_date' => $order->start_date,
