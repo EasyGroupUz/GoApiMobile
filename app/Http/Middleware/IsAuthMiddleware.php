@@ -23,8 +23,8 @@ class IsAuthMiddleware
             return response()->json(
                 [
                     'message'=>'unauthenticated',
-                    'status'=>401
-                ]);
+                    'status'=>false
+                ], 401);
         }
     }
 }
