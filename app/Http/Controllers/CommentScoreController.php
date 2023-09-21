@@ -75,13 +75,16 @@ class CommentScoreController extends Controller
             if($user->id == $request->to_user_id){
                 return $this->error(translate_api('It is your id. you cannot comment to yourself', $language), 400);
             }
-            $is_driver = Driver::Select('id')->where('user_id', $to_user->id)->first();
-            $you_driver = Driver::Select('id')->where('user_id', $user->id)->first();
-            if(!isset($is_driver->id) && !isset($you_driver->id)){
-                return $this->error(translate_api('you or to_user_id must be driver', $language), 400);
+
+            if(isset($request->order_id)){
+                $comment->order_id = $request->order_id;
+                $order = Order::find($request->order_id);
+                if(!isset($order->id)){
+                    return $this->error(translate_api('Order is not exist', $language), 400);
+                }
             }
+
             if(isset($to_user->id)){
-                $driver = Driver::where('user_id', $to_user->id)->first();
                 if(isset($request->score)){
                     $all_comments = CommentScore::select('score')->where('to_whom', $request->to_user_id)->get();
                     $all_score_sum = 0;
@@ -92,28 +95,24 @@ class CommentScoreController extends Controller
                     }
                     $to_user->rating = round(($all_score_sum + $request->score)*10/($count_comment+1))/10;
                 }
-                if(isset($driver->id)){
+                if($order->driver_id == $request->to_user_id){
                     $comment->type = 1;
                     $comment->driver_id = $request->to_user_id;
                     $comment->client_id = $user->id;
                     $comment->to_whom = $request->to_user_id;
-                }else{
+                }elseif($order->driver_id == $user->id){
                     $comment->type = 2;
                     $comment->client_id = $request->to_user_id;
                     $comment->to_whom = $request->to_user_id;
                     $comment->driver_id = $user->id;
+                }else{
+                    return $this->error(translate_api('This order does not apply to you or the person you are writing to', $language), 400);
                 }
             }else{
                 return $this->error(translate_api('To user id is not exist', $language), 400);
             }
         }
-        if(isset($request->order_id)){
-            $comment->order_id = $request->order_id;
-            $order = Order::find($request->order_id);
-            if(!isset($order->id)){
-                return $this->error(translate_api('Order is not exist', $language), 400);
-            }
-        }
+
         if(isset($request->text)){
             $comment->text = $request->text;
         }
@@ -121,10 +120,6 @@ class CommentScoreController extends Controller
             $comment->score = $request->score;
         }
         $comment->date = date("Y-m-d");
-        $order = Order::find($request->order_id);
-        if(!isset($order)){
-            return $this->error(translate_api('Order is not exist', $language), 400);
-        }
         $to_user->save();
         $comment->save();
         return $this->success('Success', 400, ["created_at" => date_format($comment->created_at, 'Y-m-d H:i:s')]);
