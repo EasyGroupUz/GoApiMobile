@@ -245,6 +245,11 @@ class SocketController extends Controller implements MessageComponentInterface
             $language = $data['language'];
             $order_id=$data['order_id'];
             $user_from_id=$data['user_from_id'];
+
+            if ($user_from_id == null) {
+                $user_from_id=auth()->id();
+            }
+            
             $user_to_id=$data['user_to_id'];
 
             $order = Order::find($data['order_id']);
