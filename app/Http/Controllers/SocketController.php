@@ -435,8 +435,8 @@ class SocketController extends Controller implements MessageComponentInterface
         // $data=$request->all();
         $chat_id=$request->chat_id;
         $order_id=$request->order_id;
-        $user_from_id=$request->user_$user_from_id;
-        $user_to_id=$request->user$user_to_id;
+        $user_from_id=$request->$user_from_id;
+        $user_to_id=$request->$user_to_id;
 
             $new_chat = [
                 'id' => $chat_id,
