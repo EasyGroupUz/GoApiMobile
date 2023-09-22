@@ -290,8 +290,12 @@ class SocketController extends Controller implements MessageComponentInterface
                 // dd($chat_data);
             
                 $distinct_dates = $chat_data->pluck('created_at')->map(function ($item) {
+                    
                     return Carbon::parse($item)->format('Y-m-d'); // Format the date as 'YYYY-MM-DD'
                 })->unique();
+                $chat_id = $chat_data->pluck('id')->map(function ($item) {
+                    return $item; // Format the date as 'YYYY-MM-DD'
+                })->first();
                 // dd($distinct_dates);
 
                 foreach ($distinct_dates as $key => $value) {
@@ -329,6 +333,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
+                'chat_id'=>$chat_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
