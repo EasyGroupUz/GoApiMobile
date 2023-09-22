@@ -38,8 +38,8 @@ class Constants {
    const ORDER_DETAIL= 0;
    const ORDER = 1;
 
-   const MIN_DESTINATION_PRICE = 300;
-   const MAX_DESTINATION_PRICE = 500;
+   const MIN_DESTINATION_PRICE = 100;
+   const MAX_DESTINATION_PRICE = 350;
 
    // Driver doc_status
    const NOT_ACCEPT = 1;

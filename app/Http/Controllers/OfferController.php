@@ -211,7 +211,7 @@ class OfferController extends Controller
                     'from_name' => $from_to_name['from_name'],
                     'to_name' => $from_to_name['to_name'],
                     'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
-                    'doc_status'=> $offer->doc_status,
+                    'doc_status'=> (int)$offer->doc_status,
                     'avatar'=>$offer->avatar,
                     'seats_count'=>$offer->seats_count,
                     'is_your'=>$is_your

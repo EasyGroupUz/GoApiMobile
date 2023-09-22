@@ -71,11 +71,11 @@ class UserController extends Controller
                 if(isset($model->driver->doc_status)){
                     $doc_status = $model->driver->doc_status;
                 }
-                if(isset($model->driver->licence_number)){
-                    $licence_number = $model->driver->licence_number;
+                if(isset($model->driver->license_number)){
+                    $license_number = $model->driver->license_number;
                 }
                 if(isset($model->driver->license_expired_date)){
-                    $license_expired_date = $model->driver->license_expired_date;
+                    $license_expired_date = explode(" ", $model->driver->license_expired_date);
                 }
                 if(isset($model->driver->cars)){
                     foreach ($model->driver->cars as $car){
@@ -96,8 +96,8 @@ class UserController extends Controller
                 'full_name'=>$full_name,
                 'birth_date'=>$model->personalInfo->birth_date??null,
                 'doc_status'=>(int)($doc_status??1),
-                'licence_number'=>$licence_number??null,
-                'license_expired_date'=>$license_expired_date??null,
+                'licence_number'=>$license_number??null,
+                'license_expired_date'=>$license_expired_date[0]??null,
                 'reg_certificate'=>$reg_certificate??[],
                 'email'=>$model->personalInfo->email??null,
                 'gender'=>$model->personalInfo->gender??null,
