@@ -500,7 +500,7 @@ class SocketController extends Controller implements MessageComponentInterface
                 'order_id' => $order_id,
                 'order_detail_id' => $chat_id
             ];
-           
+            $new_chat = Chat::create($new_chat);
             $list=[
                 'chat_id'=>$new_chat->order_detail_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
