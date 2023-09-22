@@ -430,6 +430,25 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
+    public function store(Request $request)
+    {
+        // $data=$request->all();
+        $chat_id=$request->chat_id;
+
+            $new_chat = [
+                'id' =>$chat_id,
+                // 'user_from_id' =>null,
+                // 'user_to_id' =>null,
+                // 'text' => null
+            ];
+
+            $new_chat = Chat::create($new_chat);
+            return $this->success('new chat created', 200,);
+
+
+
+    }
+
 
 
 
