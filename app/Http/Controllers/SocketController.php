@@ -269,83 +269,107 @@ class SocketController extends Controller implements MessageComponentInterface
 
             $from_to_name=table_translate($order,'city',$language);
             $array=[];
-            $array=json_decode ("{}");
+            // $array=json_decode ("{}");
 
-            if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
-
-                $chat_data = DB::table('yy_chats as dt1')
-                ->select('dt1.id', 'dt1.user_from_id', 'dt1.user_to_id', 'dt1.text', 'dt1.order_id', 'dt1.created_at')
-                ->where(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_from_id'])
-                          ->where('user_to_id', $data['user_to_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orWhere(function ($query) use ($data) {
-                    $query->where('user_from_id', $data['user_to_id'])
-                          ->where('user_to_id', $data['user_from_id'])
-                          ->where('order_id', $data['order_id']);
-                })
-                ->orderBy('created_at', 'ASC')
-                ->get();
-                // dd($chat_data);
-            
-                $distinct_dates = $chat_data->pluck('created_at')->map(function ($item) {
-                    
-                    return Carbon::parse($item)->format('Y-m-d'); // Format the date as 'YYYY-MM-DD'
-                })->unique();
-                $chat_id = $chat_data->pluck('id')->map(function ($item) {
-                    return $item; // Format the date as 'YYYY-MM-DD'
-                })->first();
-                // dd($distinct_dates);
-
-                foreach ($distinct_dates as $key => $value) {
-                    // dd($value);
-                    foreach ($chat_data as $key => $chat) {
-                        $date=Carbon::parse($chat->created_at)->format('Y-m-d');
-                        // dd($date);
-                        if ($date==$value ) {
-                        
-                            $time=Carbon::parse($chat->created_at)->format('H:i');
-                            $user_from=User::find($chat->user_from_id);
-                            $user_to=User::find($chat->user_to_id);
-                            if ($chat->user_from_id==$data['user_from_id']) {
-                                $is_your=true;
-                            } else {
-                                $is_your=false;
-                            }
-                            
-                            $array[$value][]=[
-                                'is_your'=>$is_your,
-                                'text'=>$chat->text,
-                                'time'=>$time
-                            ];
-                        }
-                        
-                        
-                    }
-    
-                }
-
-            }
-            else {
-                $array=json_decode ("{}");
-                
-            }
-
+            $chat_data = DB::table('yy_chats')
+            ->where('user_from_id', $data['user_from_id'])
+            ->where('user_to_id', $data['user_to_id'])
+            ->where('order_id', $data['order_id'])->first();
+           
             $list=[
-                'chat_id'=>$chat_id ?? null,
+                'chat_id'=>$chat_data->order_detail_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
-                'data'=>$array
+                // 'data'=>$array
             ];
     
 
             // return $list;
             return $this->success('success', 200, $list);
+
+
+
+            // if (DB::table('yy_chats')->where('order_id',$id)->exists()) {
+
+            //     $chat_data = DB::table('yy_chats as dt1')
+            //     ->select('dt1.id', 'dt1.user_from_id', 'dt1.user_to_id', 'dt1.text', 'dt1.order_id', 'dt1.created_at')
+            //     ->where(function ($query) use ($data) {
+            //         $query->where('user_from_id', $data['user_from_id'])->where('user_to_id', $data['user_to_id'])->where('order_id', $data['order_id']);
+            //     })
+            //     ->orWhere(function ($query) use ($data) {
+            //         $query->where('user_from_id', $data['user_to_id'])
+            //               ->where('user_to_id', $data['user_from_id'])
+            //               ->where('order_id', $data['order_id']);
+            //     })
+            //     ->orderBy('created_at', 'ASC')
+            //     ->get();
+            //     dd($chat_data);
+            
+            //     $distinct_dates = $chat_data->pluck('created_at')->map(function ($item) {
+                    
+            //         return Carbon::parse($item)->format('Y-m-d'); // Format the date as 'YYYY-MM-DD'
+            //     })->unique();
+            //     $chat_id = $chat_data->pluck('id')->map(function ($item) {
+            //         return $item; // Format the date as 'YYYY-MM-DD'
+            //     })->first();
+            //     // dd($distinct_dates);
+
+            //     // foreach ($distinct_dates as $key => $value) {
+            //     //     // dd($value);
+            //     //     foreach ($chat_data as $key => $chat) {
+            //     //         $date=Carbon::parse($chat->created_at)->format('Y-m-d');
+            //     //         // dd($date);
+            //     //         // if ($date==$value ) {
+                        
+            //     //         //     $time=Carbon::parse($chat->created_at)->format('H:i');
+            //     //         //     $user_from=User::find($chat->user_from_id);
+            //     //         //     $user_to=User::find($chat->user_to_id);
+            //     //         //     if ($chat->user_from_id==$data['user_from_id']) {
+            //     //         //         $is_your=true;
+            //     //         //     } else {
+            //     //         //         $is_your=false;
+            //     //         //     }
+                            
+            //     //         //     $array[$value][]=[
+            //     //         //         'is_your'=>$is_your,
+            //     //         //         'text'=>$chat->text,
+            //     //         //         'time'=>$time
+            //     //         //     ];
+            //     //         // }
+                        
+                        
+            //     //     }
+    
+            //     // }
+
+            // }
+
+            // if (->where('user_from_id', $data['user_from_id'])->where('user_to_id', $data['user_to_id'])->where('order_id', $data['order_id'])->first()) {
+                
+            // }
+            // else {
+            //     $array=json_decode ("{}");
+                
+            // }
+
+            // $list=[
+            //     'chat_id'=>$chat_id ?? null,
+            //     'name' => $personalInfo->first_name ?? null,
+            //     'image' => $personalInfo->avatar ?? null,
+            //     'order_id'=>$id,
+            //     'start_date'=>$order->start_date,
+            //     'from_name'=>$from_to_name['from_name'],
+            //     'to_name'=>$from_to_name['to_name'],
+            //     // 'data'=>$array
+            // ];
+    
+
+            // // return $list;
+            // return $this->success('success', 200, $list);
     
             // $from->send(json_encode($list , JSON_UNESCAPED_UNICODE));
 
@@ -432,24 +456,64 @@ class SocketController extends Controller implements MessageComponentInterface
 
     public function store(Request $request)
     {
-        $data=$request->all();
+        // dd($request->all());
         $chat_id=$request->chat_id;
         $order_id=$request->order_id;
-        $user_from_id=$request->$user_from_id;
-        $user_to_id=$request->$user_to_id;
+        $user_from_id=$request->user_from_id;
+        $user_to_id=$request->user_to_id;
+
+        $data=$request->all();
+        $language = $request->header('language');
+        $chat_id=$data['chat_id'];
+        $order_id=$data['order_id'];
+        $user_from_id=$data['user_from_id'];
+
+        if ($user_from_id == null) {
+            $user_from_id=auth()->id();
+        }
+
+        $user_to_id=$data['user_to_id'];
+
+        $order = Order::find($data['order_id']);
+        $id=$order->id;
+
+        $personalInfo = User::find($user_to_id)->personalInfo;
+
+        if ($personalInfo && isset($personalInfo->avatar)) {
+            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            if (file_exists($avatarPath)) {
+                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            } else {
+                $personalInfo->avatar = null;
+            }
+        }
+
+
+        $from_to_name=table_translate($order,'city',$language);
+        $array=[];
+
 
             $new_chat = [
-                'id' => $chat_id,
                 'user_from_id' => $user_from_id,
                 'user_to_id' => $user_to_id,
                 'order_id' => $order_id,
                 'order_detail_id' => $chat_id
             ];
+           
+            $list=[
+                'chat_id'=>$chat_data->order_detail_id ?? null,
+                'name' => $personalInfo->first_name ?? null,
+                'image' => $personalInfo->avatar ?? null,
+                'order_id'=>$id,
+                'start_date'=>$order->start_date,
+                'from_name'=>$from_to_name['from_name'],
+                'to_name'=>$from_to_name['to_name'],
+                // 'data'=>$array
+            ];
+    
 
-            $new_chat = Chat::create($new_chat);
-            return $this->success('new chat created', 200);
-
-
+            // return $list;
+            return $this->success('success', 200, $list);
 
     }
 
