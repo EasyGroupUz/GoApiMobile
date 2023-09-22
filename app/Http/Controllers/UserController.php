@@ -95,7 +95,7 @@ class UserController extends Controller
                 'last_name'=>$model->personalInfo->last_name??null,
                 'full_name'=>$full_name,
                 'birth_date'=>$model->personalInfo->birth_date??null,
-                'doc_status'=>$doc_status??1,
+                'doc_status'=>(int)($doc_status??1),
                 'licence_number'=>$licence_number??null,
                 'license_expired_date'=>$license_expired_date??null,
                 'reg_certificate'=>$reg_certificate??[],
