@@ -241,8 +241,8 @@ class SocketController extends Controller implements MessageComponentInterface
     {
            $data=$request->all();
             //    dd($data['order_id']);
-        
-            $language = $data['language'];
+            $language = $request->header('language');
+            // $language = $data['language'];
             $order_id=$data['order_id'];
             $user_from_id=$data['user_from_id'];
 
