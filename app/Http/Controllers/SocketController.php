@@ -432,7 +432,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
     public function store(Request $request)
     {
-        // $data=$request->all();
+        $data=$request->all();
         $chat_id=$request->chat_id;
         $order_id=$request->order_id;
         $user_from_id=$request->$user_from_id;
