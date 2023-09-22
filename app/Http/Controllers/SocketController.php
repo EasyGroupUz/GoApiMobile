@@ -437,7 +437,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
             $new_chat = [
                 'id' =>$chat_id,
-                // 'user_from_id' =>null,
+                'order_detail_id' =>$chat_id
                 // 'user_to_id' =>null,
                 // 'text' => null
             ];
