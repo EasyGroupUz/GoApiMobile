@@ -108,7 +108,7 @@ class OrderController extends Controller
                     'phone_number' => $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
-                    'doc_status' => ($driver_info) ? $driver_info->doc_status : NULL
+                    'doc_status' => ($driver_info) ? (int)$driver_info->doc_status : NULL
                 ],
                 'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
@@ -270,7 +270,7 @@ class OrderController extends Controller
                 $arrDriverInformation['img'] = $d_img;
                 $arrDriverInformation['rating'] = $driver_info->rating;
                 $arrDriverInformation['created_at'] = date('d.m.Y H:i', strtotime($driver_info->created_at));
-                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? $driver_info->driver->doc_status : NULL;
+                $arrDriverInformation['doc_status'] = ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL;
                 $arrDriverInformation['type'] = $driver_info->type ?? 0;
                 $arrDriverInformation['count_comments'] = count($arrComments);
                 // $arrDriverInformation['comments'] = $arrComments;
@@ -911,7 +911,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
-                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? $valDriver->driver->doc_status : NULL;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? (int)$valDriver->driver->doc_status : NULL;
                 }
 
                 $arrCar = [];
@@ -1136,7 +1136,7 @@ class OrderController extends Controller
                     $arrDriverInfo['phone_number'] = $d_phone_number;
                     $arrDriverInfo['img'] = $d_img;
                     $arrDriverInfo['rating'] = $valDriver->rating;
-                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? $valDriver->driver->doc_status : NULL;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? (int)$valDriver->driver->doc_status : NULL;
                 }
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));

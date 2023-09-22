@@ -558,7 +558,7 @@ class OrderDetailsController extends Controller
                 'phone_number' => $offer->phone_number,
                 'img' => ($offer->dImg) ? asset('storage/avatar/' . $offer->dImg) : '',
                 'rating' => $offer->rating,
-                'doc_status' => $offer->driver_doc_status
+                'doc_status' => (int)$offer->driver_doc_status
             ];
             $arr[$n]['car'] = [
                 'id' => $offer->car_id,
