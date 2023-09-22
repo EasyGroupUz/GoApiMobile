@@ -463,6 +463,7 @@ class SocketController extends Controller implements MessageComponentInterface
         // $user_to_id=$request->user_to_id;
 
         $data=$request->all();
+        // dd($data);
         $language = $request->header('language');
         $chat_id=$data['chat_id'];
         $order_id=$data['order_id'];
@@ -501,7 +502,7 @@ class SocketController extends Controller implements MessageComponentInterface
             ];
            
             $list=[
-                'chat_id'=>$chat_data->order_detail_id ?? null,
+                'chat_id'=>$new_chat->order_detail_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
