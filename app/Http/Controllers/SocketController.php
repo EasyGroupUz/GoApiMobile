@@ -570,7 +570,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
-                'id'=>$chat->id,
+                'id'=>strval($chat->id),
                 'order_id'=>$chat->order_id,
                 // 'order_detail_id'=>$orderDetail->id ?? null,
                 'start_date'=>$order->start_date,
