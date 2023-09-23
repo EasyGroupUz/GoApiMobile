@@ -277,7 +277,7 @@ class SocketController extends Controller implements MessageComponentInterface
             ->where('order_id', $data['order_id'])->first();
            
             $list=[
-                'chat_id'=>$chat_data->order_detail_id ?? null,
+                'chat_id'=>strval($new_chat->order_detail_id) ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
