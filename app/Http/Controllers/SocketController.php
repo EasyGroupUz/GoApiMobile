@@ -279,7 +279,7 @@ class SocketController extends Controller implements MessageComponentInterface
             if ($chat_data) {
 
                 $list=[
-                    'chat_id'=>$chat_data->order_detail_id ?? null,
+                    'chat_id'=>$chat_data->id ?? null,
                     'firebase_id'=>strval($chat_data->firebase_id) ?? null,
                     'name' => $personalInfo->first_name ?? null,
                     'image' => $personalInfo->avatar ?? null,
@@ -474,7 +474,11 @@ class SocketController extends Controller implements MessageComponentInterface
         $data=$request->all();
         // dd($data);
         $language = $request->header('language');
-        $chat_id=(int)$data['chat_id'];
+        // $chat_id=null;
+        // if ($data['chat_id']) {
+            
+        //     $chat_id=(int)$data['chat_id'];
+        // }
         $firebase_id=(int)$data['firebase_id'];
         $order_id=$data['order_id'];
         $user_from_id=$data['user_from_id'];
@@ -508,12 +512,12 @@ class SocketController extends Controller implements MessageComponentInterface
                 'user_from_id' => $user_from_id,
                 'user_to_id' => $user_to_id,
                 'order_id' => $order_id,
-                'order_detail_id' => $chat_id,
+                // 'order_detail_id' => $chat_id,
                 'firebase_id' => $firebase_id
             ];
             $new_chat = Chat::create($new_chat);
             $list=[
-                'chat_id'=>$new_chat->order_detail_id ?? null,
+                'chat_id'=>$new_chat->id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
