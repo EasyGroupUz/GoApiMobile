@@ -275,7 +275,7 @@ class SocketController extends Controller implements MessageComponentInterface
             ->where('user_from_id', $data['user_from_id'])
             ->where('user_to_id', $data['user_to_id'])
             ->where('order_id', $data['order_id'])->first();
-           
+           dd($chat_data);
             $list=[
                 'chat_id'=>$chat_data->order_detail_id ?? null,
                 'firebase_id'=>strval($chat_data->firebase_id) ?? null,
