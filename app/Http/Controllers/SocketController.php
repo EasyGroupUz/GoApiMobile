@@ -465,7 +465,7 @@ class SocketController extends Controller implements MessageComponentInterface
         $data=$request->all();
         // dd($data);
         $language = $request->header('language');
-        $chat_id=$data['chat_id'];
+        $chat_id=int()$data['chat_id'];
         $order_id=$data['order_id'];
         $user_from_id=$data['user_from_id'];
 
