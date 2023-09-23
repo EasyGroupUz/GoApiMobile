@@ -275,22 +275,30 @@ class SocketController extends Controller implements MessageComponentInterface
             ->where('user_from_id', $data['user_from_id'])
             ->where('user_to_id', $data['user_to_id'])
             ->where('order_id', $data['order_id'])->first();
-           dd($chat_data);
-            $list=[
-                'chat_id'=>$chat_data->order_detail_id ?? null,
-                'firebase_id'=>strval($chat_data->firebase_id) ?? null,
-                'name' => $personalInfo->first_name ?? null,
-                'image' => $personalInfo->avatar ?? null,
-                'order_id'=>$id,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                // 'data'=>$array
-            ];
+            //    dd($chat_data);
+            if ($chat_data) {
+
+                $list=[
+                    'chat_id'=>$chat_data->order_detail_id ?? null,
+                    'firebase_id'=>strval($chat_data->firebase_id) ?? null,
+                    'name' => $personalInfo->first_name ?? null,
+                    'image' => $personalInfo->avatar ?? null,
+                    'order_id'=>$id,
+                    'start_date'=>$order->start_date,
+                    'from_name'=>$from_to_name['from_name'],
+                    'to_name'=>$from_to_name['to_name'],
+                    // 'data'=>$array
+                ];    
+
+                return $this->success('success', 200, $list);
+            }
+            else {
+                return $this->error(translate_api('offer not found', $language), 400);
+            }
+            
     
 
             // return $list;
-            return $this->success('success', 200, $list);
 
 
 
