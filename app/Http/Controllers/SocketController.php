@@ -577,6 +577,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $list=[
                 'id'=>$chat->id,
                 'order_id'=>$chat->order_id,
+                'firebase_id'=>strval($chat->firebase_id) ?? null,
                 // 'order_detail_id'=>$orderDetail->id ?? null,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
