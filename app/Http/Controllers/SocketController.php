@@ -502,7 +502,7 @@ class SocketController extends Controller implements MessageComponentInterface
             ];
             $new_chat = Chat::create($new_chat);
             $list=[
-                'chat_id'=>strval($new_chat->order_detail_id); ?? null,
+                'chat_id'=>strval($new_chat->order_detail_id) ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
