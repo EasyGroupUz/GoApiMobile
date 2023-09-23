@@ -16,7 +16,8 @@ class Chat extends Model
         'user_to_id',
         'order_id',
         'order_detail_id',
-        'text'
+        'text',
+        'firebase_id'
     ];
 
     public function userTo()

@@ -277,7 +277,8 @@ class SocketController extends Controller implements MessageComponentInterface
             ->where('order_id', $data['order_id'])->first();
            
             $list=[
-                'chat_id'=>strval($chat_data->order_detail_id) ?? null,
+                'chat_id'=>$chat_data->order_detail_id ?? null,
+                'firebase_id'=>$chat_data->firebase_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
@@ -466,6 +467,7 @@ class SocketController extends Controller implements MessageComponentInterface
         // dd($data);
         $language = $request->header('language');
         $chat_id=(int)$data['chat_id'];
+        $firebase_id=(int)$data['firebase_id'];
         $order_id=$data['order_id'];
         $user_from_id=$data['user_from_id'];
 
@@ -498,17 +500,20 @@ class SocketController extends Controller implements MessageComponentInterface
                 'user_from_id' => $user_from_id,
                 'user_to_id' => $user_to_id,
                 'order_id' => $order_id,
-                'order_detail_id' => $chat_id
+                'order_detail_id' => $chat_id,
+                'firebase_id' => $firebase_id
             ];
             $new_chat = Chat::create($new_chat);
             $list=[
-                'chat_id'=>strval($new_chat->order_detail_id) ?? null,
+                'chat_id'=>$new_chat->order_detail_id ?? null,
                 'name' => $personalInfo->first_name ?? null,
                 'image' => $personalInfo->avatar ?? null,
                 'order_id'=>$id,
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
+                'firebase_id' => $firebase_id
+
                 // 'data'=>$array
             ];
     
@@ -570,7 +575,7 @@ class SocketController extends Controller implements MessageComponentInterface
             }
 
             $list=[
-                'id'=>strval($chat->id),
+                'id'=>$chat->id,
                 'order_id'=>$chat->order_id,
                 // 'order_detail_id'=>$orderDetail->id ?? null,
                 'start_date'=>$order->start_date,
