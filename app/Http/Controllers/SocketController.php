@@ -284,7 +284,7 @@ class SocketController extends Controller implements MessageComponentInterface
                     'user_to_id' => $user_to_id,
                     'order_id' => $order_id,
                 ];
-                $chat_data = Chat::create($new_chat);
+                $chat_data = Chat::create($chat_data);
             }
 
             
