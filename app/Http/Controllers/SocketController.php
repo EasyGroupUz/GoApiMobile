@@ -271,10 +271,19 @@ class SocketController extends Controller implements MessageComponentInterface
             $array=[];
             // $array=json_decode ("{}");
 
-            $chat_data = DB::table('yy_chats')
-            ->where('user_from_id', $data['user_from_id'])
-            ->where('user_to_id', $data['user_to_id'])
-            ->where('order_id', $data['order_id'])->first();
+            $conditions = [
+                'user_from_id' => $data['user_from_id'],
+                'user_to_id' => $data['user_to_id'],
+                'order_id' => $data['order_id'],
+            ];
+            
+            // Retrieve the first matching record or create a new one
+            $chat_data = Chat::firstOrNew($conditions);
+
+            // $chat_data = DB::table('yy_chats')
+            // ->where('user_from_id', $data['user_from_id'])
+            // ->where('user_to_id', $data['user_to_id'])
+            // ->where('order_id', $data['order_id'])->first();
             //    dd($chat_data);
             if ($chat_data) {
 
@@ -463,7 +472,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
-    public function store(Request $request)
+    public function update(Request $request)
     {
         // dd($request->all());
         // $chat_id=$request->chat_id;
@@ -477,61 +486,70 @@ class SocketController extends Controller implements MessageComponentInterface
         // $chat_id=null;
         // if ($data['chat_id']) {
             
-        //     $chat_id=(int)$data['chat_id'];
+            // }
+        $chat_id=(int)$data['chat_id'];
+        $firebase_id=$data['firebase_id'];
+       
+
+        // if ($user_from_id == null) {
+        //     $user_from_id=auth()->id();
         // }
-        $firebase_id=(int)$data['firebase_id'];
-        $order_id=$data['order_id'];
-        $user_from_id=$data['user_from_id'];
 
-        if ($user_from_id == null) {
-            $user_from_id=auth()->id();
-        }
+        // $user_to_id=$data['user_to_id'];
 
-        $user_to_id=$data['user_to_id'];
+        // $order = Order::find($data['order_id']);
+        // $id=$order->id;
 
-        $order = Order::find($data['order_id']);
-        $id=$order->id;
+        // $personalInfo = User::find($user_to_id)->personalInfo;
 
-        $personalInfo = User::find($user_to_id)->personalInfo;
+        // if ($personalInfo && isset($personalInfo->avatar)) {
+        //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+        //     if (file_exists($avatarPath)) {
+        //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+        //     } else {
+        //         $personalInfo->avatar = null;
+        //     }
+        // }
 
-        if ($personalInfo && isset($personalInfo->avatar)) {
-            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-            if (file_exists($avatarPath)) {
-                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-            } else {
-                $personalInfo->avatar = null;
+
+        // $from_to_name=table_translate($order,'city',$language);
+        // $array=[];
+            $chat=Chat::where('id',$chat_id)->first();
+            if ($chat) {
+                $chat->update([
+                    'firebase_id'=>$firebase_id
+                  ]);
+                return $this->success(translate_api("success", $language), 200);
             }
-        }
 
+            return $this->error(translate_api("chat not found", $language), 400);
 
-        $from_to_name=table_translate($order,'city',$language);
-        $array=[];
+            
 
+            // $new_chat = [
+            //     'user_from_id' => $user_from_id,
+            //     'user_to_id' => $user_to_id,
+            //     'order_id' => $order_id,
+            //     'order_detail_id' => $chat_id,
+            //     'firebase_id' => $firebase_id
+            // ];
+            // $new_chat = Chat::update($new_chat);
+            // $list=[
+            //     'chat_id'=>$new_chat->id ?? null,
+            //     'name' => $personalInfo->first_name ?? null,
+            //     'image' => $personalInfo->avatar ?? null,
+            //     'order_id'=>$id,
+            //     'start_date'=>$order->start_date,
+            //     'from_name'=>$from_to_name['from_name'],
+            //     'to_name'=>$from_to_name['to_name'],
+            //     'firebase_id' => strval($firebase_id)
 
-            $new_chat = [
-                'user_from_id' => $user_from_id,
-                'user_to_id' => $user_to_id,
-                'order_id' => $order_id,
-                // 'order_detail_id' => $chat_id,
-                'firebase_id' => $firebase_id
-            ];
-            $new_chat = Chat::create($new_chat);
-            $list=[
-                'chat_id'=>$new_chat->id ?? null,
-                'name' => $personalInfo->first_name ?? null,
-                'image' => $personalInfo->avatar ?? null,
-                'order_id'=>$id,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'firebase_id' => strval($firebase_id)
-
-                // 'data'=>$array
-            ];
+            //     // 'data'=>$array
+            // ];
     
 
             // return $list;
-            return $this->success('success', 200, $list);
+            // return $this->success('success', 200);
 
     }
 
