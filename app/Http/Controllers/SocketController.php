@@ -271,25 +271,30 @@ class SocketController extends Controller implements MessageComponentInterface
             $array=[];
             // $array=json_decode ("{}");
 
-            $conditions = [
-                'user_from_id' => $data['user_from_id'],
-                'user_to_id' => $data['user_to_id'],
-                'order_id' => $data['order_id'],
-            ];
-            
-            // Retrieve the first matching record or create a new one
-            $chat_data = Chat::firstOrNew($conditions);
 
-            // $chat_data = DB::table('yy_chats')
-            // ->where('user_from_id', $data['user_from_id'])
-            // ->where('user_to_id', $data['user_to_id'])
-            // ->where('order_id', $data['order_id'])->first();
+           $chat_data = DB::table('yy_chats')
+            ->where('user_from_id', $data['user_from_id'])
+            ->where('user_to_id', $data['user_to_id'])
+            ->where('order_id', $data['order_id'])->first();
+
+            if (!$chat_data) {
+                
+                $chat_data = [
+                    'user_from_id' => $user_from_id,
+                    'user_to_id' => $user_to_id,
+                    'order_id' => $order_id,
+                ];
+                $chat_data = Chat::create($new_chat);
+            }
+
+            
+            
             //    dd($chat_data);
             if ($chat_data) {
 
                 $list=[
                     'chat_id'=>$chat_data->id ?? null,
-                    'firebase_id'=>strval($chat_data->firebase_id) ?? null,
+                    'firebase_id'=>$chat_data->firebase_id ?? null,
                     'name' => $personalInfo->first_name ?? null,
                     'image' => $personalInfo->avatar ?? null,
                     'order_id'=>$id,
