@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Models\PersonalInfo;
 use App\Models\Driver;
+use App\Models\OrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,6 +82,11 @@ class CommentScoreController extends Controller
                 $order = Order::find($request->order_id);
                 if(!isset($order->id)){
                     return $this->error(translate_api('Order is not exist', $language), 400);
+                }
+
+                $orderDetails = OrderDetail::where('client_id', $user->id)->where('order_id', $order->id)->first();
+                if (!$orderDetails) {
+                    return $this->error(translate_api('Your trip is not available with this order', $language), 400);
                 }
             }
 
