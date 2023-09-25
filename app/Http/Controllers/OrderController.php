@@ -59,6 +59,7 @@ class OrderController extends Controller
                 $arrFromIds[] = $cityFrom->id;
             }
         }
+        $arrFromIds[] = $request->from_id;
 
         $citiesTo = City::where('parent_id', $request->to_id)->get();
         $arrToIds = array();
@@ -67,6 +68,7 @@ class OrderController extends Controller
                 $arrToIds[] = $cityTo->id;
             }
         }
+        $arrToIds[] = $request->to_id;
 
         $orders = Order::where('status_id', Constants::ORDERED)
             ->whereIn('from_id', $arrFromIds)
