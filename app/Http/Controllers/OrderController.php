@@ -127,7 +127,7 @@ class OrderController extends Controller
                     'phone_number' => $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
-                    'doc_status' => ($driver_info) ? (int)$driver_info->doc_status : NULL
+                    'doc_status' => ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL
                 ],
                 'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
