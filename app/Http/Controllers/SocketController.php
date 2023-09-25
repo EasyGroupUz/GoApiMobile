@@ -658,16 +658,16 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
-    public function chatInformation(Request $request)
+    public function chatNotification(Request $request)
     {
         $language = $request->header('language');
-        $chat_id=$request->chat_id;
+        $data=$request->all();
 
-        $chat=Chat::find($chat_id);
+        $chat=Chat::where('firebase_id',$data->firebase_id)->first();
         $order = Order::find($chat->order_id);
         //   $id=$order->id;
    
-        $personalInfo = User::find($chat->user_to_id)->personalInfo;
+        $personalInfo = User::find($data->user_to_id)->personalInfo;
 
         if ($personalInfo && isset($personalInfo->avatar)) {
             $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
