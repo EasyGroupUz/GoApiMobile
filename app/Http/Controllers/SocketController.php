@@ -706,7 +706,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
         $order = Order::find($chat->order_id);
-        $user_to_id=$data->user_to_id;
+        $user_to_id=$data['user_to_id'];
 
             $userSend = User::find($user_to_id);            
             $device = ($userSend) ? json_decode($userSend->device_id) : [];
