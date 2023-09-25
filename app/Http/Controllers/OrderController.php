@@ -1498,7 +1498,7 @@ class OrderController extends Controller
                     $title = translate_api('Passenger canceled the booking', $language);
                     $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
                 } else {
-                    $title = translate_api('Your order has been cancelled', $language);
+                    $title = translate_api('A passenger has canceled a reservation on your trip', $language);
                     $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 }
             }
