@@ -265,7 +265,7 @@ class OrderController extends Controller
 
                     $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name . ' ' . $d_personal_info->middle_name;
                     $d_phone_number = $d_personal_info->phone_number;
-                    $d_img = asset('storage/avatar/' . $d_personal_info->avatar);
+                    $d_img = ($d_personal_info->avatar) ? asset('storage/avatar/' . $d_personal_info->avatar) ? '';
                 }
 
                 $arrComments = [];
@@ -336,7 +336,7 @@ class OrderController extends Controller
                         $c_first_name = $c_personal_info->first_name;
                         $c_middle_name = $c_personal_info->middle_name;
                         $c_phone_number = $c_personal_info->phone_number;
-                        $c_img = asset('storage/avatar/' . $c_personal_info->avatar);
+                        $c_img = ($c_personal_info->avatar) ? asset('storage/avatar/' . $c_personal_info->avatar) : '';
                         $c_gender = $c_personal_info->gender;
                     }
 
