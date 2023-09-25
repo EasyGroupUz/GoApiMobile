@@ -601,13 +601,14 @@ class SocketController extends Controller implements MessageComponentInterface
             // ->first();
             // dd($order); 
             $from_to_name=table_translate($order,'city',$language);
+            
             if ($chat->user_to_id==auth()->id()) {
-                $user_from_id=$chat->user_to_id;
-                $user_to_id=$chat->user_from_id;
+                // $user_from_id=$chat->user_to_id;
+                // $user_to_id=$chat->user_from_id;
                 $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_from_id)->first()->personal_info_id)->first();
             }else{
-                $user_from_id=$chat->user_from_id;
-                $user_to_id=$chat->user_to_id;
+                // $user_from_id=$chat->user_from_id;
+                // $user_to_id=$chat->user_to_id;
                 $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_to_id)->first()->personal_info_id)->first();
             }
 
@@ -629,8 +630,8 @@ class SocketController extends Controller implements MessageComponentInterface
                 'start_date'=>$order->start_date,
                 'from_name'=>$from_to_name['from_name'],
                 'to_name'=>$from_to_name['to_name'],
-                'user_from_id'=>$user_from_id,
-                'user_to_id'=>$user_to_id,
+                'user_from_id'=>$chat->user_from_id,
+                'user_to_id'=>$chat->user_to_id,
                 'name'=>$personalInfo->first_name,
                 'image'=>$personalInfo->avatar,
 

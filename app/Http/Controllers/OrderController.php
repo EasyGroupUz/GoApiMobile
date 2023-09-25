@@ -1362,7 +1362,7 @@ class OrderController extends Controller
                     if ($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL && $old_offer->cancel_type==Constants::ORDER_DETAIL) {
 
                         // return $this->success(translate_api('You cannot reserve a seat on this trip because you have already cancelled', $language), 204);           
-                        return $this->error(translate_api('You cannot reserve a seat on this trip because you have already cancelled', $language), 400);
+                        return $this->error(translate_api('Sorry, you cannot make another offer for this order', $language), 400);
 
                     }
                 }
