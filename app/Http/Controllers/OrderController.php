@@ -1302,7 +1302,7 @@ class OrderController extends Controller
                         
                     } elseif ($offer->cancel_type == Constants::ORDER_DETAIL) {
                         // return $this->success(translate_api('Sorry this offer canceled', $language), 200);
-                        return $this->error(translate_api('Sorry this offer canceled', $language), 400);
+                        return $this->error(translate_api('Unfortunately, you will not be able to reserve a place on this booking as you have canceled your previous booking', $language), 400);
 
                     } else {
                         return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
