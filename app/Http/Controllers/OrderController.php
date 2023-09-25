@@ -12,6 +12,7 @@ use App\Models\OrderDetail;
 use App\Models\Cars;
 use App\Models\PersonalInfo;
 use App\Models\Chat;
+use App\Models\City;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -51,9 +52,25 @@ class OrderController extends Controller
         //     ->where('start_date','<',$tomorrow)
         //     ->get();
 
+        $citiesFrom = City::where('parent_id', $request->from_id)->get();
+        $arrFromIds = array();
+        if (!empty($citiesFrom) && count($citiesFrom) > 0) {
+            foreach ($citiesFrom as $cityFrom) {
+                $arrFromIds[] = $cityFrom->id;
+            }
+        }
+
+        $citiesTo = City::where('parent_id', $request->to_id)->get();
+        $arrToIds = array();
+        if (!empty($citiesTo) && count($citiesTo) > 0) {
+            foreach ($citiesTo as $cityTo) {
+                $arrToIds[] = $cityTo->id;
+            }
+        }
+
         $orders = Order::where('status_id', Constants::ORDERED)
-            ->where('from_id', $request->from_id)
-            ->where('to_id', $request->to_id)
+            ->whereIn('from_id', $arrFromIds)
+            ->whereIn('to_id', $arrToIds)
             ->where('start_date', '>=', $date)
             ->where('start_date', '<=', $tomorrow)
             ->where('start_date', '>=', date('Y-m-d H:i:s'))
