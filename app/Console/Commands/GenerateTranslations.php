@@ -114,7 +114,9 @@ class GenerateTranslations extends Command
             'Spaces available',
             'Sorry, this booking has been cancelled or accepted',
             'This is offer sttus not new',
-            'offer cancelled'
+            'offer cancelled',
+            'Your trip is not available with this order',
+            'A passenger has canceled a reservation on your trip'
         ];
 
 
