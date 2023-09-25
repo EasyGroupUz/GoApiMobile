@@ -11,6 +11,7 @@ class CountryController extends Controller
     {
         $regions = City::select('id', 'name', 'type', 'parent_id')
             ->where('type', 'region')
+            ->orderBy('created_at', 'ASC')
             ->get();
 
         if ($regions->isEmpty()) {
