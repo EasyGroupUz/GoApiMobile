@@ -296,13 +296,13 @@ class UserController extends Controller
         if(isset($user->id) && !isset($user->deleted_at)) {
             return response()->json([
                 'users' => $user,
-                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : null
+                'sms_token' => isset($user->userVerify) ? $user->userVerify->verify_code : null
             ]);
         }else{
             return response()->json([
                 'status' => 'deleted',
                 'users' => $user,
-                'sms_token' => $user->userVerify ? $user->userVerify->verify_code : null
+                'sms_token' => isset($user->userVerify) ? $user->userVerify->verify_code : null
             ]);
         }
     }
