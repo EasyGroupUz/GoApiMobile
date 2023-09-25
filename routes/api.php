@@ -85,7 +85,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::post('/send-message', [SocketController::class, 'sendMessage']);
         Route::post('/update', [SocketController::class, 'update']);
         Route::get('/list', [SocketController::class, 'chatList']);
-        Route::get('/notification', [SocketController::class, 'chatNotification']);
+        Route::post('/notification', [SocketController::class, 'chatNotification']);
     });
 
     Route::group(['prefix' => 'order'], function () {
