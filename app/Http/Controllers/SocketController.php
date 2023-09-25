@@ -667,7 +667,11 @@ class SocketController extends Controller implements MessageComponentInterface
         $order = Order::find($chat->order_id);
         //   $id=$order->id;
    
-        $personalInfo = User::find($data['user_to_id'])->personalInfo;
+        $userInfo = User::find($data['user_to_id']);
+        if (!$userInfo) {
+            return $this->error('user_to_id attribute is invalid. No such user found', 400);
+        }
+        $personalInfo = $userInfo->personalInfo;
 
         if ($personalInfo && isset($personalInfo->avatar)) {
             $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
