@@ -1305,7 +1305,7 @@ class OrderController extends Controller
                         return $this->error(translate_api('Sorry this offer canceled', $language), 400);
 
                     } else {
-                        return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
+                        return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
 
                         // return $this->success(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 200);
                     }
@@ -1366,7 +1366,7 @@ class OrderController extends Controller
                 $saveOrder = $order->save();
             } else {
                 // return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
-                return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
+                return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
             }
 
             $orderDetail->order_id = $order->id;

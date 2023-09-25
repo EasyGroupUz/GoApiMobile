@@ -119,7 +119,7 @@ class OfferController extends Controller
 
                         // return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
                         // return $this->error(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 400);
-                        return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
+                        return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
 
 
                     }
@@ -144,7 +144,7 @@ class OfferController extends Controller
         }
         else {
             // return $this->success(translate_api('sorry we only have '. $order->seats .' spaces available', $language), 200);
-            return $this->error(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 400);
+            return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
 
         }
         $offer->save();
