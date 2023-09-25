@@ -128,7 +128,7 @@ class OrderDetailsController extends Controller
                     ->where('start_date', '>=', $date)
                     ->select(DB::raw('DATE(start_date) as start_date'))
                     ->whereBetween('start_date', [$startDate, $endDate])
-                    ->orderBy('start_date', 'asc')
+                    ->orderBy('start_date', 'desc')
                     ->distinct()
                     ->take(5)
                     ->get();

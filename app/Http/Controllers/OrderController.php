@@ -892,7 +892,7 @@ class OrderController extends Controller
             return $this->error('page parameter is missing', 400);
         
         $limitData = 10;
-        $model = Order::where('driver_id', auth()->id())->orderBy('id', 'asc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
+        $model = Order::where('driver_id', auth()->id())->orderBy('id', 'desc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
@@ -1130,7 +1130,7 @@ class OrderController extends Controller
     public function expired()
     {
         // $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
-        $model = Order::orderBy('start_date', 'asc')->get();
+        $model = Order::orderBy('start_date', 'desc')->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
