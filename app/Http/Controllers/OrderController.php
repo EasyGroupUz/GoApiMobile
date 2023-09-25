@@ -1324,7 +1324,7 @@ class OrderController extends Controller
                         return $this->error(translate_api('Unfortunately, you will not be able to reserve a place on this booking as you have canceled your previous booking', $language), 400);
 
                     } else {
-                        return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
+                        return $this->error(translate_api('Sorry we only have', $language) ." ". $seats_count ." ". translate_api('Spaces available', $language), 400);
 
                         // return $this->success(translate_api('Sorry we only have', $language) . $seats_count . translate_api('Spaces available', $language), 200);
                     }
@@ -1385,7 +1385,7 @@ class OrderController extends Controller
                 $saveOrder = $order->save();
             } else {
                 // return $this->success(translate_api('sorry we only have', $language). $seats_count . translate_api('spaces available', $language), 200);
-                return $this->error(translate_api('Sorry we only have ', $language) . $seats_count . translate_api(' Spaces available', $language), 400);
+                return $this->error(translate_api('Sorry we only have', $language) ." ". $seats_count ." ". translate_api('Spaces available', $language), 400);
             }
 
             $orderDetail->order_id = $order->id;
