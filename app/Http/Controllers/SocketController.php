@@ -658,20 +658,16 @@ class SocketController extends Controller implements MessageComponentInterface
 
     }
 
-    public function chatNotification(Request $request)
+    public function chatInformation(Request $request)
     {
         $language = $request->header('language');
-        $data=$request->all();
+        $chat_id=$request->chat_id;
 
-        $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
+        $chat=Chat::find($chat_id);
         $order = Order::find($chat->order_id);
         //   $id=$order->id;
    
-        $userInfo = User::find($data['user_to_id']);
-        if (!$userInfo) {
-            return $this->error('user_to_id attribute is invalid. No such user found', 400);
-        }
-        $personalInfo = $userInfo->personalInfo;
+        $personalInfo = User::find($chat->user_to_id)->personalInfo;
 
         if ($personalInfo && isset($personalInfo->avatar)) {
             $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
@@ -692,36 +688,39 @@ class SocketController extends Controller implements MessageComponentInterface
             'user_to_id'=>$chat->user_to_id,
             'name' => $personalInfo->first_name ?? null,
             'image' => $personalInfo->avatar ?? null,
+            
         ];
 
-        // Send Notification start
-            // $order=Order::find($data['order_id']);
-            $userSend = User::find($chat->user_to_id);
-            // $userSender = User::find($user_from_id);
-            
+        return response()->json([
+            'data' => $list,
+            'status' => true,
+            'message' => 'success',
+        ], 200);
+
+    }
+
+    public function chatNotification(Request $request)
+    {
+        $language = $request->header('language');
+        $data=$request->all();
+
+        $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
+        $order = Order::find($chat->order_id);
+        $user_to_id=$data->user_to_id;
+
+            $userSend = User::find($user_to_id);            
             $device = ($userSend) ? json_decode($userSend->device_id) : [];
             $title = translate_api("You've got mail", $userSend->language);
             $message = $data['message'];
             $largeIcon = ($userSend && $userSend->personalInfo && ($userSend->personalInfo->avatar != NULL)) ? asset('storage/user/' . $userSend->personalInfo->avatar) : asset('public/assets/images/default_avatar.png');
-            // $order_data = [
-            //     'order_id' => $order->id,
-            //     'start_date' => $order->start_date,
-            //     'from_name' => ($order->from) ? $order->from->name : '',
-            //     'to_name' => ($order->to) ? $order->to->name : '',
-            //     'user_from_id' => $user_from_id,
-            //     'user_to_id' => $user_to_id,
-            //     'name' => ($userSender->personalInfo) ? $userSender->personalInfo->first_name : '',
-            //     'image' => ($userSender->personalInfo) ? asset('storage/avatar/' . $userSender->personalInfo->avatar) : '',
-            // ];
 
             $chat_id = $chat->id;
 
             // $this->sendNotification($device, $user_to_id, "Chat", $title, $message, $largeIcon);
-            $this->sendNotificationChat($device, $chat->user_to_id, $chat_id, $title, $message, $largeIcon);
+            $this->sendNotificationChat($device, $user_to_id, $chat_id, $title, $message, $largeIcon);
         // Send Notification end
 
         return response()->json([
-            'data' => $list,
             'status' => true,
             'message' => 'success',
         ], 200);
