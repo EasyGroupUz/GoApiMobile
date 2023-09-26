@@ -1483,12 +1483,14 @@ class OrderController extends Controller
             $title = '';
             $user_id = ($order->driver) ? $order->driver->id : 0;
             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+            $sendNotify = true;
             if ($old_offer_status == Constants::NEW) {
                 $title = 'Your request has been denied';
                 if ($id == $order->driver_id) {
                     $user_id = $orderDetail->client->id;
                     $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
                 } else {
+                    $sendNotify = false;
                     $user_id = $order->driver->id;
                     $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
                 }
@@ -1505,8 +1507,10 @@ class OrderController extends Controller
              
             $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $entity_id = $order->id;
-    
-            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+            
+            if ($sendNotify) {
+                $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+            }
         } else {
             // return $this->success('Offer not found', 204);
             return $this->error(translate_api('Offer not found', $language), 400);
