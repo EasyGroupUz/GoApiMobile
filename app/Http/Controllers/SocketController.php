@@ -621,22 +621,23 @@ class SocketController extends Controller implements MessageComponentInterface
                     $personalInfo->avatar=null;
                 }
             }
-
-            $list=[
-                'id'=>$chat->id,
-                'order_id'=>$chat->order_id,
-                'firebase_id'=>strval($chat->firebase_id) ?? null,
-                // 'order_detail_id'=>$orderDetail->id ?? null,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'user_from_id'=>$chat->user_from_id,
-                'user_to_id'=>$chat->user_to_id,
-                'name'=>$personalInfo->first_name,
-                'image'=>$personalInfo->avatar,
-
-            ];
-            array_push($data,$list);
+            if (DB::table('yy_send_notifications')->where('entity_type','chat')->where('entity_id',$chat->id)->exists()) {
+                $list=[
+                    'id'=>$chat->id,
+                    'order_id'=>$chat->order_id,
+                    'firebase_id'=>strval($chat->firebase_id) ?? null,
+                    'start_date'=>$order->start_date,
+                    'from_name'=>$from_to_name['from_name'],
+                    'to_name'=>$from_to_name['to_name'],
+                    'user_from_id'=>$chat->user_from_id,
+                    'user_to_id'=>$chat->user_to_id,
+                    'name'=>$personalInfo->first_name,
+                    'image'=>$personalInfo->avatar,
+    
+                ];
+                array_push($data,$list);
+            }
+           
         }
 
         // $data=[];
