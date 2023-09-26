@@ -591,6 +591,10 @@ class SocketController extends Controller implements MessageComponentInterface
         ->get();
         // dd($chats);
          $data=[];
+         if (!empty($chat)) {
+            $data=json_decode ("{}");
+         }
+         
         foreach ($chats as $key => $chat) {
             $order = Order::where('id',$chat->order_id)->first();
             // $order = Order::find();
@@ -621,22 +625,26 @@ class SocketController extends Controller implements MessageComponentInterface
                     $personalInfo->avatar=null;
                 }
             }
-
-            $list=[
-                'id'=>$chat->id,
-                'order_id'=>$chat->order_id,
-                'firebase_id'=>strval($chat->firebase_id) ?? null,
-                // 'order_detail_id'=>$orderDetail->id ?? null,
-                'start_date'=>$order->start_date,
-                'from_name'=>$from_to_name['from_name'],
-                'to_name'=>$from_to_name['to_name'],
-                'user_from_id'=>$chat->user_from_id,
-                'user_to_id'=>$chat->user_to_id,
-                'name'=>$personalInfo->first_name,
-                'image'=>$personalInfo->avatar,
-
-            ];
-            array_push($data,$list);
+            if (DB::table('yy_send_notifications')->where('entity_type','chat')->where('entity_id',$chat->id)->exists()) {
+                $list=[
+                    'id'=>$chat->id,
+                    'order_id'=>$chat->order_id,
+                    'firebase_id'=>strval($chat->firebase_id) ?? null,
+                    'start_date'=>$order->start_date,
+                    'from_name'=>$from_to_name['from_name'],
+                    'to_name'=>$from_to_name['to_name'],
+                    'user_from_id'=>$chat->user_from_id,
+                    'user_to_id'=>$chat->user_to_id,
+                    'name'=>$personalInfo->first_name,
+                    'image'=>$personalInfo->avatar,
+    
+                ];
+                array_push($data,$list);
+            }
+            else {
+                $data=json_decode ("{}");
+            }
+           
         }
 
         // $data=[];
@@ -668,7 +676,34 @@ class SocketController extends Controller implements MessageComponentInterface
         $order = Order::find($chat->order_id);
         //   $id=$order->id;
    
-        $personalInfo = User::find($chat->user_to_id)->personalInfo;
+        // $personalInfo = User::find($chat->user_to_id)->personalInfo;
+
+        // if ($personalInfo && isset($personalInfo->avatar)) {
+        //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+        //     if (file_exists($avatarPath)) {
+        //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+        //     } else {
+        //         $personalInfo->avatar = null;
+        //     }
+        // }
+
+        $from_to_name=table_translate($order,'city',$language);
+
+        $user_from_id = auth()->id();
+        if ($chat->user_from_id == auth()->id()) {
+            $user_to_id=$chat->user_to_id;    
+        } elseif ($chat->user_to_id == auth()->id()) {
+            $user_to_id = $chat->user_from_id;
+            // $user_from_id=$chat->user_from_id;
+        }else {
+            return response()->json([
+                'status' => false,
+                'message' => 'There are no chats related to you',
+            ], 400);
+        }
+
+
+        $personalInfo = User::find($user_to_id)->personalInfo;
 
         if ($personalInfo && isset($personalInfo->avatar)) {
             $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
@@ -679,17 +714,15 @@ class SocketController extends Controller implements MessageComponentInterface
             }
         }
 
-        $from_to_name=table_translate($order,'city',$language);
-
         $list=[
             'order_id'=>$order->id,
             'start_date'=>$order->start_date,
             'from_name'=>$from_to_name['from_name'],
             'to_name'=>$from_to_name['to_name'],
-            'user_to_id'=>$chat->user_to_id,
+            'user_from_id'=>$user_from_id,
+            'user_to_id'=>$user_to_id,
             'name' => $personalInfo->first_name ?? null,
             'image' => $personalInfo->avatar ?? null,
-            
         ];
 
         return response()->json([
@@ -707,6 +740,8 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
         $order = Order::find($chat->order_id);
+        // $user_to_id=$chat->user_to_id;
+
         if ($chat->user_from_id == auth()->id()) {
             $user_to_id=$chat->user_to_id;    
         } elseif ($chat->user_to_id == auth()->id()) {
