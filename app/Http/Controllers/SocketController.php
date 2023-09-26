@@ -686,10 +686,10 @@ class SocketController extends Controller implements MessageComponentInterface
             'start_date'=>$order->start_date,
             'from_name'=>$from_to_name['from_name'],
             'to_name'=>$from_to_name['to_name'],
+            'user_from_id'=>$chat->user_from_id,
             'user_to_id'=>$chat->user_to_id,
             'name' => $personalInfo->first_name ?? null,
             'image' => $personalInfo->avatar ?? null,
-            
         ];
 
         return response()->json([
