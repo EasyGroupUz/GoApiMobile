@@ -1484,7 +1484,7 @@ class OrderController extends Controller
             $user_id = ($order->driver) ? $order->driver->id : 0;
             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
             if ($old_offer_status == Constants::NEW) {
-                $title = translate_api('Your request has been denied', $language);
+                $title = 'Your request has been denied';
                 if ($id == $order->driver_id) {
                     $user_id = $orderDetail->client->id;
                     $device = ($orderDetail->client) ? json_decode($orderDetail->client->device_id) : [];
