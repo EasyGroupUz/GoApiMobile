@@ -139,7 +139,16 @@ class Controller extends BaseController
 
         // $lastSendNotif = SendNotif::orderBy('id', 'desc')->first();
         // $inc = ($lastSendNotif) ? $lastSendNotif->entity_id + 1 : 1;
+        $modelUser = User::find($user_id);
+        $userLang = 'en';
+        if ($modelUser) {
+            $userLang = $modelUser->language;
+        }
+        $route = translate_api('Route', $userLang);
         
+        $title = translate_api($title, $userLang);
+        $message = $route . $message;
+
         $newSendNotif = new SendNotif();
         $newSendNotif->user_id = $user_id;
         $newSendNotif->entity_id = $entity_id;

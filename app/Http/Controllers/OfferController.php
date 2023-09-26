@@ -82,8 +82,8 @@ class OfferController extends Controller
                             ]);
 
                             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-                            $title = translate_api('You have a new offer', $language);
-                            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                            $title = 'You have a new offer';
+                            $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                             $user_id = ($order->driver) ? $order->driver->id : 0;
                             $entity_id = $order->id;
     
@@ -150,8 +150,8 @@ class OfferController extends Controller
         $offer->save();
         // if ($offer->save()) {
             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-            $title = translate_api('You have a new offer', $language);
-            $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+            $title = 'You have a new offer';
+            $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
             $entity_id = $order->id;
     
