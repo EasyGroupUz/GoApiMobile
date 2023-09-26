@@ -4,15 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\City;
+use Illuminate\Support\Facades\DB;
+
 
 class CountryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $regions = City::select('id', 'name', 'type', 'parent_id')
-            ->where('type', 'region')
-            ->orderBy('created_at', 'ASC')
-            ->get();
+
+        $language = $request->header('language');
+
+        $regions = DB::table('yy_cities as dt1')
+                ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('dt1.type', 'region')
+                ->where('dt2.lang', $language)
+                ->select('dt1.id', 'dt2.name', 'dt1.created_at')
+                ->orderBy('created_at', 'ASC')
+                ->get();
+                // ->first();
+            // dd($regions);
+
+        // DB::table('yy_city_translations')->where('order_id',$id)->exists()
+        // $regions = City::select('id', 'name', 'type', 'parent_id')
+        //     ->where('type', 'region')
+        //     ->orderBy('created_at', 'ASC')
+        //     ->get();
 
         if ($regions->isEmpty()) {
             return $this->success('Regions not found', 204);
@@ -20,9 +36,15 @@ class CountryController extends Controller
 
         $data = [];
         foreach ($regions as $region) {
-            $cities = City::select('id', 'name', 'lng', 'lat')
-                ->where('parent_id', $region->id)
-                ->get();
+            $cities = DB::table('yy_cities as dt1')
+            ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+            ->where('parent_id', $region->id)
+            ->where('dt2.lang', $language)
+            ->select('dt1.id', 'dt2.name', 'dt1.lng', 'dt1.lat')
+            ->get();
+            // $cities = City::select('id', 'name', 'lng', 'lat')
+            //     ->where('parent_id', $region->id)
+            //     ->get();
 
             $cityData = [];
             foreach ($cities as $city) {
