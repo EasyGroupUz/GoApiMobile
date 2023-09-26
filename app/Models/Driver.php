@@ -26,7 +26,8 @@ class Driver extends Model
         'license_expired_date',
         'license_image',
         'status_id',
-        'balance'
+        'balance',
+        'doc_status'  //1 Not accepted, 2 Accept, 3 Expectations, 4 Canceled
     ];
     public function user(): BelongsTo
     {
