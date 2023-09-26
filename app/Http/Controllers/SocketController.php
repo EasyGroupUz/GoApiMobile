@@ -591,6 +591,9 @@ class SocketController extends Controller implements MessageComponentInterface
         ->get();
         // dd($chats);
          $data=[];
+         if (empty($chat)) {
+            $data=json_decode ("{}");
+         }
          
         foreach ($chats as $key => $chat) {
             $order = Order::where('id',$chat->order_id)->first();
