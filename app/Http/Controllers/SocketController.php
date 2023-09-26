@@ -676,16 +676,16 @@ class SocketController extends Controller implements MessageComponentInterface
         $order = Order::find($chat->order_id);
         //   $id=$order->id;
    
-        $personalInfo = User::find($chat->user_to_id)->personalInfo;
+        // $personalInfo = User::find($chat->user_to_id)->personalInfo;
 
-        if ($personalInfo && isset($personalInfo->avatar)) {
-            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
-            if (file_exists($avatarPath)) {
-                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
-            } else {
-                $personalInfo->avatar = null;
-            }
-        }
+        // if ($personalInfo && isset($personalInfo->avatar)) {
+        //     $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+        //     if (file_exists($avatarPath)) {
+        //         $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+        //     } else {
+        //         $personalInfo->avatar = null;
+        //     }
+        // }
 
         $from_to_name=table_translate($order,'city',$language);
 
@@ -700,6 +700,18 @@ class SocketController extends Controller implements MessageComponentInterface
                 'status' => false,
                 'message' => 'There are no chats related to you',
             ], 400);
+        }
+
+
+        $personalInfo = User::find($user_to_id)->personalInfo;
+
+        if ($personalInfo && isset($personalInfo->avatar)) {
+            $avatarPath = storage_path('app/public/avatar/' . $personalInfo->avatar);
+            if (file_exists($avatarPath)) {
+                $personalInfo->avatar = asset('storage/avatar/' . $personalInfo->avatar);
+            } else {
+                $personalInfo->avatar = null;
+            }
         }
 
         $list=[
