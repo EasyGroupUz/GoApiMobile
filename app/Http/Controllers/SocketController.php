@@ -591,7 +591,7 @@ class SocketController extends Controller implements MessageComponentInterface
         ->get();
         // dd($chats);
          $data=[];
-         if (empty($chat)) {
+         if (!empty($chat)) {
             $data=json_decode ("{}");
          }
          
