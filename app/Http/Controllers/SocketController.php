@@ -694,7 +694,7 @@ class SocketController extends Controller implements MessageComponentInterface
             $user_to_id=$chat->user_to_id;    
         } elseif ($chat->user_to_id == auth()->id()) {
             $user_to_id = auth()->id();
-            $user_to_id=$chat->user_from_id;
+            $user_from_id=$chat->user_from_id;
         }else {
             return response()->json([
                 'status' => false,
