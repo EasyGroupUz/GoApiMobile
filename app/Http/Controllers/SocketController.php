@@ -591,7 +591,7 @@ class SocketController extends Controller implements MessageComponentInterface
         ->get();
         // dd($chats);
          $data=[];
-         $data=json_decode ("{}");
+         
         foreach ($chats as $key => $chat) {
             $order = Order::where('id',$chat->order_id)->first();
             // $order = Order::find();
@@ -637,6 +637,9 @@ class SocketController extends Controller implements MessageComponentInterface
     
                 ];
                 array_push($data,$list);
+            }
+            else {
+                $data=json_decode ("{}");
             }
            
         }
@@ -709,6 +712,7 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
         $order = Order::find($chat->order_id);
+
         if ($chat->user_from_id == auth()->id()) {
             $user_to_id=$chat->user_to_id;    
         } elseif ($chat->user_to_id == auth()->id()) {
