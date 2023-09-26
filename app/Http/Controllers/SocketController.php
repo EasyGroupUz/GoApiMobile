@@ -715,17 +715,17 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $chat=Chat::where('firebase_id',$data['firebase_id'])->first();
         $order = Order::find($chat->order_id);
-
-        if ($chat->user_from_id == auth()->id()) {
-            $user_to_id=$chat->user_to_id;    
-        } elseif ($chat->user_to_id == auth()->id()) {
-            $user_to_id=$chat->user_from_id;
-        }else {
-            return response()->json([
-                'status' => false,
-                'message' => 'There are no chats related to you',
-            ], 400);
-        }
+        $user_to_id=$chat->user_to_id;
+        // if ($chat->user_from_id == auth()->id()) {
+        //     $user_to_id=$chat->user_to_id;    
+        // } elseif ($chat->user_to_id == auth()->id()) {
+        //     $user_to_id=$chat->user_from_id;
+        // }else {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'There are no chats related to you',
+        //     ], 400);
+        // }
         
         
 
