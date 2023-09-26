@@ -689,13 +689,26 @@ class SocketController extends Controller implements MessageComponentInterface
 
         $from_to_name=table_translate($order,'city',$language);
 
+        if ($chat->user_from_id == auth()->id()) {
+            $user_from_id = auth()->id();
+            $user_to_id=$chat->user_to_id;    
+        } elseif ($chat->user_to_id == auth()->id()) {
+            $user_to_id = auth()->id();
+            $user_to_id=$chat->user_from_id;
+        }else {
+            return response()->json([
+                'status' => false,
+                'message' => 'There are no chats related to you',
+            ], 400);
+        }
+
         $list=[
             'order_id'=>$order->id,
             'start_date'=>$order->start_date,
             'from_name'=>$from_to_name['from_name'],
             'to_name'=>$from_to_name['to_name'],
-            'user_from_id'=>$chat->user_from_id,
-            'user_to_id'=>$chat->user_to_id,
+            'user_from_id'=>$user_from_id,
+            'user_to_id'=>$user_to_id,
             'name' => $personalInfo->first_name ?? null,
             'image' => $personalInfo->avatar ?? null,
         ];
