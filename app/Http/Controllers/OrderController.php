@@ -923,6 +923,7 @@ class OrderController extends Controller
 
     public function history(Request $request)
     {
+        $language = $request->header('language');
         if ($request->page)
             $page = $request->page;
         else
