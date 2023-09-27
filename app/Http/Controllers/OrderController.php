@@ -110,6 +110,24 @@ class OrderController extends Controller
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
 
             $driver_info = $order->driver;
+
+            if ($order->from) {
+                $from_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->from->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
+            }
+            if ($order->to) {
+                $to_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->to->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
+            }
+
             $data = [
                 'id' => $order->id,
                 'order_detail_id' => $newOrderDetail->id,
@@ -135,10 +153,10 @@ class OrderController extends Controller
                 'is_full' => ($order->seats <= $order->booking_place) ? true : false,
                 'car_information' => $car_information,
 
-                'from' => ($order->from) ? $order->from->name : '',
+                'from' => ($order->from) ? $from_name : '',
                 'from_lng' => ($order->from) ? $order->from->lng : '',
                 'from_lat' => ($order->from) ? $order->from->lat : '',
-                'to' => ($order->to) ? $order->to->name : '',
+                'to' => ($order->to) ? $to_name : '',
                 'to_lng' => ($order->to) ? $order->to->lng : '',
                 'to_lat' => ($order->to) ? $order->to->lat : '',
 
@@ -150,7 +168,7 @@ class OrderController extends Controller
             array_push($list,$data);
         }       
 
-        $language=$request->header('language');
+        
         $message=translate_api('success',$language);
 
         return $this->success($message, 200, $list);
@@ -246,6 +264,8 @@ class OrderController extends Controller
 
     public function show(Request $request)
     {
+        $language=$request->header('language');
+
         if (!$request->id)
             return $this->error('id parameter is missing', 400);
 
@@ -395,14 +415,31 @@ class OrderController extends Controller
                 }
             }
 
+            if ($order->from) {
+                $from_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->from->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
+            }
+            if ($order->to) {
+                $to_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->to->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
+            }
+
             $arr['id'] = $order->id;
             $arr['order_detail_id'] = $orderDetailId;
             $arr['start_date'] = date('d.m.Y H:i', strtotime($order->start_date));
             $arr['isYour'] = ($order->driver_id == auth()->id()) ? true : false;
-            $arr['from'] = ($order->from) ? $order->from->name : '';
+            $arr['from'] = ($order->from) ? $from_name : '';
             $arr['from_lng'] = ($order->from) ? $order->from->lng : '';
             $arr['from_lat'] = ($order->from) ? $order->from->lat : '';
-            $arr['to'] = ($order->to) ? $order->to->name : '';
+            $arr['to'] = ($order->to) ? $to_name : '';
             $arr['to_lng'] = ($order->to) ? $order->to->lng : '';
             $arr['to_lat'] = ($order->to) ? $order->to->lat : '';
             $arr['distance_km'] = $distance['km'];
@@ -958,6 +995,23 @@ class OrderController extends Controller
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
+                if ($value->from) {
+                    $from_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->from->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
+                }
+                if ($value->to) {
+                    $to_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->to->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
+                }
+
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = (double)$value->price;
@@ -971,10 +1025,10 @@ class OrderController extends Controller
                 $arr[$n]['car'] = (empty($arrCar)) ? NULL : $arrCar;
                 $arr[$n]['options'] = json_decode($value->options) ?? [];
 
-                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from'] = ($value->from) ? $from_name : '';
                 $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
                 $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['to'] = ($value->to) ? $to_name : '';
                 $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
                 $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
                 
@@ -1159,16 +1213,32 @@ class OrderController extends Controller
                 }
 
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
-
+                
+                if ($value->from) {
+                    $from_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->from->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
+                }
+                if ($value->to) {
+                    $to_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->to->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
+                }
 
                 $arr[$n]['id'] = $value->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
                 $arr[$n]['price'] = $value->price;
                 $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
-                $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                $arr[$n]['from'] = ($value->from) ? $from_name : '';
                 $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
                 $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
-                $arr[$n]['to'] = ($value->to) ? $value->to->name : '';  
+                $arr[$n]['to'] = ($value->to) ? $to_name : '';  
                 $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
                 $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
                 $arr[$n]['distance_km'] = $distance['km'];
