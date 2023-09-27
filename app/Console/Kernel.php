@@ -58,7 +58,7 @@ class Kernel extends ConsoleKernel
                 'duration_value' => $directionHistory->duration_value
             ];
         } else {
-            return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
+            return ['new' => true, 'km' => '14', 'distance_value' => '14', 'time' => '14', 'duration_value' => '14'];
         }
 
     }

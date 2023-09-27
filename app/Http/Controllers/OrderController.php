@@ -1419,7 +1419,7 @@ class OrderController extends Controller
     
     
                         $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-                        $title = 'Your request has been accepted';
+                        $title = 'Reserved a place on your trip';
                         $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
                         $user_id = ($order->driver) ? $order->driver->id : 0;
                         $entity_id = $order->id;
@@ -1462,7 +1462,7 @@ class OrderController extends Controller
             $saveOrderDetail = $orderDetail->save();
 
             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-            $title = 'Your request has been accepted';
+            $title = 'Reserved a place on your trip';
             $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
             $user_id = ($order->driver) ? $order->driver->id : 0;
             $entity_id = $order->id;
