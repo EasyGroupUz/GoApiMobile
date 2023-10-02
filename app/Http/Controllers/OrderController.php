@@ -360,6 +360,9 @@ class OrderController extends Controller
                         $c_phone_number = $c_personal_info->phone_number;
                         $c_img = ($c_personal_info->avatar) ? asset('storage/avatar/' . $c_personal_info->avatar) : '';
                         $c_gender = $c_personal_info->gender;
+                        $c_rating = $order_details_client->rating;
+                        $c_created_date = date('d.m.Y H:i', strtotime($order_details_client->created_at));
+                        $c_seats_count = $value->seats_count;
                     }
 
                     $arrClients[$oo]['id'] = $order_details_client->id;
@@ -371,6 +374,11 @@ class OrderController extends Controller
                     $arrClients[$oo]['gender'] = $c_gender;
                     $arrClients[$oo]['balance'] = $order_details_client->balance ?? 0;
                     $arrClients[$oo]['about_me'] = $order_details_client->about_me;
+                    $arrClients[$oo]['full_name'] = $c_last_name . ' ' . $c_first_name . ' ' . $c_middle_name;
+                    $arrClients[$oo]['rating'] = $c_rating;
+                    $arrClients[$oo]['count_comment'] = count($order_details_client->commentScores);
+                    $arrClients[$oo]['created_date'] = $c_created_date;
+                    $arrClients[$oo]['seats_count'] = $c_seats_count;
                     
                     $oo++;
                 }
@@ -416,20 +424,25 @@ class OrderController extends Controller
             }
 
             if ($order->from) {
-                $from_name = DB::table('yy_city_translations as dt1')
+                $cityTranslationFrom = DB::table('yy_city_translations as dt1')
                 // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('city_id', $order->from->id)
                 ->where('dt1.lang', $language)
                 ->select('dt1.name')
-                ->first()->name;
+                ->first();
+
+                $from_name = ($cityTranslationFrom) ? $cityTranslationFrom->name : '';
             }
+
             if ($order->to) {
-                $to_name = DB::table('yy_city_translations as dt1')
+                $cityTranslationTo = DB::table('yy_city_translations as dt1')
                 // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('city_id', $order->to->id)
                 ->where('dt1.lang', $language)
                 ->select('dt1.name')
-                ->first()->name;
+                ->first();
+
+                $to_name = ($cityTranslationTo) ? $cityTranslationTo->name : '';
             }
 
             $arr['id'] = $order->id;

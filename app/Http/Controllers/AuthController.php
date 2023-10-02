@@ -180,6 +180,7 @@ class AuthController extends Controller
              'device_id'=>'nullable',
         ]);
         if((int)$fields['phone_number'] == '998333367578'){
+            $is_registred = false;
             $model = UserVerify::withTrashed()->where('phone_number', (int)$fields['phone_number'])->first();
             if(!isset($model->id)) {
                 $model = new UserVerify();
@@ -187,6 +188,7 @@ class AuthController extends Controller
                 $model->status_id = 1;
                 $model->verify_code = 111111;
             }else{
+                $is_registred = true;
                 if ($model->verify_code != 111111) {
                     $model->verify_code = 111111;
                 }
@@ -280,6 +282,7 @@ class AuthController extends Controller
                 $model->deleted_at = NULL;
             }
             if($model->verify_code == $fields['verify_code']){
+                $is_registred = false;
                 $user = User::withTrashed()->find($model->user_id);
                 if(!isset($user->id)){
                     $new_user = new User();
@@ -309,8 +312,9 @@ class AuthController extends Controller
                     $new_user->device_id = json_encode([$fields['device_id']??NULL]);
                     $new_user->save();
                     $message = 'Success';
-                    return $this->success($message, 201, ['token'=>$token]);
+                    return $this->success($message, 201, ['token'=>$token, 'is_registred'=>$is_registred]);
                 }else{
+                    $is_registred = true;
                     if(isset($user->deleted_at)){
                         $user->deleted_at = NULL;
                     }
@@ -356,7 +360,7 @@ class AuthController extends Controller
                     $user->save();
                     $model->save();
                     $message = 'Success';
-                    return $this->success($message, 201, ['token'=>$token]);
+                    return $this->success($message, 201, ['token'=>$token, 'is_registred'=>$is_registred]);
                 }
             }else{
                 $message = "Failed your token didn't match";
@@ -367,6 +371,7 @@ class AuthController extends Controller
             return $this->error(translate_api($message, $language), 400);
         }
     }
+
     function savingDeviceType($request_device_type, $user){
         if($user->device_type == null || $user->device_type == ''){
             $user->device_type = json_encode([$request_device_type??'']);
@@ -519,9 +524,11 @@ class AuthController extends Controller
      * )
      */
 
-    public function Set_name_surname(Request $request) {
+    public function Set_name_surname(Request $request) 
+    {
         date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
+    
         $auth_user = Auth::user();
         $personal_info = PersonalInfo::withTrashed()->find($auth_user->personal_info_id);
         if(isset($personal_info->id)){
@@ -530,10 +537,14 @@ class AuthController extends Controller
             }
             $personal_info->first_name = $request->first_name;
             $personal_info->last_name = $request->last_name;
+            $personal_info->gender = $request->gender;
+            $personal_info->birth_date = $request->birth_date;
         }else{
             $personal_info = new PersonalInfo();
             $personal_info->first_name = $request->first_name;
             $personal_info->last_name = $request->last_name;
+            $personal_info->gender = $request->gender;
+            $personal_info->birth_date = $request->birth_date;
         }
         $personal_info->save();
         $auth_user->personal_info_id = $personal_info->id;
