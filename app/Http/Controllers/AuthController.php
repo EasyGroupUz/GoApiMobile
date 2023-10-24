@@ -240,7 +240,23 @@ class AuthController extends Controller
                     $new_user = new User();
                     $old_user = User::withTrashed()->orderBy('created_at', 'DESC')->first();
                     if(isset($old_user) && isset($old_user->personal_account)){
-                        $new_user->personal_account = $old_user->personal_account+1;
+                        $true = true;
+                        $n = 1;
+                        while ($true) {
+                            $per_account = $old_user->personal_account + $n;
+
+                            $old_user_check = User::withTrashed()->where('personal_account', $per_account)->first();
+
+                            if (!$old_user_check) {
+                                $true = false;
+                            }
+
+                            if ($n > 50) {
+                                $true = false;
+                            }
+                            $n++;
+                        }
+                        $new_user->personal_account = $per_account;
                     }else{
                         $new_user->personal_account = 1000000;
                     }
@@ -288,7 +304,23 @@ class AuthController extends Controller
                     $new_user = new User();
                     $old_user = User::withTrashed()->orderBy('created_at', 'DESC')->first();
                     if(isset($old_user) && isset($old_user->personal_account)){
-                        $new_user->personal_account = $old_user->personal_account+1;
+                        $true = true;
+                        $n = 1;
+                        while ($true) {
+                            $per_account = $old_user->personal_account + $n;
+
+                            $old_user_check = User::withTrashed()->where('personal_account', $per_account)->first();
+
+                            if (!$old_user_check) {
+                                $true = false;
+                            }
+
+                            if ($n > 50) {
+                                $true = false;
+                            }
+                            $n++;
+                        }
+                        $new_user->personal_account = $per_account;
                     }else{
                         $new_user->personal_account = 1000000;
                     }

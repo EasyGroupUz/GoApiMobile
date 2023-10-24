@@ -13,6 +13,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClientControler;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
@@ -54,6 +55,10 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         Route::get('/history', [OrderDetailsController::class, 'history']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
+    });
+
+    Route::group(['prefix' => 'clients'], function () {
+        Route::get('/placed-order', [ClientControler::class, 'placedOrder']);
     });
 
     Route::group(['prefix' => 'car'], function () {

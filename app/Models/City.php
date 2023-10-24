@@ -20,6 +20,8 @@ class City extends Model
         'distance', 
         'inside_price', 
         'has_express', 
-        'is_selected'
+        'is_selected',
+        'lng',
+        'lat'
     ];
 }

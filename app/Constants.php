@@ -46,4 +46,8 @@ class Constants {
    const ACCEPTED = 2;
    const WAITING = 3;
    const CENCELED = 4;
+
+   // order_details type
+   const CREATED_ORDER_DETAIL = 1;
+   const SEARCHED_ORDER_DETAIL = 2;
 }

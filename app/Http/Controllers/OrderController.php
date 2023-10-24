@@ -78,7 +78,39 @@ class OrderController extends Controller
             ->where('start_date', '>=', date('Y-m-d H:i:s'))
             ->where('driver_id', '!=', auth()->id())
             ->get();
+        
+        if (!($orders && count($orders) > 0)) {
+            $a = DB::table('yy_orders')
+                ->select('id')
+                ->whereIn('from_id', $arrFromIds)
+                ->whereIn('to_id', $arrToIds)
+                ->where('status_id', Constants::ORDERED)
+                ->where('start_date', '<=', $date)
+                ->where('start_date', '>=', date('Y-m-d H:i:s'))
+                ->where('driver_id', '!=', auth()->id())
+                ->limit(5);
 
+            $orderIds = DB::table('yy_orders')
+                ->select('id')
+                ->whereIn('from_id', $arrFromIds)
+                ->whereIn('to_id', $arrToIds)
+                ->where('status_id', Constants::ORDERED)
+                ->where('start_date', '>=', $date)
+                ->where('driver_id', '!=', auth()->id())
+                ->limit(5)
+                ->unionAll($a)
+                ->get();
+
+            $arrIds = [];
+            if ($orderIds) {
+                foreach ($orderIds as $orderId) {
+                    $arrIds[] = $orderId->id;
+                }
+            }
+
+            $orders = Order::whereIn('id', $arrIds)->get();
+        }
+        
         $order_count = count($orders);
         $total_trips = Order::where('driver_id',auth()->id())
             ->where('status_id', Constants::COMPLETED)
@@ -112,20 +144,24 @@ class OrderController extends Controller
             $driver_info = $order->driver;
 
             if ($order->from) {
-                $from_name = DB::table('yy_city_translations as dt1')
-                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                ->where('city_id', $order->from->id)
-                ->where('dt1.lang', $language)
-                ->select('dt1.name')
-                ->first()->name;
+                $modelFromName = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $order->from->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first();
+
+                $from_name = ($modelFromName) ? $modelFromName->name : '';
             }
             if ($order->to) {
-                $to_name = DB::table('yy_city_translations as dt1')
-                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                ->where('city_id', $order->to->id)
-                ->where('dt1.lang', $language)
-                ->select('dt1.name')
-                ->first()->name;
+                $modelToName = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $order->to->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first();
+
+                $to_name = ($modelToName) ? $modelToName->name : '';
             }
 
             $data = [
@@ -136,15 +172,15 @@ class OrderController extends Controller
                 'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 // 'avatar' => $personalInfo->avatar ?? '',
                 'avatar' => ($personalInfo && $personalInfo->avatar) ? asset('storage/avatar/' . $personalInfo->avatar) : NULL,
-                'rating' => $driver_info->rating,
-                'price' => $order->price,
+                'rating' => (double)$driver_info->rating,
+                'price' => (double)$order->price,
                 'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '', 
                 'driver' => [
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
                     'phone_number' => $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
-                    'rating' => $driver_info->rating,
+                    'rating' => (double)$driver_info->rating,
                     'doc_status' => ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL
                 ],
                 'options' => json_decode($order->options) ?? [],
@@ -361,8 +397,8 @@ class OrderController extends Controller
                         $c_img = ($c_personal_info->avatar) ? asset('storage/avatar/' . $c_personal_info->avatar) : '';
                         $c_gender = $c_personal_info->gender;
                         $c_rating = $order_details_client->rating;
-                        $c_created_date = date('d.m.Y H:i', strtotime($order_details_client->created_at));
                         $c_seats_count = $value->seats_count;
+                        $c_created_date = date('d.m.Y H:i', strtotime($order_details_client->created_at));
                     }
 
                     $arrClients[$oo]['id'] = $order_details_client->id;
