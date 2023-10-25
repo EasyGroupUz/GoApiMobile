@@ -79,6 +79,7 @@ class OrderController extends Controller
             ->where('driver_id', '!=', auth()->id())
             ->get();
         
+        $isEmpty = false;
         if (!($orders && count($orders) > 0)) {
             $a = DB::table('yy_orders')
                 ->select('id')
@@ -109,6 +110,7 @@ class OrderController extends Controller
             }
 
             $orders = Order::whereIn('id', $arrIds)->get();
+            $isEmpty = true;
         }
         
         $order_count = count($orders);
@@ -166,6 +168,7 @@ class OrderController extends Controller
 
             $data = [
                 'id' => $order->id,
+                'isEmpty' => $isEmpty,
                 'order_detail_id' => $newOrderDetail->id,
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
