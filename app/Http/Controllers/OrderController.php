@@ -221,7 +221,8 @@ class OrderController extends Controller
             'from_id' => $data['from_id'],
             'to_id' => $data['to_id'],
             'seats_count' => $data['seats_count'],
-            'start_date' => date('Y-m-d', strtotime($data['start_date']))
+            'start_date' => date('Y-m-d', strtotime($data['start_date'])),
+            'type' => Constants::SEARCHED_ORDER_DETAIL
         ]);
 
         return $newOrderDetail;
@@ -404,6 +405,8 @@ class OrderController extends Controller
                         $c_created_date = date('d.m.Y H:i', strtotime($order_details_client->created_at));
                     }
 
+                    $offer = Offer::where('order_id', $value->order_id)->where('order_detail_id', $value->id)->where('status', Constants::ACCEPT_OFFER)->first();
+
                     $arrClients[$oo]['id'] = $order_details_client->id;
                     $arrClients[$oo]['last_name'] = $c_last_name;
                     $arrClients[$oo]['first_name'] = $c_first_name;
@@ -418,6 +421,7 @@ class OrderController extends Controller
                     $arrClients[$oo]['count_comment'] = count($order_details_client->commentScores);
                     $arrClients[$oo]['created_date'] = $c_created_date;
                     $arrClients[$oo]['seats_count'] = $c_seats_count;
+                    $arrClients[$oo]['booking_count'] = ($offer && $offer->seats) ? $offer->seats : 0;
                     
                     $oo++;
                 }
