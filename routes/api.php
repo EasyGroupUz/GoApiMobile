@@ -59,6 +59,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
 
     Route::group(['prefix' => 'clients'], function () {
         Route::get('/placed-order', [ClientControler::class, 'placedOrder']);
+        Route::post('/create-offer', [ClientControler::class, 'createOffer']);
     });
 
     Route::group(['prefix' => 'car'], function () {

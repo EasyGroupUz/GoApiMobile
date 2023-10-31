@@ -168,7 +168,7 @@ class OrderController extends Controller
 
             $data = [
                 'id' => $order->id,
-                'isEmpty' => $isEmpty,
+                // 'isEmpty' => $isEmpty,
                 'order_detail_id' => $newOrderDetail->id,
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
@@ -208,7 +208,7 @@ class OrderController extends Controller
         }       
 
         
-        $message=translate_api('success',$language);
+        $message = ($isEmpty == true) ? 'isEmpty' : translate_api(('success'),$language);
 
         return $this->success($message, 200, $list);
     }
