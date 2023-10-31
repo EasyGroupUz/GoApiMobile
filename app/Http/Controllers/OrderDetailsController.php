@@ -367,15 +367,29 @@ class OrderDetailsController extends Controller
 
     public function searchHistory()
     {
-        $model = DB::table('yy_order_details as yyo')
-            ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
-            ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
-            ->where('yyo.client_id', auth()->id())
-            ->select('yyo.id', 'yyF.name as from', 'yyF.id as from_id', 'yyF.lng as from_lng', 'yyF.lat as from_lat', 'yyT.name as to', 'yyT.id as to_id', 'yyT.lng as to_lng', 'yyT.lat as to_lat')
-            ->orderBy('id', 'desc')
-            ->limit(5)
-            ->get()
-            ->toArray();
+        // $model = DB::table('yy_order_details as yyo')
+        //     ->leftJoin('yy_cities as yyF', 'yyF.id', '=', 'yyo.from_id')
+        //     ->leftJoin('yy_cities as yyT', 'yyT.id', '=', 'yyo.to_id')
+        //     ->where('yyo.client_id', auth()->id())
+        //     ->where('yyo.type', Constants::SEARCHED_ORDER_DETAIL)
+        //     ->select('max(yyo.id) as id', 'max(yyF.name) as from', 'yyF.id as from_id', 'max(yyF.lng) as from_lng', 'max(yyF.lat) as from_lat', 'max(yyT.name) as to', 'yyT.id as to_id', 'max(yyT.lng) as to_lng', 'max(yyT.lat) as to_lat')
+        //     // ->orderBy('id', 'desc')
+        //     ->limit(5)
+        //     ->groupBy('yyF.id, yyT.id')
+        //     ->get()
+        //     ->toArray();
+
+        $model = DB::select("
+            SELECT 
+                max(yyo.id) as id, max(yyF.name) as from, yyF.id as from_id, max(yyF.lng) as from_lng, max(yyF.lat) as from_lat, max(yyT.name) as TO, 
+                yyT.id as to_id, max(yyT.lng) as to_lng, max(yyT.lat) as to_lat 
+            FROM yy_order_details as yyo
+            left join yy_cities as yyF on yyF.id = yyo.from_id
+            left join yy_cities as yyT on yyT.id = yyo.to_id
+            where yyo.client_id = " . auth()->id() . " and yyo.type = " . Constants::SEARCHED_ORDER_DETAIL . "
+            group By yyF.id, yyT.id
+            limit 5
+        ");
 
         return $this->success('success', 200, $model);
     }
