@@ -128,7 +128,7 @@ class ClientControler extends Controller
                 $data['list'][$i]['from'] = $value->from;
                 $data['list'][$i]['to_id'] = $value->to_id;
                 $data['list'][$i]['to'] = $value->to;
-                $data['list'][$i]['count_trips'] = $value->count_trips;
+                $data['list'][$i]['count_trips'] = $value->count_trips ?? 0;
                 $i++;
             }
         }
