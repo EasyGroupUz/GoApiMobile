@@ -17,18 +17,24 @@ class ClientControler extends Controller
     {
         $language = $request->header('language');
 
-        if (!$request->from_id)
-            return $this->error(translate_api('from_id parameter is missing', $language), 400);
+        if (!$request->order_id)
+            return $this->error(translate_api('order_id parameter is missing', $language), 400);
 
-        if (!$request->to_id)
-            return $this->error(translate_api('to_id parameter is missing', $language), 400);
+        // if (!$request->to_id)
+        //     return $this->error(translate_api('to_id parameter is missing', $language), 400);
 
-        if (!$request->date)
-            return $this->error(translate_api('date parameter is missing', $language), 400);
+        // if (!$request->date)
+        //     return $this->error(translate_api('date parameter is missing', $language), 400);
 
-        $from_id = $request->from_id;
-        $to_id = $request->to_id;
-        $date = date('Y-m-d', strtotime($request->date));
+        $order = Order::where('id', $request->order_id)->first();
+
+        if (!$order)
+            return $this->error(translate_api('No information was found for the order_id you provided', $language), 400);
+
+        // return $order;
+        $from_id = $order->from_id;
+        $to_id = $order->to_id;
+        $date = date('Y-m-d', strtotime($order->start_date));
 
         $query = DB::select("
             SELECT
@@ -44,12 +50,65 @@ class ClientControler extends Controller
             ) AS con ON yod.client_id = con.client_id
             WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE = '" . $date . "'
         ");
+        
+        $message = translate_api('success', $language);
+        if (!$query) {
+            $date_today = date("Y-m-d");
+            $query = DB::select("
+                SELECT * FROM (
+                    SELECT * FROM (
+                        SELECT
+                        yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, 
+                            yod.seats_count, yod.start_date, yu.rating, yod.from_id, yod.to_id, con.count AS count_trips
+                        FROM yy_order_details AS yod 
+                        INNER JOIN yy_users AS yu ON yu.id = yod.client_id
+                        INNER JOIN yy_personal_infos AS ypi ON ypi.id = yu.personal_info_id
+                        LEFT JOIN (
+                            SELECT 
+                                yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
+                            INNER JOIN yy_orders AS yo ON yo.id = yod.order_id
+                            WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
+                            GROUP BY yod.client_id
+                        ) AS con ON yod.client_id = con.client_id
+                        WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE < '" . $date . "' 
+                            AND yod.start_date::DATE > '" . $date_today . "'
+                        ORDER BY yod.start_date DESC
+                        LIMIT 5
+                    ) AS A
+                    
+                    UNION
+                    
+                    SELECT * FROM (
+                        SELECT
+                        yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, 
+                            yod.seats_count, yod.start_date, yu.rating, yod.from_id, yod.to_id, con.count AS count_trips
+                        FROM yy_order_details AS yod 
+                        INNER JOIN yy_users AS yu ON yu.id = yod.client_id
+                        INNER JOIN yy_personal_infos AS ypi ON ypi.id = yu.personal_info_id
+                        LEFT JOIN (
+                            SELECT 
+                                yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
+                            INNER JOIN yy_orders AS yo ON yo.id = yod.order_id
+                            WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
+                            GROUP BY yod.client_id
+                        ) AS con ON yod.client_id = con.client_id
+                        WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE > '" . $date . "' 
+                        ORDER BY yod.start_date ASC
+                        LIMIT 5
+                    ) AS B
+                ) AS tab
+                ORDER BY tab.start_date ASC
+            ");
+
+            if ($query)
+                $message = 'isEmpty';
+
+        }
 
         $data = [];
         if (!empty($query)) {
             $i = 0;
             foreach ($query as $value) {
-                // return $value;
                 $data['count'] = $i;
                 $data['list'][$i]['id'] = $value->id;
                 $data['list'][$i]['last_name'] = $value->last_name;
@@ -66,7 +125,6 @@ class ClientControler extends Controller
             }
         }
 
-        $message = translate_api('success', $language);
         return $this->success($message, 200, $data);
     }
 
