@@ -38,15 +38,18 @@ class ClientControler extends Controller
 
         $query = DB::select("
             SELECT
-                yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, yod.seats_count, yod.start_date, yu.rating, yod.from_id, yod.to_id, con.count AS count_trips
+                yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, yod.seats_count, yod.start_date, yu.rating, yod.from_id, yfrom.name AS from, yod.to_id, yto.name AS to, con.count AS count_trips
             FROM yy_order_details AS yod 
             INNER JOIN yy_users AS yu ON yu.id = yod.client_id
             INNER JOIN yy_personal_infos AS ypi ON ypi.id = yu.personal_info_id
+            INNER JOIN yy_cities AS yfrom ON yfrom.id = yod.from_id
+            INNER JOIN yy_cities AS yto ON yto.id = yod.to_id
             LEFT JOIN (
-                SELECT yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
-            INNER JOIN yy_orders AS yo ON yo.id = yod.order_id
-            WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
-            GROUP BY yod.client_id
+                SELECT 
+                    yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
+                INNER JOIN yy_orders AS yo ON yo.id = yod.order_id
+                WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
+                GROUP BY yod.client_id
             ) AS con ON yod.client_id = con.client_id
             WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE = '" . $date . "'
         ");
@@ -58,11 +61,12 @@ class ClientControler extends Controller
                 SELECT * FROM (
                     SELECT * FROM (
                         SELECT
-                        yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, 
-                            yod.seats_count, yod.start_date, yu.rating, yod.from_id, yod.to_id, con.count AS count_trips
+                            yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, yod.seats_count, yod.start_date, yu.rating, yod.from_id, yfrom.name AS from, yod.to_id, yto.name AS to, con.count AS count_trips
                         FROM yy_order_details AS yod 
                         INNER JOIN yy_users AS yu ON yu.id = yod.client_id
                         INNER JOIN yy_personal_infos AS ypi ON ypi.id = yu.personal_info_id
+                        INNER JOIN yy_cities AS yfrom ON yfrom.id = yod.from_id
+                        INNER JOIN yy_cities AS yto ON yto.id = yod.to_id
                         LEFT JOIN (
                             SELECT 
                                 yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
@@ -80,11 +84,12 @@ class ClientControler extends Controller
                     
                     SELECT * FROM (
                         SELECT
-                        yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, 
-                            yod.seats_count, yod.start_date, yu.rating, yod.from_id, yod.to_id, con.count AS count_trips
+                            yod.id, ypi.last_name, ypi.first_name, ypi.middle_name, CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) AS full_name, ypi.avatar, yod.seats_count, yod.start_date, yu.rating, yod.from_id, yfrom.name AS from, yod.to_id, yto.name AS to, con.count AS count_trips
                         FROM yy_order_details AS yod 
                         INNER JOIN yy_users AS yu ON yu.id = yod.client_id
                         INNER JOIN yy_personal_infos AS ypi ON ypi.id = yu.personal_info_id
+                        INNER JOIN yy_cities AS yfrom ON yfrom.id = yod.from_id
+                        INNER JOIN yy_cities AS yto ON yto.id = yod.to_id
                         LEFT JOIN (
                             SELECT 
                                 yod.client_id, COUNT(yod.id) FROM yy_order_details AS yod
@@ -116,10 +121,13 @@ class ClientControler extends Controller
                 $data['list'][$i]['middle_name'] = $value->middle_name;
                 $data['list'][$i]['full_name'] = $value->full_name;
                 $data['list'][$i]['avatar'] = $value->avatar ? asset('storage/avatar/' . $value->avatar) : '';
+                $data['list'][$i]['start_date'] = date("d.m.Y H:i", strtotime($value->start_date));
                 $data['list'][$i]['seats_count'] = $value->seats_count;
                 $data['list'][$i]['rating'] = (INT)$value->rating;
                 $data['list'][$i]['from_id'] = $value->from_id;
+                $data['list'][$i]['from'] = $value->from;
                 $data['list'][$i]['to_id'] = $value->to_id;
+                $data['list'][$i]['to'] = $value->to;
                 $data['list'][$i]['count_trips'] = $value->count_trips;
                 $i++;
             }
