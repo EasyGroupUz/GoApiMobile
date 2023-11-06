@@ -103,14 +103,17 @@ class OrderController extends Controller
                 ->get();
 
             $arrIds = [];
-            if ($orderIds) {
+            if ($orderIds && count($orderIds) > 0) {
                 foreach ($orderIds as $orderId) {
                     $arrIds[] = $orderId->id;
                 }
+
+                $orders = Order::whereIn('id', $arrIds)->get();
+                $isEmpty = true;
+            } else {
+                $isEmpty = false;
             }
 
-            $orders = Order::whereIn('id', $arrIds)->get();
-            $isEmpty = true;
         }
         
         $order_count = count($orders);
@@ -207,7 +210,6 @@ class OrderController extends Controller
             array_push($list,$data);
         }       
 
-        
         $message = ($isEmpty == true) ? 'isEmpty' : translate_api(('success'),$language);
 
         return $this->success($message, 200, $list);
