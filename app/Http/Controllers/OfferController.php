@@ -161,6 +161,75 @@ class OfferController extends Controller
         return $this->success(translate_api('Offer created', $language), 201);
     }
 
+    public function storeByOrder(Request $request)
+    {
+        $language = $request->header('language');
+
+        $field = $request->validate([
+            'order_id' => 'required|integer',
+            'order_detail_id' => 'required|integer',
+        ]); 
+
+        $order_detail = OrderDetail::find($field['order_detail_id']);
+        if (!isset($order_detail)) {
+            return $this->error(translate_api('Order detail not found', $language), 400);
+        }
+        
+        $order = Order::find($field['order_id']);
+        if (!isset($order)) {
+            return $this->error(translate_api('Order not found', $language), 400);
+        }
+
+        $old_offer = Offer::where('order_id', $order->id)->where('order_detail_id', $order_detail->id)->first();
+
+        if ($old_offer) {
+            if ($old_offer->status == Constants::NEW) {
+                return $this->error(translate_api('Your old offer was not accepted please wait', $language), 400);
+            } elseif ($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status == Constants::CANCEL) {
+                return $this->error(translate_api('Sorry, you cannot make another offer for this order', $language), 400);
+            } else {
+                if ($order->status_id == Constants::ORDERED) {
+                    if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status == Constants::CANCEL) {
+                        $old_offer->update([
+                            'status' => Constants::NEW,
+                            'seats' => $order_detail->seats_count
+                        ]);
+
+                        $device = ($order_detail->client) ? json_decode($order_detail->client->device_id) : [];
+                        $title = 'You have a new offer';
+                        $message = ': ' . (($order_detail && $order_detail->from) ? $order_detail->from->name : '') . ' - ' . (($order_detail && $order_detail->to) ? $order_detail->to->name : '');
+                        $user_id = ($order_detail->client) ? $order_detail->client->id : 0;
+                        $entity_id = $order_detail->id;
+
+                        $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+
+                        return $this->success(translate_api('Offer updates', $language), 201);
+                    }
+                } else {
+                    return $this->error(translate_api('Sorry, this  order status is not Ordered', $language), 400);
+                }                
+            }
+        } else {
+            $offer = new Offer();
+            $offer->order_id = $order->id;
+            $offer->order_detail_id = $order_detail->id;
+            $offer->seats = $order_detail->seats_count;
+            $offer->create_type = Constants::ORDER;
+            $offer->status = Constants::NEW;
+            $offer->save();
+            
+            $device = ($order_detail->client) ? json_decode($order_detail->client->device_id) : [];
+            $title = 'You have a new offer';
+            $message = ': ' . (($order_detail && $order_detail->from) ? $order_detail->from->name : '') . ' - ' . (($order_detail && $order_detail->to) ? $order_detail->to->name : '');
+            $user_id = ($order_detail->client) ? $order_detail->client->id : 0;
+            $entity_id = $order_detail->id;
+
+            $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+        }
+
+        return $this->success(translate_api('Offer created', $language), 201);
+    }
+
     public function getOffer(Request $request){
         $language = $request->header('language');
         $offers = DB::table('yy_offers as dt1')
