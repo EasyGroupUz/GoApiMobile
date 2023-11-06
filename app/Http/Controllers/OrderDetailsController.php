@@ -475,13 +475,13 @@ class OrderDetailsController extends Controller
             $arr[$n]['booking_count'] = $offer->booking_count ?? 0;
             $arr[$n]['is_full'] = ($offer->seats_count == $offer->booking_count) ? true : false;
             $arr[$n]['clients_list'][$c]['full_name'] = $offer->c_last_name . ' ' . $offer->c_first_name . ' ' . $offer->c_middle_name;
-            $arr[$n]['clients_list'][$c]['phone_number'] = substr($offer->c_phone_number, 3);
+            $arr[$n]['clients_list'][$c]['phone_number'] = '+' . $offer->c_phone_number;
             $arr[$n]['clients_list'][$c]['img'] = ($offer->c_avatar) ? asset('storage/avatar/' . $offer->c_avatar) : '';
             $arr[$n]['clients_list'][$c]['rating'] = $offer->c_rating;
             $arr[$n]['driver'] = [
                 'id' => $offer->driver_id,
                 'full_name' => $offer->last_name . ' ' . $offer->first_name . ' ' . $offer->middle_name,
-                'phone_number' => substr($offer->phone_number, 3),
+                'phone_number' => '+' . $offer->phone_number,
                 'img' => ($offer->dImg) ? asset('storage/avatar/' . $offer->dImg) : '',
                 'rating' => $offer->rating,
                 'doc_status' => (int)$offer->driver_doc_status

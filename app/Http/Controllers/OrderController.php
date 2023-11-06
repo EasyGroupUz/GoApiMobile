@@ -181,7 +181,7 @@ class OrderController extends Controller
                 'driver' => [
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
-                    'phone_number' => substr($driver_info->personalInfo->phone_number, 3),
+                    'phone_number' => '+' . $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL
@@ -326,7 +326,7 @@ class OrderController extends Controller
                     $d_personal_info = $driver_info->personalInfo;
 
                     $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name . ' ' . $d_personal_info->middle_name;
-                    $d_phone_number = substr($d_personal_info->phone_number, 3);
+                    $d_phone_number = '+' . $d_personal_info->phone_number;
                     $d_img = ($d_personal_info->avatar) ? asset('storage/avatar/' . $d_personal_info->avatar) : '';
                 }
 
@@ -397,7 +397,7 @@ class OrderController extends Controller
                         $c_last_name = $c_personal_info->last_name;
                         $c_first_name = $c_personal_info->first_name;
                         $c_middle_name = $c_personal_info->middle_name;
-                        $c_phone_number = substr($c_personal_info->phone_number, 3);
+                        $c_phone_number = '+' . $c_personal_info->phone_number;
                         $c_img = ($c_personal_info->avatar) ? asset('storage/avatar/' . $c_personal_info->avatar) : '';
                         $c_gender = $c_personal_info->gender;
                         $c_rating = $order_details_client->rating;
@@ -1017,7 +1017,7 @@ class OrderController extends Controller
                         $driverPersonalInfo = $valDriver->personalInfo;
 
                         $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
-                        $d_phone_number = substr($driverPersonalInfo->phone_number, 3);
+                        $d_phone_number = '+' . $driverPersonalInfo->phone_number;
                         $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
                     }
                     $arrDriverInfo['full_name'] = $d_full_name;
@@ -1261,7 +1261,7 @@ class OrderController extends Controller
                         $driverPersonalInfo = $valDriver->personalInfo;
 
                         $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
-                        $d_phone_number = substr($driverPersonalInfo->phone_number, 3);
+                        $d_phone_number = '+' . $driverPersonalInfo->phone_number;
                         $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
                     }
                     $arrDriverInfo['full_name'] = $d_full_name;
