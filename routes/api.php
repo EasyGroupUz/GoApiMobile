@@ -135,11 +135,13 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
-        Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
+        // Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
+        Route::get('/get-media', [MediaHistoryController::class, 'getMediaHistory']);
         Route::get('/history/user', [MediaHistoryController::class, 'getHistoryUser']);
         Route::post('/history/user', [MediaHistoryController::class, 'postHistoryUser']);
 
-        Route::get('/get-media', [MediaHistoryController::class, 'getMedia']);
+        // Route::get('/get-media', [MediaHistoryController::class, 'getMedia']);
+        Route::get('/get-history', [MediaHistoryController::class, 'getMedia']);
         Route::get('/get-media-detail', [MediaHistoryController::class, 'getMediaDetail']);
     });
 });
