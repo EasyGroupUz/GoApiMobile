@@ -540,9 +540,9 @@ class OrderDetailsController extends Controller
 
         $orderDetail = OrderDetail::where('id', $request['order_detail_id'])->first();
 
-        // if (!$orderDetail) {
-        //     return $this->error(translate_api('No information was found for the order_detail_id you provided', $language), 400);
-        // }
+        if (!$orderDetail) {
+            return $this->error(translate_api('No information was found for the order_detail_id you provided', $language), 400);
+        }
 
         // if ($validator->fails()) {
         //     return $this->error($validator->errors()->first(), 400);
