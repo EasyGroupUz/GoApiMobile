@@ -558,27 +558,27 @@ class OrderDetailsController extends Controller
 
         $list=[]; 
 
-        $citiesFrom = City::where('parent_id', $orderDetail->from_id)->get();
-        $arrFromIds = array();
-        if (!empty($citiesFrom) && count($citiesFrom) > 0) {
-            foreach ($citiesFrom as $cityFrom) {
-                $arrFromIds[] = $cityFrom->id;
-            }
-        }
-        $arrFromIds[] = $orderDetail->from_id;
+        // $citiesFrom = City::where('parent_id', $orderDetail->from_id)->get();
+        // $arrFromIds = array();
+        // if (!empty($citiesFrom) && count($citiesFrom) > 0) {
+        //     foreach ($citiesFrom as $cityFrom) {
+        //         $arrFromIds[] = $cityFrom->id;
+        //     }
+        // }
+        // $arrFromIds[] = $orderDetail->from_id;
 
-        $citiesTo = City::where('parent_id', $orderDetail->to_id)->get();
-        $arrToIds = array();
-        if (!empty($citiesTo) && count($citiesTo) > 0) {
-            foreach ($citiesTo as $cityTo) {
-                $arrToIds[] = $cityTo->id;
-            }
-        }
-        $arrToIds[] = $orderDetail->to_id;
+        // $citiesTo = City::where('parent_id', $orderDetail->to_id)->get();
+        // $arrToIds = array();
+        // if (!empty($citiesTo) && count($citiesTo) > 0) {
+        //     foreach ($citiesTo as $cityTo) {
+        //         $arrToIds[] = $cityTo->id;
+        //     }
+        // }
+        // $arrToIds[] = $orderDetail->to_id;
 
         $orders = Order::where('status_id', Constants::ORDERED)
-            ->whereIn('from_id', $arrFromIds)
-            ->whereIn('to_id', $arrToIds)
+            ->where('from_id', $orderDetail->from_id)
+            ->where('to_id', $orderDetail->to_id)
             ->where('start_date', '>=', $date)
             ->where('start_date', '<=', $to_date)
             ->where('start_date', '>=', date('Y-m-d H:i:s'))
