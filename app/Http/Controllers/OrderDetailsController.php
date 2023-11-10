@@ -599,7 +599,25 @@ class OrderDetailsController extends Controller
             }
             $personalInfo = $personalInfo->first();
 
-            if ($personalInfo) {
+            $continue = true;
+            if ($order->options) {
+                $optionsParse = json_decode($order->options);
+                
+                if ($request->luggage && $request->luggage != $optionsParse->luggage) {
+                    $continue = false;
+                }
+                
+                if ($request->animal_seat && $request->animal_seat != $optionsParse->animal_seat) {
+                    $continue = false;
+                }
+                
+                // if ($request->air_conditioner && $request->air_conditioner != $optionsParse->air_conditioner) {
+                //     $continue = false;
+                // }
+                // return $optionsParse;
+            }
+
+            if ($personalInfo && $continue) {
                 $car = DB::table('yy_cars as dt1')
                     ->join('yy_car_lists as dt2', 'dt2.id', '=', 'dt1.car_list_id')
                     ->where('dt1.id',$order->car_id)
