@@ -20,12 +20,6 @@ class ClientControler extends Controller
         if (!$request->order_id)
             return $this->error(translate_api('order_id parameter is missing', $language), 400);
 
-        // if (!$request->to_id)
-        //     return $this->error(translate_api('to_id parameter is missing', $language), 400);
-
-        // if (!$request->date)
-        //     return $this->error(translate_api('date parameter is missing', $language), 400);
-
         $order = Order::where('id', $request->order_id)->first();
 
         if (!$order)
@@ -114,21 +108,21 @@ class ClientControler extends Controller
         if (!empty($query)) {
             $i = 0;
             foreach ($query as $value) {
-                $data['count'] = $i;
-                $data['list'][$i]['id'] = $value->id;
-                $data['list'][$i]['last_name'] = $value->last_name;
-                $data['list'][$i]['first_name'] = $value->first_name;
-                $data['list'][$i]['middle_name'] = $value->middle_name;
-                $data['list'][$i]['full_name'] = $value->full_name;
-                $data['list'][$i]['avatar'] = $value->avatar ? asset('storage/avatar/' . $value->avatar) : '';
-                $data['list'][$i]['start_date'] = date("d.m.Y H:i", strtotime($value->start_date));
-                $data['list'][$i]['seats_count'] = $value->seats_count;
-                $data['list'][$i]['rating'] = (INT)$value->rating;
-                $data['list'][$i]['from_id'] = $value->from_id;
-                $data['list'][$i]['from'] = $value->from;
-                $data['list'][$i]['to_id'] = $value->to_id;
-                $data['list'][$i]['to'] = $value->to;
-                $data['list'][$i]['count_trips'] = $value->count_trips ?? 0;
+                // $data['count'] = $i;
+                $data[$i]['id'] = $value->id;
+                $data[$i]['last_name'] = $value->last_name;
+                $data[$i]['first_name'] = $value->first_name;
+                $data[$i]['middle_name'] = $value->middle_name;
+                $data[$i]['full_name'] = $value->full_name;
+                $data[$i]['avatar'] = $value->avatar ? asset('storage/avatar/' . $value->avatar) : '';
+                $data[$i]['start_date'] = date("d.m.Y H:i", strtotime($value->start_date));
+                $data[$i]['seats_count'] = $value->seats_count;
+                $data[$i]['rating'] = (INT)$value->rating;
+                $data[$i]['from_id'] = $value->from_id;
+                $data[$i]['from'] = $value->from;
+                $data[$i]['to_id'] = $value->to_id;
+                $data[$i]['to'] = $value->to;
+                $data[$i]['count_trips'] = $value->count_trips ?? 0;
                 $i++;
             }
         }

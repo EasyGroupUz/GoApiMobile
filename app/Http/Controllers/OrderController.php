@@ -370,9 +370,22 @@ class OrderController extends Controller
                     }
                 }
 
+                $arrColors = [];
+                if ($arr_orde_car->color) {
+                    $yyColorTranslations = DB::table('yy_color_translations as dt1')
+                        ->where('color_list_id', $arr_orde_car->color->id)
+                        ->where('dt1.lang', $language)
+                        ->select('dt1.name')
+                        ->first();
+                    
+                    if ($yyColorTranslations) {
+                        $arrColors = ['name' => $yyColorTranslations->name, 'code' => $arr_orde_car->color->code];
+                    }
+                }
+
                 $arrCarInfo['id'] = $arr_orde_car->id;
                 $arrCarInfo['name'] = $arr_orde_car->car->name ?? '';
-                $arrCarInfo['color'] = ($arr_orde_car->color) ? ['name' => $arr_orde_car->color->name, 'code' => $arr_orde_car->color->code] : [];
+                $arrCarInfo['color'] = $arrColors;
                 $arrCarInfo['production_date'] = date('Y', strtotime($arr_orde_car->production_date));
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
@@ -1042,9 +1055,23 @@ class OrderController extends Controller
                         }
                     }
 
+                    $arrColors = [];
+                    if ($valCar->color) {
+                        $yyColorTranslations = DB::table('yy_color_translations as dt1')
+                            ->where('color_list_id', $valCar->color->id)
+                            ->where('dt1.lang', $language)
+                            ->select('dt1.name')
+                            ->first();
+                        
+                        if ($yyColorTranslations) {
+                            $arrColors = ['name' => $yyColorTranslations->name, 'code' => $valCar->color->code];
+                        }
+                    }
+
                     $arrCar['id'] = $valCar->id;
                     $arrCar['name'] = $valCar->car->name ?? '';
-                    $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
+                    $arrCar['color'] = $arrColors;
+                    // $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
                     $arrCar['production_date'] = date('Y', strtotime($valCar->production_date));
                     $arrCar['class'] = $valCar->class->name ?? '';
                     $arrCar['reg_certificate'] = $valCar->reg_certificate;
