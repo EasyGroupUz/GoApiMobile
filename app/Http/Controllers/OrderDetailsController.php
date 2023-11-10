@@ -540,6 +540,7 @@ class OrderDetailsController extends Controller
 
         $orderDetail = OrderDetail::where('id', $request['order_detail_id'])->first();
 
+        $language = $request->header('language');
         if (!$orderDetail) {
             return $this->error(translate_api('No information was found for the order_detail_id you provided', $language), 400);
         }
@@ -550,7 +551,6 @@ class OrderDetailsController extends Controller
 
         // $newOrderDetail = $this->createOrderDetail($request->all());
 
-        $language = $request->header('language');
 
         $date=Carbon::parse($request->from_date)->format('Y-m-d');
         $to_date=Carbon::parse($request->to_date)->format('Y-m-d');
