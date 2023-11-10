@@ -603,15 +603,15 @@ class OrderDetailsController extends Controller
             if ($order->options) {
                 $optionsParse = json_decode($order->options);
                 
-                if ($request->luggage && $request->luggage != $optionsParse->luggage) {
+                if (isset($request->luggage) && $request->luggage != $optionsParse->luggage) {
                     $continue = false;
                 }
                 
-                if ($request->animal_seat && $request->animal_seat != $optionsParse->animal_seat) {
+                if (isset($request->animal_seat) && $request->animal_seat != $optionsParse->animal_seat) {
                     $continue = false;
                 }
                 
-                // if ($request->air_conditioner && $request->air_conditioner != $optionsParse->air_conditioner) {
+                // if (isset($request->air_conditioner) && $request->air_conditioner != $optionsParse->air_conditioner) {
                 //     $continue = false;
                 // }
                 // return $optionsParse;
