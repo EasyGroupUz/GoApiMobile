@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Constants;
 use App\Models\City;
+use App\Models\Offer;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -41,6 +42,7 @@ class OrderDetailsController extends Controller
             'to_id' => 'required|integer',
             'start_date' => 'required|date_format:Y-m-d',
             'seats_count' => 'nullable|integer|max:1000',
+            'make_offer' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -59,6 +61,34 @@ class OrderDetailsController extends Controller
             'start_date' => date('Y-m-d', strtotime($data['start_date'])),
             'type' => Constants::CREATED_ORDER_DETAIL
         ]);
+
+        if (isset($data['make_offer']) && $data['make_offer'] == 1) {
+            $orders = Order::where('from_id', $data['from_id'])->where('to_id', $data['to_id'])->get();
+
+            $id = auth()->id();
+            // $create_type = ($id == $orderDetail->client_id) ? 0 : 1;
+            
+            if (isset($orders) && count($orders) > 0) {
+                foreach ($orders as $order) {
+                    $offer = new Offer();
+                    $offer->order_id = $order->id;
+                    $offer->seats = $data['seats_count'];
+                    $offer->order_detail_id = $order_detail->id;
+                    $offer->create_type = Constants::ORDER;
+                    $offer->status = Constants::NEW;
+                    $offer->save();
+            
+                    $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
+                    $title = 'You have a new offer';
+                    $message = ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
+                    $user_id = ($order->driver) ? $order->driver->id : 0;
+                    $entity_id = $order->id;
+            
+                    $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
+                }
+
+            }
+        }
 
         $message = translate_api('success',$language);
 
@@ -594,7 +624,7 @@ class OrderDetailsController extends Controller
             $user = User::where('id', $order->driver_id)->first();
 
             $personalInfo = PersonalInfo::where('id', $user->personal_info_id);
-            if ($request->gender) {
+            if (isset($request->gender)) {
                 $personalInfo = $personalInfo->where('gender', $request->gender);
             }
             $personalInfo = $personalInfo->first();
