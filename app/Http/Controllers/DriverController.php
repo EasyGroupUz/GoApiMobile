@@ -85,6 +85,67 @@ class DriverController extends Controller
         }
     }
     
+    public function confirmation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'license_number' => 'required',
+            'license_expired_date' => 'required',
+            'license_image' => 'nullable',
+            'license_image_back' => 'nullable',
+            'car_id' => 'required',
+            'car_images' => 'nullable',
+            'reg_certificate' => 'required',
+            'reg_certificate_image' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 400);
+        }
+        $language = $request->header('language');
+        $data = $request->all();
+        $id = auth()->id();
+
+        // Find user and check if driver exists
+        $model = User::find($id);
+        if (!$model) {
+            return $this->error('Driver not found', 400);
+        }
+
+        // Check if the user is already a registered driver
+        $modelDriver = Driver::where('user_id', $model->id)->first();
+        if ($modelDriver) {
+            return $this->error('You are already registered as a driver', 400);
+        }
+
+        // Find the associated car
+        $modelCars = Cars::find($request->car_id);
+        if (!$modelCars) {
+            return $this->error('Cars not found', 400);
+        }
+        
+        $modelCars->images = $request->car_images;
+        $modelCars->reg_certificate_image = $request->reg_certificate_image;
+        $modelCars->from_admin = 0;
+        $modelCars->save();
+
+        // Create and save a new driver
+        $newDriver = new Driver();
+        $newDriver->user_id = $model->id;
+        $newDriver->status_id = Constants::ACTIVE;
+        $newDriver->license_number = $request->license_number;
+        $newDriver->license_expired_date = $request->license_expired_date;
+        $newDriver->balance = 0;
+        $newDriver->doc_status = Constants::WAITING;
+        $newDriver->save();
+
+        // Handle images
+        $this->handleImageUpload($request, $newDriver, 'license_image', 'certificate');
+        $this->handleImageUpload($request, $newDriver, 'license_image_back', 'certificate');
+        $this->handleImageUpload($request, $modelCars, 'images', 'cars');
+        $this->handleImageUpload($request, $modelCars, 'reg_certificate_image', 'cars');
+
+        return $this->success('Success', 200);
+    }
 
     // public function accept(Request $request)
     // {
