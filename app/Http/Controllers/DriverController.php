@@ -134,7 +134,7 @@ class DriverController extends Controller
         $newDriver->status_id = Constants::ACTIVE;
         $newDriver->license_number = $request->license_number;
         $newDriver->license_expired_date = $request->license_expired_date;
-        $newDriver->balance = 0;
+        // $newDriver->balance = 0;
         $newDriver->doc_status = Constants::WAITING;
         $newDriver->save();
 
