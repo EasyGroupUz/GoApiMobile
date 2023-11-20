@@ -315,7 +315,7 @@ class OfferController extends Controller
         
         $offers = DB::select("
             SELECT
-                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, yu.rating AS rating, ycl.name AS model, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
+                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, yu.rating AS rating, ycl.name AS model, ycol.id as color_id, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
             FROM yy_offers AS yof
             INNER JOIN yy_order_details AS yod ON yod.id = yof.order_detail_id AND yod.order_id IS NULL AND yod.client_id = " . auth()->id() . "
             INNER JOIN yy_orders AS yo ON yo.id = yof.order_id
@@ -332,8 +332,9 @@ class OfferController extends Controller
         $data=[];
         foreach ($offers as $key => $offer) {
             $from_to_name = table_translate($offer,'city',$language);
+            $color_name = table_translate($offer,'color',$language);
 
-            $list=[
+            $list = [
                 'offer_id' => $offer->offer_id,
                 'order_id' => $offer->order_id,
                 'order_detail_id' => $offer->order_detail_id,
@@ -347,7 +348,7 @@ class OfferController extends Controller
                 'rating' => $offer->rating,
                 'car' => [
                     'model' => $offer->model,
-                    'color' => $offer->color,
+                    'color' => $color_name->color_translation_name,
                     'production_date' => date('d.m.Y H:i', strtotime($offer->production_date)),
                 ],
                 'empty_seats' => $offer->seats_count,
