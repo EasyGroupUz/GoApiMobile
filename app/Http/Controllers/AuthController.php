@@ -47,7 +47,8 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function Login(Request $request){
+    public function Login(Request $request)
+    {
         date_default_timezone_set("Asia/Tashkent");
         $language = $request->header('language');
         $fields = $request->validate([
@@ -108,7 +109,7 @@ class AuthController extends Controller
                 ],
                 [
                     'name' => 'message',
-                    'contents' => translate_api('GoEasy - Sizni bir martalik tasdiqlash kodingiz', $language).': '.$random
+                    'contents' => translate_api('Easy Go - Sizni bir martalik tasdiqlash kodingiz', $language).': '.$random
                 ],
                 [
                     'name' => 'from',
@@ -679,7 +680,7 @@ class AuthController extends Controller
                 ],
                 [
                     'name' => 'message',
-                    'contents' => translate_api('GoEasy - Sizni bir martalik tasdiqlash kodingiz', $language).': '.$random
+                    'contents' => translate_api('Easy Go - Sizni bir martalik tasdiqlash kodingiz', $language).': '.$random
                 ],
                 [
                     'name' => 'from',

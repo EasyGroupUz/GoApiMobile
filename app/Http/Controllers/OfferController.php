@@ -279,7 +279,7 @@ class OfferController extends Controller
                     'rating'=>$offer->rating,
                     'from_name' => $from_to_name['from_name'],
                     'to_name' => $from_to_name['to_name'],
-                    'full_name'=> $offer->first_name. '.' .$offer->last_name[0],
+                    'full_name'=> ((isset($offer->first_name)) ? $offer->first_name : ''). '.' . ((isset($offer->last_name)) ? $offer->last_name[0] : ''),
                     'doc_status'=> (int)$offer->doc_status,
                     'avatar'=>$offer->avatar,
                     'seats_count'=>$offer->seats_count,
