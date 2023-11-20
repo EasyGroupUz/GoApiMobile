@@ -45,7 +45,8 @@ class ClientControler extends Controller
                 WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
                 GROUP BY yod.client_id
             ) AS con ON yod.client_id = con.client_id
-            WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE = '" . $date . "'
+            LEFT JOIN yy_offers AS yof ON yof.order_detail_id = yod.id
+            WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE = '" . $date . "' AND (yof.status = " . Constants::CANCEL . " OR yof.status IS NULL)
         ");
         
         $message = translate_api('success', $language);
@@ -68,8 +69,9 @@ class ClientControler extends Controller
                             WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
                             GROUP BY yod.client_id
                         ) AS con ON yod.client_id = con.client_id
+                        LEFT JOIN yy_offers AS yof ON yof.order_detail_id = yod.id
                         WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE < '" . $date . "' 
-                            AND yod.start_date::DATE > '" . $date_today . "'
+                            AND yod.start_date::DATE > '" . $date_today . "' AND (yof.status = " . Constants::CANCEL . " OR yof.status IS NULL)
                         ORDER BY yod.start_date DESC
                         LIMIT 5
                     ) AS A
@@ -91,7 +93,8 @@ class ClientControler extends Controller
                             WHERE yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL
                             GROUP BY yod.client_id
                         ) AS con ON yod.client_id = con.client_id
-                        WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE > '" . $date . "' 
+                        LEFT JOIN yy_offers AS yof ON yof.order_detail_id = yod.id
+                        WHERE yod.from_id = " . $from_id . " AND yod.to_id = " . $to_id . " AND yod.type = " . Constants::CREATED_ORDER_DETAIL . " AND yod.end_date IS NULL AND yod.start_date::DATE > '" . $date . "' AND (yof.status = " . Constants::CANCEL . " OR yof.status IS NULL)
                         ORDER BY yod.start_date ASC
                         LIMIT 5
                     ) AS B
