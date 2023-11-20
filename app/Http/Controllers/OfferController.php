@@ -338,7 +338,7 @@ class OfferController extends Controller
                 'offer_id' => $offer->offer_id,
                 'order_id' => $offer->order_id,
                 'order_detail_id' => $offer->order_detail_id,
-                'start_date' => $offer->start_date,
+                'start_date' => date('d.m.Y', strtotime($offer->start_date)),
                 'created_at' => date('d.m.Y H:i', strtotime($offer->created_at)),
                 'from_name' => $from_to_name['from_name'],
                 'to_name' => $from_to_name['to_name'],
