@@ -13,6 +13,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\MediaHistoryController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ClientControler;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FeedbackController;
@@ -53,7 +54,17 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
         Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         Route::get('/history', [OrderDetailsController::class, 'history']);
+        Route::get('/filter-order-details', [OrderDetailsController::class, 'filterOrderDetails']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
+    });
+
+    Route::group(['prefix' => 'clients'], function () {
+        Route::get('/placed-order', [ClientControler::class, 'placedOrder']);
+        Route::post('/create-offer', [ClientControler::class, 'createOffer']);
+    });
+    
+    Route::group(['prefix' => 'driver'], function () {
+        Route::post('/confirmation', [DriverController::class, 'confirmation']);
     });
 
     Route::group(['prefix' => 'car'], function () {
@@ -76,7 +87,9 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
 
     Route::group(['prefix' => 'offer'], function () {
         Route::get('/get', [OfferController::class, 'getOffer']);
+        Route::get('/get-by-client', [OfferController::class, 'getByClient']);
         Route::post('/store', [OfferController::class, 'postOffer']);
+        Route::post('/store-by-order', [OfferController::class, 'storeByOrder']);
         Route::get('/destroy', [OfferController::class, 'destroy']);
     });
 
@@ -128,8 +141,13 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
     });
     Route::group(['prefix' => 'media'], function () {
         Route::get('/history', [MediaHistoryController::class, 'mediaHistory']);
-        Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
+        // Route::get('/get-history', [MediaHistoryController::class, 'getMediaHistory']);
+        Route::get('/get-media', [MediaHistoryController::class, 'getMediaHistory']);
         Route::get('/history/user', [MediaHistoryController::class, 'getHistoryUser']);
         Route::post('/history/user', [MediaHistoryController::class, 'postHistoryUser']);
+
+        // Route::get('/get-media', [MediaHistoryController::class, 'getMedia']);
+        Route::get('/get-history', [MediaHistoryController::class, 'getMedia']);
+        Route::get('/get-media-detail', [MediaHistoryController::class, 'getMediaDetail']);
     });
 });
