@@ -1082,20 +1082,22 @@ class OrderController extends Controller
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
                 if ($value->from) {
-                    $from_name = DB::table('yy_city_translations as dt1')
-                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                    ->where('city_id', $value->from->id)
-                    ->where('dt1.lang', $language)
-                    ->select('dt1.name')
-                    ->first()->name;
+                    $from_name_query = DB::table('yy_city_translations as dt1')
+                        ->where('city_id', $value->from->id)
+                        ->where('dt1.lang', $language)
+                        ->select('dt1.name')
+                        ->first();
+                    
+                    $from_name = ($from_name_query) ? $from_name_query->name : '';
                 }
                 if ($value->to) {
-                    $to_name = DB::table('yy_city_translations as dt1')
-                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                    ->where('city_id', $value->to->id)
-                    ->where('dt1.lang', $language)
-                    ->select('dt1.name')
-                    ->first()->name;
+                    $to_name_query = DB::table('yy_city_translations as dt1')
+                        ->where('city_id', $value->to->id)
+                        ->where('dt1.lang', $language)
+                        ->select('dt1.name')
+                        ->first();
+                        
+                    $to_name = ($to_name_query) ? $to_name_query->name : '';
                 }
 
                 $arr[$n]['id'] = $value->id;
