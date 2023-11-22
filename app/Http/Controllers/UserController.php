@@ -101,7 +101,7 @@ class UserController extends Controller
                 'reg_certificate'=>$reg_certificate??[],
                 'email'=>$model->personalInfo->email??null,
                 'gender'=>$model->personalInfo->gender??null,
-                'phone_number' => $model->personalInfo->phone_number ? substr($model->personalInfo->phone_number, 3) : null,
+                'phone_number'=>$model->personalInfo->phone_number??null,
                 'rating'=>$model->rating??null,
             ];
             return $this->success('Success', 201, $list);

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\City;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -48,7 +47,7 @@ class Controller extends BaseController
             'data' => $data ?? NULL,
             'status' => false,
             'message' => $message ?? 'error occured'
-        ], $error_type, [], JSON_INVALID_UTF8_SUBSTITUTE);
+        ], $error_type);
     }
     public function success(string $message, int $error_type, array $data = null)
     {
@@ -56,7 +55,7 @@ class Controller extends BaseController
             'data' => $data ?? NULL,
             'status' => true,
             'message' => $message ?? 'success'
-        ], 200, [], JSON_INVALID_UTF8_SUBSTITUTE); // $error_type
+        ], 200); // $error_type
     }
 
     public function validateByToken($request)
@@ -70,6 +69,7 @@ class Controller extends BaseController
     public function getDistanceAndKm($fromLng, $fromLat, $toLng, $toLat)
     {
         // return ['new' => true, 'km' => '0', 'distance_value' => '0', 'time' => '0', 'duration_value' => '0'];
+        
         $directionHistory = DB::table('yy_direction_histories')
             ->where(['from_lng' => $fromLng, 'from_lat' => $fromLat, 'to_lng' => $toLng, 'to_lat' => $toLat])
             ->first();
@@ -335,72 +335,5 @@ class Controller extends BaseController
 
     //     // Handle the response, e.g., log it or return it as a JSON response
     //     return response()->json(['message' => 'Notification sent', 'response' => json_decode($response)]);
-    // }
-    
-    // public function insertDistanceAndKm($fromLng, $fromLat, $toLng, $toLat)
-    // {
-    //     $cities = City::all();
-    //     $arrResponces = [];
-    //     if (!empty($cities)) {
-    //         foreach ($cities as $city) {
-    //             $cities2 = City::all();
-    //             if (!empty($cities2)) {
-    //                 foreach ($cities2 as $city2) {
-    //                     $fromLng = $city->lng;
-    //                     $fromLat = $city->lat;
-    //                     $toLng = $city2->lng;
-    //                     $toLat = $city2->lat;
-
-    //                     $directionHistory = DB::table('yy_direction_histories')
-    //                         ->where(['from_lng' => $fromLng, 'from_lat' => $fromLat, 'to_lng' => $toLng, 'to_lat' => $toLat])
-    //                         ->first();
-
-    //                     if (!$directionHistory) {
-
-    //                         $apiUrl = 'https://api.distancematrix.ai/maps/api/distancematrix/json?origins=' . $fromLng . ', ' . $fromLat . '&destinations=' . $toLng . ', ' . $toLat . '&key=7Q0lMsRgFBBSTgcFtBvQAMk3Qfe5O';
-
-    //                         $response = file_get_contents($apiUrl);
-
-    //                         if ($response !== false) {
-    //                             $data = json_decode($response, true);
-
-    //                             if ($data !== null && isset($data['rows'][0]['elements'][0]['distance']['text']) && isset($data['rows'][0]['elements'][0]['duration']['text'])) {
-    //                                 $dataElements = $data['rows'][0]['elements'][0];
-
-    //                                 $newDirectionHistory = new DirectionHistory();
-    //                                 $newDirectionHistory->from_lng = $fromLng;
-    //                                 $newDirectionHistory->from_lat = $fromLat;
-    //                                 $newDirectionHistory->to_lng = $toLng;
-    //                                 $newDirectionHistory->to_lat = $toLat;
-    //                                 $newDirectionHistory->distance_text = $dataElements['distance']['text'];
-    //                                 $newDirectionHistory->distance_value = $dataElements['distance']['value'];
-    //                                 $newDirectionHistory->duration_text = $dataElements['duration']['text'];
-    //                                 $newDirectionHistory->duration_value = $dataElements['duration']['value'];
-    //                                 $newDirectionHistory->save();
-                                    
-    //                                 $arrResponces[] = $newDirectionHistory->id;
-
-    //                                 $newDirectionHistory = new DirectionHistory();
-    //                                 $newDirectionHistory->from_lng = $toLng;
-    //                                 $newDirectionHistory->from_lat = $toLat;
-    //                                 $newDirectionHistory->to_lng = $fromLng;
-    //                                 $newDirectionHistory->to_lat = $fromLat;
-    //                                 $newDirectionHistory->distance_text = $dataElements['distance']['text'];
-    //                                 $newDirectionHistory->distance_value = $dataElements['distance']['value'];
-    //                                 $newDirectionHistory->duration_text = $dataElements['duration']['text'];
-    //                                 $newDirectionHistory->duration_value = $dataElements['duration']['value'];
-    //                                 $newDirectionHistory->save();
-
-    //                                 $arrResponces[] = $newDirectionHistory->id;
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return $arrResponces;
-
     // }
 }

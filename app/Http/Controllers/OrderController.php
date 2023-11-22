@@ -78,44 +78,7 @@ class OrderController extends Controller
             ->where('start_date', '>=', date('Y-m-d H:i:s'))
             ->where('driver_id', '!=', auth()->id())
             ->get();
-        
-        $isEmpty = false;
-        if (!($orders && count($orders) > 0)) {
-            $a = DB::table('yy_orders')
-                ->select('id')
-                ->whereIn('from_id', $arrFromIds)
-                ->whereIn('to_id', $arrToIds)
-                ->where('status_id', Constants::ORDERED)
-                ->where('start_date', '<=', $date)
-                ->where('start_date', '>=', date('Y-m-d H:i:s'))
-                ->where('driver_id', '!=', auth()->id())
-                ->limit(5);
 
-            $orderIds = DB::table('yy_orders')
-                ->select('id')
-                ->whereIn('from_id', $arrFromIds)
-                ->whereIn('to_id', $arrToIds)
-                ->where('status_id', Constants::ORDERED)
-                ->where('start_date', '>=', $date)
-                ->where('driver_id', '!=', auth()->id())
-                ->limit(5)
-                ->unionAll($a)
-                ->get();
-
-            $arrIds = [];
-            if ($orderIds && count($orderIds) > 0) {
-                foreach ($orderIds as $orderId) {
-                    $arrIds[] = $orderId->id;
-                }
-
-                $orders = Order::whereIn('id', $arrIds)->get();
-                $isEmpty = true;
-            } else {
-                $isEmpty = false;
-            }
-
-        }
-        
         $order_count = count($orders);
         $total_trips = Order::where('driver_id',auth()->id())
             ->where('status_id', Constants::COMPLETED)
@@ -149,29 +112,24 @@ class OrderController extends Controller
             $driver_info = $order->driver;
 
             if ($order->from) {
-                $modelFromName = DB::table('yy_city_translations as dt1')
-                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                    ->where('city_id', $order->from->id)
-                    ->where('dt1.lang', $language)
-                    ->select('dt1.name')
-                    ->first();
-
-                $from_name = ($modelFromName) ? $modelFromName->name : '';
+                $from_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->from->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
             }
             if ($order->to) {
-                $modelToName = DB::table('yy_city_translations as dt1')
-                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
-                    ->where('city_id', $order->to->id)
-                    ->where('dt1.lang', $language)
-                    ->select('dt1.name')
-                    ->first();
-
-                $to_name = ($modelToName) ? $modelToName->name : '';
+                $to_name = DB::table('yy_city_translations as dt1')
+                // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                ->where('city_id', $order->to->id)
+                ->where('dt1.lang', $language)
+                ->select('dt1.name')
+                ->first()->name;
             }
 
             $data = [
                 'id' => $order->id,
-                // 'isEmpty' => $isEmpty,
                 'order_detail_id' => $newOrderDetail->id,
                 'order_count' => $order_count,
                 'start_date' => date('d.m.Y H:i', strtotime($order->start_date)),
@@ -184,7 +142,7 @@ class OrderController extends Controller
                 'driver' => [
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
-                    'phone_number' => '+' . $driver_info->personalInfo->phone_number,
+                    'phone_number' => $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL
@@ -210,7 +168,8 @@ class OrderController extends Controller
             array_push($list,$data);
         }       
 
-        $message = ($isEmpty == true) ? 'isEmpty' : translate_api(('success'),$language);
+        
+        $message=translate_api('success',$language);
 
         return $this->success($message, 200, $list);
     }
@@ -223,8 +182,7 @@ class OrderController extends Controller
             'from_id' => $data['from_id'],
             'to_id' => $data['to_id'],
             'seats_count' => $data['seats_count'],
-            'start_date' => date('Y-m-d', strtotime($data['start_date'])),
-            'type' => Constants::SEARCHED_ORDER_DETAIL
+            'start_date' => date('Y-m-d', strtotime($data['start_date']))
         ]);
 
         return $newOrderDetail;
@@ -328,7 +286,7 @@ class OrderController extends Controller
                     $d_personal_info = $driver_info->personalInfo;
 
                     $d_full_name = $d_personal_info->last_name . ' ' . $d_personal_info->first_name . ' ' . $d_personal_info->middle_name;
-                    $d_phone_number = '+' . $d_personal_info->phone_number;
+                    $d_phone_number = $d_personal_info->phone_number;
                     $d_img = ($d_personal_info->avatar) ? asset('storage/avatar/' . $d_personal_info->avatar) : '';
                 }
 
@@ -370,22 +328,9 @@ class OrderController extends Controller
                     }
                 }
 
-                $arrColors = [];
-                if ($arr_orde_car->color) {
-                    $yyColorTranslations = DB::table('yy_color_translations as dt1')
-                        ->where('color_list_id', $arr_orde_car->color->id)
-                        ->where('dt1.lang', $language)
-                        ->select('dt1.name')
-                        ->first();
-                    
-                    if ($yyColorTranslations) {
-                        $arrColors = ['name' => $yyColorTranslations->name, 'code' => $arr_orde_car->color->code];
-                    }
-                }
-
                 $arrCarInfo['id'] = $arr_orde_car->id;
                 $arrCarInfo['name'] = $arr_orde_car->car->name ?? '';
-                $arrCarInfo['color'] = $arrColors;
+                $arrCarInfo['color'] = ($arr_orde_car->color) ? ['name' => $arr_orde_car->color->name, 'code' => $arr_orde_car->color->code] : [];
                 $arrCarInfo['production_date'] = date('Y', strtotime($arr_orde_car->production_date));
                 $arrCarInfo['class'] = $arr_orde_car->class->name ?? '';
                 $arrCarInfo['reg_certificate'] = $arr_orde_car->reg_certificate;
@@ -412,15 +357,10 @@ class OrderController extends Controller
                         $c_last_name = $c_personal_info->last_name;
                         $c_first_name = $c_personal_info->first_name;
                         $c_middle_name = $c_personal_info->middle_name;
-                        $c_phone_number = '+' . $c_personal_info->phone_number;
+                        $c_phone_number = $c_personal_info->phone_number;
                         $c_img = ($c_personal_info->avatar) ? asset('storage/avatar/' . $c_personal_info->avatar) : '';
                         $c_gender = $c_personal_info->gender;
-                        $c_rating = $order_details_client->rating;
-                        $c_seats_count = $value->seats_count;
-                        $c_created_date = date('d.m.Y H:i', strtotime($order_details_client->created_at));
                     }
-
-                    $offer = Offer::where('order_id', $value->order_id)->where('order_detail_id', $value->id)->where('status', Constants::ACCEPT_OFFER)->first();
 
                     $arrClients[$oo]['id'] = $order_details_client->id;
                     $arrClients[$oo]['last_name'] = $c_last_name;
@@ -431,12 +371,6 @@ class OrderController extends Controller
                     $arrClients[$oo]['gender'] = $c_gender;
                     $arrClients[$oo]['balance'] = $order_details_client->balance ?? 0;
                     $arrClients[$oo]['about_me'] = $order_details_client->about_me;
-                    $arrClients[$oo]['full_name'] = $c_last_name . ' ' . $c_first_name . ' ' . $c_middle_name;
-                    $arrClients[$oo]['rating'] = $c_rating;
-                    $arrClients[$oo]['count_comment'] = count($order_details_client->commentScores);
-                    $arrClients[$oo]['created_date'] = $c_created_date;
-                    $arrClients[$oo]['seats_count'] = $c_seats_count;
-                    $arrClients[$oo]['booking_count'] = ($offer && $offer->seats) ? $offer->seats : 0;
                     
                     $oo++;
                 }
@@ -482,25 +416,20 @@ class OrderController extends Controller
             }
 
             if ($order->from) {
-                $cityTranslationFrom = DB::table('yy_city_translations as dt1')
+                $from_name = DB::table('yy_city_translations as dt1')
                 // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('city_id', $order->from->id)
                 ->where('dt1.lang', $language)
                 ->select('dt1.name')
-                ->first();
-
-                $from_name = ($cityTranslationFrom) ? $cityTranslationFrom->name : '';
+                ->first()->name;
             }
-
             if ($order->to) {
-                $cityTranslationTo = DB::table('yy_city_translations as dt1')
+                $to_name = DB::table('yy_city_translations as dt1')
                 // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                 ->where('city_id', $order->to->id)
                 ->where('dt1.lang', $language)
                 ->select('dt1.name')
-                ->first();
-
-                $to_name = ($cityTranslationTo) ? $cityTranslationTo->name : '';
+                ->first()->name;
             }
 
             $arr['id'] = $order->id;
@@ -1032,7 +961,7 @@ class OrderController extends Controller
                         $driverPersonalInfo = $valDriver->personalInfo;
 
                         $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
-                        $d_phone_number = '+' . $driverPersonalInfo->phone_number;
+                        $d_phone_number = $driverPersonalInfo->phone_number;
                         $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
                     }
                     $arrDriverInfo['full_name'] = $d_full_name;
@@ -1055,23 +984,9 @@ class OrderController extends Controller
                         }
                     }
 
-                    $arrColors = [];
-                    if ($valCar->color) {
-                        $yyColorTranslations = DB::table('yy_color_translations as dt1')
-                            ->where('color_list_id', $valCar->color->id)
-                            ->where('dt1.lang', $language)
-                            ->select('dt1.name')
-                            ->first();
-                        
-                        if ($yyColorTranslations) {
-                            $arrColors = ['name' => $yyColorTranslations->name, 'code' => $valCar->color->code];
-                        }
-                    }
-
                     $arrCar['id'] = $valCar->id;
                     $arrCar['name'] = $valCar->car->name ?? '';
-                    $arrCar['color'] = $arrColors;
-                    // $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
+                    $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
                     $arrCar['production_date'] = date('Y', strtotime($valCar->production_date));
                     $arrCar['class'] = $valCar->class->name ?? '';
                     $arrCar['reg_certificate'] = $valCar->reg_certificate;
@@ -1082,22 +997,20 @@ class OrderController extends Controller
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
 
                 if ($value->from) {
-                    $from_name_query = DB::table('yy_city_translations as dt1')
-                        ->where('city_id', $value->from->id)
-                        ->where('dt1.lang', $language)
-                        ->select('dt1.name')
-                        ->first();
-                    
-                    $from_name = ($from_name_query) ? $from_name_query->name : '';
+                    $from_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->from->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
                 }
                 if ($value->to) {
-                    $to_name_query = DB::table('yy_city_translations as dt1')
-                        ->where('city_id', $value->to->id)
-                        ->where('dt1.lang', $language)
-                        ->select('dt1.name')
-                        ->first();
-                        
-                    $to_name = ($to_name_query) ? $to_name_query->name : '';
+                    $to_name = DB::table('yy_city_translations as dt1')
+                    // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
+                    ->where('city_id', $value->to->id)
+                    ->where('dt1.lang', $language)
+                    ->select('dt1.name')
+                    ->first()->name;
                 }
 
                 $arr[$n]['id'] = $value->id;
@@ -1269,10 +1182,8 @@ class OrderController extends Controller
 
 
 
-    public function expired(Request $request)
+    public function expired()
     {
-        $language = $request->header('language');
-        
         // $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
         $model = Order::orderBy('start_date', 'desc')->get();
 
@@ -1292,7 +1203,7 @@ class OrderController extends Controller
                         $driverPersonalInfo = $valDriver->personalInfo;
 
                         $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
-                        $d_phone_number = '+' . $driverPersonalInfo->phone_number;
+                        $d_phone_number = $driverPersonalInfo->phone_number;
                         $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
                     }
                     $arrDriverInfo['full_name'] = $d_full_name;
@@ -1305,24 +1216,20 @@ class OrderController extends Controller
                 $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
                 
                 if ($value->from) {
-                    $query_from_name = DB::table('yy_city_translations as dt1')
+                    $from_name = DB::table('yy_city_translations as dt1')
                     // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                     ->where('city_id', $value->from->id)
                     ->where('dt1.lang', $language)
                     ->select('dt1.name')
-                    ->first();
-
-                    $from_name = $query_from_name ? $query_from_name->name : '';
+                    ->first()->name;
                 }
                 if ($value->to) {
-                    $query_to_name = DB::table('yy_city_translations as dt1')
+                    $to_name = DB::table('yy_city_translations as dt1')
                     // ->leftJoin('yy_city_translations as dt2', 'dt2.city_id', '=', 'dt1.id')
                     ->where('city_id', $value->to->id)
                     ->where('dt1.lang', $language)
                     ->select('dt1.name')
-                    ->first();
-                    
-                    $to_name = $query_to_name ? $query_to_name->name : '';
+                    ->first()->name;
                 }
 
                 $arr[$n]['id'] = $value->id;

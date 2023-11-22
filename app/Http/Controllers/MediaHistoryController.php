@@ -7,7 +7,6 @@ use App\Models\MediaHistoryUser;
 use App\Models\MediaHistory;
 use App\Models\PersonalInfo;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class MediaHistoryController extends Controller
 {
@@ -39,9 +38,8 @@ class MediaHistoryController extends Controller
      *     }
      * )
      */
-    public function mediaHistory()
-    {
-        $medias = MediaHistory::select('id', 'url_small')->where('is_read', MediaHistory::IS_NOT_READ)->get();
+    public function mediaHistory(){
+        $medias = MediaHistory::select('id', 'url_small', 'url_big', 'is_read', 'expire_date', 'created_at', 'updated_at')->get();
         $data = null;
         foreach($medias as $media){
             if(isset($media->url_small)){
@@ -122,41 +120,6 @@ class MediaHistoryController extends Controller
         }
     }
 
-
-    public function getMedia()
-    {
-        $model = DB::table('yy_media_histories as dt1')
-            ->leftJoin('yy_media_history_for_users as dt2', function($join) {
-                $join->on('dt1.id', '=', 'dt2.media_history_id')
-                    ->where('dt2.user_id', '=', auth()->user()->id);
-            })
-            ->select('dt1.id', 'dt1.url_small as media', 'dt1.created_at', 'dt2.id as for_user_id')
-            ->orderByDesc('dt2.id')
-            ->orderByDesc('dt1.created_at')
-            ->whereNull('dt1.created_at')
-            ->get()
-            ->toArray();
-
-        return $this->success('success', 200, $model);
-    }
-
-    public function getMediaDetail(Request $request)
-    {
-        $model = MediaHistory::where('id', $request->id)->select('id', 'url_big')->first();
-        $responce = [];
-        if ($model) {
-            $details = json_decode($model->url_big);
-            $responce['id'] = $model->id;
-            if (!empty($details)) {
-                $i = 0;
-                foreach ($details as $detail) {
-                    $responce['details'][$i++] = 'http://admin.easygo.uz/storage/thumb/' . $detail;
-                }
-            }
-        }
-
-        return $this->success('success', 200, $responce);
-    }
 
     public function getMediaHistory(Request $request){
         $media = MediaHistory::select('id', 'url_small', 'url_big', 'is_read', 'expire_date', 'created_at', 'updated_at')->find($request->id);
@@ -308,30 +271,21 @@ class MediaHistoryController extends Controller
      * )
      */
     public function postHistoryUser(Request $request){
+        $media_user = new MediaHistoryUser();
         $user = User::find($request->user_id);
         $media = MediaHistory::find($request->media_history_id);
-        $mediaUser = MediaHistoryUser::
-            where('media_history_id', $request->media_history_id)
-            ->where('user_id', $request->user_id)
-            ->first();
-        
-        if (isset($mediaUser))
-            return $this->success('Success', 201);
-
-        if (isset($user->id) && isset($media->id)) {
-            $media_user = new MediaHistoryUser();
+        if(isset($user->id) && isset($media->id)){
             $media->is_read = 1;
             $media_user->user_id = $request->user_id;
             $media_user->media_history_id = $request->media_history_id;
             $media->save();
             $media_user->save();
-            
             return $this->success('Success', 201);
-        } elseif(!isset($user->id) && isset($media->id)) {
+        }elseif(!isset($user->id) && isset($media->id)){
             return $this->error('User not found', 400);
-        } elseif(!isset($media->id) && isset($user->id)) {
+        }elseif(!isset($media->id) && isset($user->id)){
             return $this->error('Media not found', 400);
-        } else {
+        }else{
             return $this->error('User and media not found', 400);
         }
     }

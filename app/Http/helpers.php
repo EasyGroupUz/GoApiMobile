@@ -70,7 +70,7 @@ if (!function_exists('table_translate')) {
                 ->first();
                 // dd($from_name);
                 // $name_from=$from_name->city_name;
-                $name_from = (isset($from_name)) ? (($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name) : $key->from_name;
+                $name_from = ($from_name->city_translation_name) ? $from_name->city_translation_name : $from_name->city_name;
                 
                 // dd($key->to_id);
                 $to_name = DB::table('yy_cities as dt1')
@@ -82,7 +82,7 @@ if (!function_exists('table_translate')) {
                 // dd($to_name);
                 // $name_to=$to_name->city_name;
                 // dd($name_to);
-                $name_to = (isset($from_name)) ? (($to_name->city_translation_name) ? $to_name->city_translation_name : $to_name->city_name) : $key->to_name;
+                $name_to = ($to_name->city_translation_name) ? $to_name->city_translation_name : $to_name->city_name;
         
                 $from_to=[
                     'from_name'=>$name_from,

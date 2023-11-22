@@ -17,18 +17,18 @@ class Driver extends Model
     protected $table = 'yy_drivers';
 
     protected $fillable = [
-        'user_id',
-        'status_id',
+        'personal_info_id',
+        'serial_number',
+        'issued_by',
+        'passport_image',
+        'passport_expired_date',
         'license_number',
         'license_expired_date',
         'license_image',
-        'personal_account',
+        'status_id',
         'balance',
-        'doc_status',  //1 Not accepted, 2 Accept, 3 Expectations, 4 Canceled
-        'license_image_back',
-        'from_admin',
+        'doc_status'  //1 Not accepted, 2 Accept, 3 Expectations, 4 Canceled
     ];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MediaHistory extends Model
 {
-    const IS_READ = 1;
-    const IS_NOT_READ = 0;
-
     use HasFactory;
 
     public $table='yy_media_histories';
