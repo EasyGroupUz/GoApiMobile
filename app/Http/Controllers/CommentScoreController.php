@@ -223,6 +223,7 @@ class CommentScoreController extends Controller
                                 break;
                             default:
                         }
+
                     }
                 }
             }
