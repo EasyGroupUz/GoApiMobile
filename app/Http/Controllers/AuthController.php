@@ -524,6 +524,12 @@ class AuthController extends Controller
         $language = $request->header('language');
         $auth_user = Auth::user();
         $personal_info = PersonalInfo::withTrashed()->find($auth_user->personal_info_id);
+        if(!isset($request->first_name)){
+            return $this->error(translate_api('first name not entered', $language), 400);
+        }
+        if(!isset($request->last_name)){
+            return $this->error(translate_api('last name not entered', $language), 400);
+        }
         if(isset($personal_info->id)){
             if(isset($personal_info->deleted_at)){
                 $personal_info->deleted_at = NULL;
@@ -646,8 +652,6 @@ class AuthController extends Controller
         ];
         $guzzle_request = new GuzzleRequest('POST', 'https://notify.eskiz.uz/api/message/sms/send');
         $res = $client->sendAsync($guzzle_request, $options)->wait();
-
-
         $result = $res->getBody();
         $result = json_decode($result);
         if(isset($result)){
