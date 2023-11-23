@@ -1,0 +1,641 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "L5 OpenApi",
+        "description": "L5 Swagger OpenApi description",
+        "contact": {
+            "email": "darius@matulionis.lt"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0",
+        "x-logo": {
+            "url": "https://via.placeholder.com/190x90.png?text=L5-Swagger"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Pitak"
+        }
+    ],
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login with your phone",
+                "operationId": "Login",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "phone": {
+                                        "description": "write your phone",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/verify": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Confirm with your phone and with your verify code",
+                "operationId": "loginToken",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "phone_number": {
+                                        "description": "write your phone",
+                                        "type": "integer"
+                                    },
+                                    "verify_code": {
+                                        "description": "write your verify code",
+                                        "type": "integer"
+                                    },
+                                    "device_type": {
+                                        "description": "write your device type",
+                                        "type": "string"
+                                    },
+                                    "device_id": {
+                                        "description": "write your device id",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/phone-update/verify": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Confirm with your phone and with your verify code",
+                "operationId": "resetLoginToken",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "phone_number": {
+                                        "description": "write your phone",
+                                        "type": "integer"
+                                    },
+                                    "verify_code": {
+                                        "description": "write your verify code",
+                                        "type": "integer"
+                                    },
+                                    "device_type": {
+                                        "description": "write your device type",
+                                        "type": "string"
+                                    },
+                                    "device_id": {
+                                        "description": "write your device id",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/set-name-surname": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Set name surname",
+                "operationId": "Set_name_surname",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "firstname": {
+                                        "description": "write your first_name",
+                                        "type": "string"
+                                    },
+                                    "lastname": {
+                                        "description": "write your last_name",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "operationId": "Logout",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/car/list": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "information",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/car/create": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "",
+                "operationId": "create",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "class_id": {
+                                        "description": "write your class(select option)",
+                                        "type": "integer"
+                                    },
+                                    "model_id": {
+                                        "description": "write your model(select option)",
+                                        "type": "integer"
+                                    },
+                                    "color_id": {
+                                        "description": "write your color(select option)",
+                                        "type": "integer"
+                                    },
+                                    "production_date": {
+                                        "description": "write your production date",
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "state_number": {
+                                        "description": "write your state number",
+                                        "type": "string"
+                                    },
+                                    "wheel_side": {
+                                        "description": "write your wheel side(select option)",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/comment/create": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Write your comment",
+                "operationId": "commentCreate",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "client_id": {
+                                        "description": "write your client id(select option)",
+                                        "type": "integer"
+                                    },
+                                    "driver_id": {
+                                        "description": "write your driver id(select option)",
+                                        "type": "integer"
+                                    },
+                                    "order_id": {
+                                        "description": "write your order id(select option)",
+                                        "type": "integer"
+                                    },
+                                    "text": {
+                                        "description": "write your text message",
+                                        "type": "string"
+                                    },
+                                    "score": {
+                                        "description": "write your score",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/comment/get-comments?driver_id=21": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "getComments",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/media/history": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get all media",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "mediaHistory",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/media/history/user": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "get media history user",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "getHistoryUser",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "give user id and media history id",
+                "operationId": "postHistoryUser",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "user_id": {
+                                        "description": "write user_id",
+                                        "type": "integer"
+                                    },
+                                    "media_history_id": {
+                                        "description": "write your media_history_id",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/users/show": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Finds Pets by status",
+                "description": "Multiple status values can be provided with comma separated string",
+                "operationId": "show",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status values that needed to be considered for filter",
+                        "required": true,
+                        "explode": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "available",
+                            "enum": [
+                                "available",
+                                "pending",
+                                "sold"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/users/update": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "operationId": "update",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "first_name": {
+                                        "description": "write your firstname",
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "description": "write your lastname",
+                                        "type": "string"
+                                    },
+                                    "middle_name": {
+                                        "description": "write your middlename",
+                                        "type": "string"
+                                    },
+                                    "birth_date": {
+                                        "description": "write your birth date format data(1999-01-21)",
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "gender": {
+                                        "description": "write your gender",
+                                        "type": "integer"
+                                    },
+                                    "email": {
+                                        "description": "write your email",
+                                        "type": "string"
+                                    },
+                                    "avatar": {
+                                        "description": "Enter your photo",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/users/delete": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "delete",
+                "requestBody": {
+                    "description": "Input data format",
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearer_token": {
+                "type": "apiKey",
+                "description": "Sanctum security laravel",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}
