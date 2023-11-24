@@ -1755,54 +1755,50 @@ class OrderController extends Controller
             // ->toArray();
             // dd($offers);
 
+        $data=[];
+        foreach ($offers as $key => $offer) {
+            // dd($offer);
+            $from_to_name=table_translate($offer,'city',$language);
 
-            $data=[];
-            foreach ($offers as $key => $offer) {
-                // dd($offer);
-                $from_to_name=table_translate($offer,'city',$language);
 
-
-                if(isset($offer->avatar)){
-                    $avatar = storage_path('app/public/avatar/'.$offer->avatar);
-                    if(file_exists($avatar)){
-                        $offer->avatar = asset('storage/avatar/'.$offer->avatar);
-                    }
-                    else {
-                        $offer->avatar=null;
-                    }
+            if(isset($offer->avatar)){
+                $avatar = storage_path('app/public/avatar/'.$offer->avatar);
+                if(file_exists($avatar)){
+                    $offer->avatar = asset('storage/avatar/'.$offer->avatar);
                 }
-                if ($offer->status_id == Constants::NEW) {
-                    
-
-                    if ($offer->client_id==$id) {
-                        $is_your=true;
-                    }else {
-                        $is_your=false;
-                    }
-                    $list=[
-                        'offer_id' => $offer->offer_id,
-                        'order_id' => $offer->order_id,
-                        'order_detail_id' => $offer->order_detail_id,
-                        'start_date' => date('d.m.Y', strtotime($offer->start_date)),
-                        'status' => $offer->status,
-                        'rating' => $offer->rating,
-                        'from_name' => $from_to_name['from_name'],
-                        'to_name' => $from_to_name['to_name'],
-                        'full_name' => $offer->first_name. '.' . ($offer->last_name[0] ?? ''),
-                        'avatar' => $offer->avatar,
-                        'seats_count' => $offer->seats_count,
-                        'is_your' => $is_your
-                    ];
-                    array_push($data , $list);
-
+                else {
+                    $offer->avatar=null;
                 }
-
             }
+            if ($offer->status_id == Constants::NEW) {
+                
 
-            return $data;
+                if ($offer->client_id == $id) {
+                    $is_your = true;
+                } else {
+                    $is_your = false;
+                }
 
+                $list = [
+                    'offer_id' => $offer->offer_id,
+                    'order_id' => $offer->order_id,
+                    'order_detail_id' => $offer->order_detail_id,
+                    'start_date' => date('d.m.Y', strtotime($offer->start_date)),
+                    'status' => $offer->status,
+                    'rating' => $offer->rating,
+                    'from_name' => $from_to_name['from_name'],
+                    'to_name' => $from_to_name['to_name'],
+                    'full_name' => $offer->first_name. '.' . ($offer->last_name[0] ?? ''),
+                    'avatar' => $offer->avatar,
+                    'seats_count' => $offer->seats_count,
+                    'is_your' => $is_your
+                ];
+                
+                array_push($data , $list);
+            }
+        }
 
-
+        return $data;
     }
 
 }

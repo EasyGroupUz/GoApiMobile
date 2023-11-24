@@ -205,7 +205,8 @@ class CarsController extends Controller
      * )
      */
 
-    public function store(Request $request) {
+    public function store(Request $request) 
+    {
         $language = $request->header('language');
         if(!isset($request->production_date)){
             return $this->error('Car production date is not entered', 400);
