@@ -9,7 +9,7 @@ class Constants {
       const NOT_ACTIVE = 2;
 
    // Order Details   seates types
-      const  PARTIALLY = 0;
+      const PARTIALLY = 0;
       const FULL_PLEACE = 1;
 
    // Order    type_ids

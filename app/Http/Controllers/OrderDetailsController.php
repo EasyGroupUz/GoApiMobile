@@ -477,6 +477,56 @@ class OrderDetailsController extends Controller
         return $offers;
     }
 
+    public function list(Request $request)
+    {
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+
+        $offers = $this->getClientOffersList($page);
+
+        if (!$offers)
+            return $this->success('success', 200, []);
+        
+        $data = $this->makeDataToArray($offers);
+            
+        return $this->success('success', 201, $data);
+    }
+
+    private function getClientOffersList($page)
+    {
+        $limit = 15;
+
+        $offers = DB::table('yy_order_details as od')
+            ->join('yy_offers as of', 'od.id', '=', 'of.order_detail_id')
+            ->leftJoin('yy_orders as or', 'or.id', '=', 'of.order_id')
+            ->leftJoin('yy_cities as from', 'from.id', '=', 'or.from_id')
+            ->leftJoin('yy_cities as to', 'to.id', '=', 'or.to_id')
+            ->leftJoin('yy_order_details as orod', 'orod.order_id', '=', 'or.id')
+            ->leftJoin('yy_users as usC', 'usC.id', '=', 'orod.client_id')
+            ->leftJoin('yy_personal_infos as piC', 'piC.id', '=', 'usC.personal_info_id')
+            ->leftJoin('yy_users as us', 'us.id', '=', 'or.driver_id')
+            ->leftJoin('yy_drivers as dr', 'dr.user_id', '=', 'us.id')
+            ->leftJoin('yy_personal_infos as pi', 'pi.id', '=', 'us.personal_info_id')
+            ->leftJoin('yy_cars as car', 'car.id', '=', 'or.car_id')
+            ->leftJoin('yy_car_lists as cl', 'cl.id', '=', 'car.car_list_id')
+            ->leftJoin('yy_color_lists as col', 'col.id', '=', 'car.color_list_id')
+            ->leftJoin('yy_class_lists as class', 'class.id', '=', 'car.class_list_id')
+            ->leftJoin('yy_statuses as status', 'status.id', '=', 'or.status_id')
+            ->where('od.client_id',auth()->id())
+            ->where('of.create_type', Constants::ORDER_DETAIL)
+            ->whereNull('od.end_date')
+            ->select('or.id', 'od.id as order_detail_id', 'od.end_date', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name', 'us.id as driver_id', 'dr.id as dr_id', 'dr.doc_status as driver_doc_status')
+            ->orderBy('od.id', 'desc')
+            ->distinct('od.id')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        return $offers;
+    }
+
     private function makeDataToArray($offers)
     {
         $arr = [];

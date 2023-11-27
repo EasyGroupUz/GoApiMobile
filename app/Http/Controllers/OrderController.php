@@ -1801,4 +1801,147 @@ class OrderController extends Controller
         return $data;
     }
 
+    public function list(Request $request)
+    {
+        $language = $request->header('language');
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+        
+        $limitData = 10;
+        $model = Order::where('driver_id', auth()->id())->where('status_id', Constants::ORDERED)->orderBy('id', 'desc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
+
+        $arr = [];
+        if (isset($model) && count($model) > 0) {
+            $n = 0;
+            foreach ($model as $key => $value) {
+                $clientArr = [];
+                if ($value->orderDetails) {
+                    $i = 0;
+                    foreach ($value->orderDetails as $keyOD => $valueOD) {
+                        if (isset($valueOD->client) && isset($valueOD->client->personalInfo)) {
+                            $clientArr[$i]['clients_full_name'] = $valueOD->client->personalInfo->last_name . ' ' . $valueOD->client->personalInfo->first_name . ' ' . $valueOD->client->personalInfo->middle_name;
+                            $clientArr[$i]['client_img'] = asset('storage/avatar/' . $valueOD->client->personalInfo->avatar);
+                            $clientArr[$i]['client_rating'] = 4.3;
+                        }
+
+                        $i++;
+                    }
+                }
+
+                $arrDriverInfo = [];
+                if ($value->driver) {
+                    $valDriver = $value->driver;
+    
+                    $d_full_name = '';
+                    $d_phone_number = '';
+                    $d_img = '';
+                    if ($valDriver->personalInfo) {
+                        $driverPersonalInfo = $valDriver->personalInfo;
+
+                        $d_full_name = $driverPersonalInfo->last_name . ' ' . $driverPersonalInfo->first_name . ' ' . $driverPersonalInfo->middle_name;
+                        $d_phone_number = '+' . $driverPersonalInfo->phone_number;
+                        $d_img = asset('storage/avatar/' . $driverPersonalInfo->avatar);
+                    }
+                    $arrDriverInfo['full_name'] = $d_full_name;
+                    $arrDriverInfo['phone_number'] = $d_phone_number;
+                    $arrDriverInfo['img'] = $d_img;
+                    $arrDriverInfo['rating'] = $valDriver->rating;
+                    $arrDriverInfo['doc_status'] = ($valDriver->driver) ? (int)$valDriver->driver->doc_status : NULL;
+                }
+
+                $arrCar = [];
+                if ($value->car) {
+                    $valCar = $value->car;
+                    
+                    $arrCarImg = [];
+                    if (!empty($valCar->images)) {
+                        $ci = 0;
+                        foreach (json_decode($valCar->images) as $valueCI) {
+                            $arrCarImg[$ci] = asset('storage/cars/' . $valueCI);
+                            $ci++;
+                        }
+                    }
+
+                    $arrColors = [];
+                    if ($valCar->color) {
+                        $yyColorTranslations = DB::table('yy_color_translations as dt1')
+                            ->where('color_list_id', $valCar->color->id)
+                            ->where('dt1.lang', $language)
+                            ->select('dt1.name')
+                            ->first();
+                        
+                        if ($yyColorTranslations) {
+                            $arrColors = ['name' => $yyColorTranslations->name, 'code' => $valCar->color->code];
+                        }
+                    }
+
+                    $arrCar['id'] = $valCar->id;
+                    $arrCar['name'] = $valCar->car->name ?? '';
+                    $arrCar['color'] = $arrColors;
+                    // $arrCar['color'] = ($valCar->color) ? ['name' => $valCar->color->name, 'code' => $valCar->color->code] : [];
+                    $arrCar['production_date'] = date('Y', strtotime($valCar->production_date));
+                    $arrCar['class'] = $valCar->class->name ?? '';
+                    $arrCar['reg_certificate'] = $valCar->reg_certificate;
+                    $arrCar['reg_certificate_img'] = asset('storage/cars/' . $valCar->reg_certificate_image);
+                    $arrCar['images'] = $arrCarImg;
+                }
+
+                $distance = $this->getDistanceAndKm((($value->from) ? $value->from->lng : ''), (($value->from) ? $value->from->lat : ''), (($value->to) ? $value->to->lng : ''), (($value->to) ? $value->to->lat : ''));
+
+                if ($value->from) {
+                    $from_name_query = DB::table('yy_city_translations as dt1')
+                        ->where('city_id', $value->from->id)
+                        ->where('dt1.lang', $language)
+                        ->select('dt1.name')
+                        ->first();
+                    
+                    $from_name = ($from_name_query) ? $from_name_query->name : '';
+                }
+                if ($value->to) {
+                    $to_name_query = DB::table('yy_city_translations as dt1')
+                        ->where('city_id', $value->to->id)
+                        ->where('dt1.lang', $language)
+                        ->select('dt1.name')
+                        ->first();
+                        
+                    $to_name = ($to_name_query) ? $to_name_query->name : '';
+                }
+
+                $arr[$n]['id'] = $value->id;
+                $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($value->start_date));
+                $arr[$n]['price'] = (double)$value->price;
+                $arr[$n]['isYour'] = ($value->driver_id == auth()->id()) ? true : false;
+                // $arr[$n]['from'] = ($value->from) ? $value->from->name : '';
+                // $arr[$n]['to'] = ($value->to) ? $value->to->name : '';
+                $arr[$n]['seats_count'] = $value->seats ?? 0;
+                $arr[$n]['booking_count'] = ($value->orderDetails) ? count($value->orderDetails) : 0;
+                $arr[$n]['clients_list'] = $clientArr;
+                $arr[$n]['driver'] = $arrDriverInfo;
+                $arr[$n]['car'] = (empty($arrCar)) ? NULL : $arrCar;
+                $arr[$n]['options'] = json_decode($value->options) ?? [];
+
+                $arr[$n]['from'] = ($value->from) ? $from_name : '';
+                $arr[$n]['from_lng'] = ($value->from) ? $value->from->lng : '';
+                $arr[$n]['from_lat'] = ($value->from) ? $value->from->lat : '';
+                $arr[$n]['to'] = ($value->to) ? $to_name : '';
+                $arr[$n]['to_lng'] = ($value->to) ? $value->to->lng : '';
+                $arr[$n]['to_lat'] = ($value->to) ? $value->to->lat : '';
+                
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($value->start_date. ' +' . $distance['time']));
+                
+                $arr[$n]['status'] = ($value->status) ? $value->status->name : '';
+
+                $n++;
+            }
+
+            return $this->success('success', 200, $arr);
+        } else {
+            return $this->success('Order table is empty', 200, $arr);
+        }
+    }
+
 }

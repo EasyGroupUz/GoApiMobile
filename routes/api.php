@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
         Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         Route::get('/history', [OrderDetailsController::class, 'history']);
+        Route::get('/list', [OrderDetailsController::class, 'list']);
         Route::get('/filter-order-details', [OrderDetailsController::class, 'filterOrderDetails']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
@@ -104,6 +105,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
 
     Route::group(['prefix' => 'order'], function () {
         Route::get('/history', [OrderController::class, 'history']);
+        Route::get('/list', [OrderController::class, 'list']);
         Route::get('/index', [OrderController::class, 'index']);
         Route::get('/show', [OrderController::class, 'show']);
         Route::post('/create', [OrderController::class, 'create']);
