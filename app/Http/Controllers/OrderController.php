@@ -1001,7 +1001,12 @@ class OrderController extends Controller
             return $this->error('page parameter is missing', 400);
         
         $limitData = 10;
-        $model = Order::where('driver_id', auth()->id())->whereIn('status_id', [Constants::COMPLETED, Constants::CANCEL_ORDER])->orderBy('id', 'desc')->offset(($page - 1) * $limitData)->limit($limitData)->get();
+        $model = Order::where('driver_id', auth()->id())
+            // ->whereIn('status_id', [Constants::COMPLETED, Constants::CANCEL_ORDER])
+            ->orderBy('id', 'desc')
+            ->offset(($page - 1) * $limitData)
+            ->limit($limitData)
+            ->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {

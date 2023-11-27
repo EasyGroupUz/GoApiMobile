@@ -253,7 +253,7 @@ class OfferController extends Controller
         $data=[];
         foreach ($offers as $key => $offer) {
             // dd($offer);
-            $from_to_name=table_translate($offer,'city',$language);
+            $from_to_name = table_translate($offer,'city',$language);
 
 
             if(isset($offer->avatar)){
