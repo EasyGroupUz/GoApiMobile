@@ -41,7 +41,7 @@ class MediaHistoryController extends Controller
      */
     public function mediaHistory()
     {
-        $medias = MediaHistory::select('id', 'url_small')->where('is_read', MediaHistory::IS_NOT_READ)->get();
+        $medias = MediaHistory::select('id', 'url_small', 'url_big', 'is_read', 'expire_date', 'created_at', 'updated_at')->get();
         $data = null;
         foreach($medias as $media){
             if(isset($media->url_small)){
@@ -104,11 +104,11 @@ class MediaHistoryController extends Controller
                 }
             }
             $data[] = [
-                'id' =>$media->id,
+                'id' => $media->id ?? 0,
                 'url_small'=>$url_small??null,
                 'url_big'=>$url_big_array??null,
                 'is_read'=>$media->is_read??null,
-                'count_user'=>count($media->mediaUser),
+                'count_user'=> (isset($media->mediaUser)) ? count($media->mediaUser) : '',
                 'media_user'=>$mediaUser??[],
                 'expire_date'=>$media->expire_date??null,
                 'created_at'=>$media->created_at??null,
@@ -223,15 +223,15 @@ class MediaHistoryController extends Controller
         $data = null;
         if ($media) {
             $data = [
-                'id' => $media->id,
-                'url_small' => $url_small ?? null,
-                'url_big' => $url_big_array ?? [],
-                'is_read' => $media->is_read ?? null,
-                'count_user' => count($media->mediaUser),
-                'media_user' => $mediaUser ?? [],
-                'expire_date' => $media->expire_date ?? null,
-                'created_at' => $media->created_at ?? null,
-                'updated_at' => $media->updated_at ?? null,
+                'id' =>$media->id ?? 0,
+                'url_small'=>$url_small??null,
+                'url_big'=>$url_big_array??[],
+                'is_read'=>$media->is_read??null,
+                'count_user'=> (isset($media->mediaUser)) ? count($media->mediaUser) : '',
+                'media_user'=>$mediaUser??[],
+                'expire_date'=>$media->expire_date??null,
+                'created_at'=>$media->created_at??null,
+                'updated_at'=>$media->updated_at??null,
             ];
         }
 
