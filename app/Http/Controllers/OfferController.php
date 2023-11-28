@@ -15,70 +15,56 @@ use App\Constants;
 class OfferController extends Controller
 {
 
-    public function postOffer(Request $request){
+    public function postOffer(Request $request)
+    {
         $language = $request->header('language');
-        // dd($language);
-        if(!isset($request->order_id)){
+
+        if (!isset($request->order_id)) {
             return $this->error(translate_api('order id is not entered', $language), 400);
         }
-        if(!isset($request->order_detail_id)){
+
+        if (!isset($request->order_detail_id)) {
             return $this->error(translate_api('order detail id is not entered', $language), 400);
         }
-        // if(!isset($request->price)){
-        //     return $this->error(translate_api('price is not entered', $language), 400);
-        // }
-        // if(!isset($request->create_type)){
-        //     return $this->error(translate_api('price is not entered', $language), 400);
-        // }
-        // if(!isset($request->comment)){
-        //     return $this->error(translate_api('comment is not entered', $language), 400);
-        // }
+
         $field = $request->validate([
             'order_id'=>'required|integer',
             'order_detail_id'=>'required|integer',
             'seats'=>'required|integer',
-            // 'comment'=>'nullable|string',
         ]); 
+
         $order_detail = OrderDetail::find($field['order_detail_id']);
         $order = Order::find($field['order_id']);
-        if(!isset($order_detail)){
+
+        if (!isset($order_detail)) {
             return $this->error(translate_api('Order detail not found', $language), 400);
         }
 
-        if(!isset($order)){
+        if (!isset($order)) {
             return $this->error(translate_api('Order not found', $language), 400);
         }
 
-        // $old_offer=
         $seats_count = ($order->seats) - ($order->booking_place);
-        if ($old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first()) {
-            // dd($old_offer);
-            if ($old_offer->status==Constants::NEW) 
-            {
-                // dd('dfawdawdaw');
-                // return $this->success(translate_api('Your old offer was not accepted please wait', $language), 200);
+        $old_offer = Offer::where('order_id',$order->id)->where('order_detail_id',$order_detail->id)->first();
+        if ($old_offer) {
+            if ($old_offer->status == Constants::NEW) {
                 return $this->error(translate_api('Your old offer was not accepted please wait', $language), 400);
-            }
-            elseif($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL)
-            {
-                // return $this->success(translate_api('Sorry, you cannot make another offer for this order', $language), 200);
+            } elseif ($old_offer->accepted == Constants::OFFER_ACCEPTED && $old_offer->status==Constants::CANCEL) {
                 return $this->error(translate_api('Sorry, you cannot make another offer for this order', $language), 400);
-                
-            }
-            else 
-            {
-                if ($order->status_id==Constants::ORDERED) {
-                    
-                    if ($seats_count==0) {
-                        // return $this->success(translate_api('Sorry, seats are full', $language), 200);
+            } else {
+                if ($order->status_id == Constants::ORDERED) {
+                    if ($seats_count == 0) {
                         return $this->error(translate_api('Sorry, seats are full', $language), 400);
                     }
-                    if ($seats_count >= $field['seats'] ) {
 
-                        if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status==Constants::CANCEL) {
+                    if ($seats_count >= $field['seats'] ) {
+                        if ($old_offer->accepted == Constants::NOT_ACCEPTED && $old_offer->status == Constants::CANCEL) {
                             $old_offer->update([
                                 'status' => Constants::NEW,
-                                'seats' =>$field['seats']
+                                'seats' => $field['seats'],
+                                'cancel_type' => NULL,
+                                'cancel_date' => NULL,
+                                'create_type' => Constants::ORDER_DETAIL
                             ]);
 
                             $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
@@ -88,58 +74,25 @@ class OfferController extends Controller
                             $entity_id = $order->id;
     
                             $this->sendNotificationOrder($device, $user_id, $entity_id, $title, $message);
-
                             return $this->success(translate_api('Offer updates', $language), 201);
                         }
-
-
-
-                        // $offer = new Offer();
-                        // $id=auth()->id();
-                        // $create_type = ($id==$order_detail->client_id) ? 0 : 1;
-                        // $offer->order_id = $order->id;
-                        // $offer->order_detail_id = $order_detail->id;
-                        // $offer->seats = $field['seats'];
-                        // $offer->create_type = $create_type;
-                        // $offer->status = Constants::NEW;
-                        // $offer->save();
-
-                        // $device = ($order->driver) ? json_decode($order->driver->device_id) : [];
-                        // $title = translate_api('You have a new offer', $language);
-                        // $message = translate_api('Route', $language) . ': ' . (($order && $order->from) ? $order->from->name : '') . ' - ' . (($order && $order->to) ? $order->to->name : '');
-                        // $user_id = ($order->driver) ? $order->driver->id : 0;
-
-                        // $this->sendNotification($device, $user_id, "Offer", $title, $message);
-
-                        // return $this->success(translate_api('Offer created', $language), 201);
-
-                        // $offer->comment = $field['comment'] ?? '';
-                    }
-                    else {
-
-                        // return $this->success(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 200);
-                        // return $this->error(translate_api('sorry we only have '. $seats_count .' spaces available', $language), 400);
+                    } else {
                         return $this->error(translate_api('Sorry we only have', $language) ." ". $seats_count ." ". translate_api('Spaces available', $language), 400);
-
-
                     }
-
-                }
-                else {
-                    // return $this->success(translate_api('Sorry, this  order status is not Ordered ', $language), 200);
+                } else {
                     return $this->error(translate_api('Sorry, this  order status is not Ordered', $language), 400);
                 }
-                
             }
         }
+
         if ($seats_count >= $field['seats']) {
             $offer = new Offer();
-            $id=auth()->id();
-            $create_type = ($id==$order_detail->client_id) ? 0 : 1;
+            // $id = auth()->id();
+            // $create_type = ($id == $order_detail->client_id) ? 0 : 1;
             $offer->order_id = $order->id;
             $offer->order_detail_id = $order_detail->id;
             $offer->seats = $field['seats'];
-            $offer->create_type = $create_type;
+            $offer->create_type = Constants::ORDER_DETAIL;
             $offer->status = Constants::NEW;
         }
         else {
@@ -193,7 +146,9 @@ class OfferController extends Controller
                         $old_offer->update([
                             'status' => Constants::NEW,
                             'create_type' => Constants::ORDER,
-                            'seats' => $order_detail->seats_count
+                            'seats' => $order_detail->seats_count,
+                            'cancel_type' => NULL,
+                            'cancel_date' => NULL
                         ]);
 
                         $device = ($order_detail->client) ? json_decode($order_detail->client->device_id) : [];
