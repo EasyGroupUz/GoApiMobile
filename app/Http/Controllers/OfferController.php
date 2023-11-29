@@ -250,7 +250,7 @@ class OfferController extends Controller
         
         $offers = DB::select("
             SELECT
-                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, ypi.avatar, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, yu.rating AS rating, ycl.name AS model, ycol.id as color_id, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
+                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, ypi.avatar, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, ypi.phone_number, yu.rating AS rating, ycl.name AS model, ycol.id as color_id, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
             FROM yy_offers AS yof
             INNER JOIN yy_order_details AS yod ON yod.id = yof.order_detail_id AND yod.order_id IS NULL AND yod.client_id = " . auth()->id() . "
             INNER JOIN yy_orders AS yo ON yo.id = yof.order_id
@@ -288,6 +288,7 @@ class OfferController extends Controller
                 'last_name' => $offer->last_name,
                 'first_name' => $offer->first_name,
                 'full_name' => $offer->full_name,
+                'phone_number' => $offer->phone_number,
                 'avatar' => $avatar,
                 'rating' => $offer->rating,
                 'car' => [
