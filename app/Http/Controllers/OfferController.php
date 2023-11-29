@@ -198,70 +198,50 @@ class OfferController extends Controller
             ->Leftjoin('yy_drivers as dt7', 'dt7.user_id', '=', 'dt5.id')
             ->where('dt3.driver_id', auth()->id())
             ->where('dt1.create_type', Constants::ORDER_DETAIL)
-            // ->where('dt2.client_id', auth()->id())
             ->select('dt1.id as offer_id','dt1.order_id','dt1.seats as seats_count', 'dt1.order_detail_id','dt1.status as status_id','dt3.from_id' ,'dt3.to_id',DB::raw('DATE(dt2.start_date) as start_date'),'dt2.client_id as client_id','dt4.name as status','dt5.rating','dt6.first_name','dt6.middle_name','dt6.last_name','dt6.avatar','dt7.doc_status')
             ->get();
-        // ->toArray();
-        // dd($offers);
-
 
         $data=[];
         foreach ($offers as $key => $offer) {
-            // dd($offer);
             $from_to_name = table_translate($offer,'city',$language);
 
-
-            if(isset($offer->avatar)){
+            if (isset($offer->avatar)) {
                 $avatar = storage_path('app/public/avatar/'.$offer->avatar);
-                if(file_exists($avatar)){
+                if (file_exists($avatar)) {
                     $offer->avatar = asset('storage/avatar/'.$offer->avatar);
-                }
-                else {
+                } else {
                     $offer->avatar=null;
                 }
             }
 
-            if ($offer->client_id==auth()->id()) {
+            if ($offer->client_id == auth()->id()) {
                 $is_your=true;
-            }else {
+            } else {
                 $is_your=false;
             }
+
             if ($offer->status_id == Constants::NEW) {
-                $list=[
-                    'offer_id'=>$offer->offer_id,
-                    'order_id'=>$offer->order_id,
-                    'order_detail_id'=>$offer->order_detail_id,
-                    'start_date'=>$offer->start_date,
-                    'status'=>$offer->status,
-                    'rating'=>$offer->rating,
+                $list = [
+                    'offer_id' => $offer->offer_id,
+                    'order_id' => $offer->order_id,
+                    'order_detail_id' => $offer->order_detail_id,
+                    'start_date' => $offer->start_date,
+                    'status' => $offer->status,
+                    'rating' => $offer->rating,
                     'from_name' => $from_to_name['from_name'],
                     'to_name' => $from_to_name['to_name'],
-                    'full_name'=> ((isset($offer->first_name)) ? $offer->first_name : ''). '.' . ((isset($offer->last_name)) ? $offer->last_name[0] : ''),
-                    'doc_status'=> (int)$offer->doc_status,
-                    'avatar'=>$offer->avatar,
-                    'seats_count'=>$offer->seats_count,
-                    'is_your'=>$is_your
+                    'full_name' => ((isset($offer->first_name)) ? $offer->first_name : ''). '.' . ((isset($offer->last_name)) ? $offer->last_name[0] : ''),
+                    'doc_status' => (int)$offer->doc_status,
+                    'avatar' => $offer->avatar,
+                    'seats_count' => $offer->seats_count,
+                    'is_your' => $is_your
                 ];
                 array_push($data , $list);
             }
             
         }
-        // dd($data);
-        // $data=$data->toArray();
-        // foreach ($offers as $key => $offer) {
-        //     $data
-            
-
-        // }
-
 
         return $this->success('Success', 200, $data);
-
-        // if($data){
-        //     return $this->success('Success', 200, $data);
-        // }else{
-        //     return $this->error(translate_api('Offer not found', $language), 400);
-        // }
     }
 
     public function getByClient(Request $request)
@@ -270,7 +250,7 @@ class OfferController extends Controller
         
         $offers = DB::select("
             SELECT
-                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, yu.rating AS rating, ycl.name AS model, ycol.id as color_id, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
+                yof.id AS offer_id, yo.id AS order_id, yod.id AS order_detail_id, yo.start_date::DATE AS start_date, yof.created_at AS created_at, yfrom.id as from_id, yfrom.name AS from_name, yto.id as to_id, yto.name AS to_name, ypi.last_name AS last_name, ypi.first_name AS first_name, ypi.avatar, concat(ypi.last_name, ' ', ypi.first_name) AS full_name, yu.rating AS rating, ycl.name AS model, ycol.id as color_id, ycol.name AS color, yc.production_date AS production_date, yo.seats AS seats_count, (yo.seats - yof.seats) AS empty_seats, yo.price
             FROM yy_offers AS yof
             INNER JOIN yy_order_details AS yod ON yod.id = yof.order_detail_id AND yod.order_id IS NULL AND yod.client_id = " . auth()->id() . "
             INNER JOIN yy_orders AS yo ON yo.id = yof.order_id
@@ -289,6 +269,14 @@ class OfferController extends Controller
             $from_to_name = table_translate($offer,'city',$language);
             $color_name = table_translate($offer,'color',$language);
 
+            $avatar = NULL;
+            if (isset($offer->avatar)) {
+                $avatar_path = storage_path('app/public/avatar/' . $offer->avatar);
+                if (file_exists($avatar_path)) {
+                    $avatar = asset('storage/avatar/' . $offer->avatar);
+                }
+            }
+
             $list = [
                 'offer_id' => $offer->offer_id,
                 'order_id' => $offer->order_id,
@@ -300,6 +288,7 @@ class OfferController extends Controller
                 'last_name' => $offer->last_name,
                 'first_name' => $offer->first_name,
                 'full_name' => $offer->full_name,
+                'avatar' => $avatar,
                 'rating' => $offer->rating,
                 'car' => [
                     'model' => $offer->model,
