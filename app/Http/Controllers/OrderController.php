@@ -747,9 +747,32 @@ class OrderController extends Controller
     /* ========================= Order show end ========================= */
 
 
-    public function create(OrderRequest $request)
+    public function create(Request $request)
     {
-        $data = $request->validated();
+        $validator = Validator::make($request->all(), [
+            'from_id' => 'required|integer',
+            'to_id' => 'required|integer',
+            'start_date' => 'required|date_format:Y-m-d H:i:s',
+            'car_id' => 'required|integer',
+            'seats' => 'required|integer',
+            'back_date' => 'nullable|date_format:Y-m-d H:i:s',
+            'options' => 'nullable|max:1000',
+            'price' => 'nullable|numeric',
+            'price_type' => 'nullable|integer',
+            'tarif_id' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 400);
+        }
+
+        $language = $request->header('language');
+        $data = $request->all();
+
+        if ($data['from_id'] == $data['to_id']) {
+            $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
+            return $this->error($error_message, 200);
+        }
 
         $driver_id = auth()->user()->id;
         $data['driver_id'] = $driver_id;
@@ -1592,35 +1615,26 @@ class OrderController extends Controller
             if ($first_offer->status != Constants::NEW) {
                 // return $this->success('This is offer sttus not new', 204);
                 return $this->error(translate_api('This is offer sttus not new', $language), 400);
-
             }
-        }
-        else {
-            
+        } else {  
             $first_offer = Offer::where('order_id', $request['order_id'])->where('order_detail_id', $request['order_detail_id'])->first();
-            
         }
-        
-        
         
         if ($first_offer) {
-
-
-
             $order_detail_id = $first_offer->order_detail_id;
 
             $order = Order::where('id',$first_offer->order_id)->first();
             $orderDetail = OrderDetail::find($order_detail_id);
 
-            if (!$order)
+            if (!$order) {
                 // return $this->success('Order not found', 204);
                 return $this->error(translate_api('Order not found', $language), 400);
+            }
 
-
-            if (!$orderDetail)
+            if (!$orderDetail) {
                 // return $this->success('Order detail not found', 204);
                 return $this->error(translate_api('Order detail not found', $language), 400);
-
+            }
 
             $orderDetail->order_id = null;
             $saveOrderDetail = $orderDetail->save();
@@ -1634,8 +1648,6 @@ class OrderController extends Controller
                 $cancel_type = 1;
             } 
 
-
-            // dd($order);
             $order->booking_place = ($order->booking_place > 0) ? ($order->booking_place - $first_offer->seats) : 0;
             $saveOrder = $order->save();
 
@@ -1645,7 +1657,6 @@ class OrderController extends Controller
                 'cancel_type' => $cancel_type,
                 'cancel_date' => $date_time,
                 'status' => Constants::CANCEL
-                // 'price' => $order->price
             ];
 
             $cancel_offer = $first_offer->update($offer);

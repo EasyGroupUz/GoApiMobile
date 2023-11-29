@@ -52,6 +52,11 @@ class OrderDetailsController extends Controller
         $language = $request->header('language');
         $data = $request->all();
 
+        if ($data['from_id'] == $data['to_id']) {
+            $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
+            return $this->error($error_message, 200);
+        }
+
         $order_detail = OrderDetail::create([
             'client_id' => auth()->id(),
             'status_id' => Constants::ACTIVE,
