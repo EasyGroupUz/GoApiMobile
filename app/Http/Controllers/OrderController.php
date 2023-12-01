@@ -146,7 +146,11 @@ class OrderController extends Controller
 
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
 
-            $driver_info = $order->driver;
+            // if (isset($order->driver)) {
+                $driver_info = $order->driver;
+            // } else {
+            //     return $this->error('Driver not found', 400);
+            // }
 
             if ($order->from) {
                 $modelFromName = DB::table('yy_city_translations as dt1')
@@ -178,17 +182,17 @@ class OrderController extends Controller
                 'isYour' => ($order->driver_id == auth()->id()) ? true : false,
                 // 'avatar' => $personalInfo->avatar ?? '',
                 'avatar' => ($personalInfo && $personalInfo->avatar) ? asset('storage/avatar/' . $personalInfo->avatar) : NULL,
-                'rating' => $driver_info->rating,
+                'rating' => $driver_info->rating ?? 0,
                 'price' => $order->price,
                 'name' => ($personalInfo) ? $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name : '', 
-                'driver' => [
+                'driver' => (isset($driver_info)) ? [
                     'id' => $driver_info->id,
                     'full_name' => $driver_info->personalInfo->last_name . ' ' . $driver_info->personalInfo->first_name . ' ' . $driver_info->personalInfo->middle_name,
                     'phone_number' => '+' . $driver_info->personalInfo->phone_number,
                     'img' => ($driver_info->personalInfo->avatar) ? asset('storage/avatar/' . $driver_info->personalInfo->avatar) : '',
                     'rating' => $driver_info->rating,
                     'doc_status' => ($driver_info->driver) ? (int)$driver_info->driver->doc_status : NULL
-                ],
+                ] : [],
                 'options' => json_decode($order->options) ?? [],
                 'count_pleace' => $order->booking_place,
                 'seats' => $order->seats, // obshi joylar soni

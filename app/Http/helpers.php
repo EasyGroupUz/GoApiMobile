@@ -126,8 +126,9 @@ if (!function_exists('table_translate')) {
                     $color->color_translation_name = $color->color_name;
                 }
                 // $name_to=$from_name->city_name;
-//                 dd($color);
-//                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
+                $color_name = ($color->color_translation_name) ? $color->color_translation_name : $color->color_name;
+                $color->color_name = $color_name;
+
                 return $color;
                 break;
 //            case 'class_list':
