@@ -428,7 +428,7 @@ class OrderDetailsController extends Controller
             left join yy_cities as yyT on yyT.id = yyo.to_id
             where yyo.client_id = " . auth()->id() . " and yyo.type = " . Constants::SEARCHED_ORDER_DETAIL . "
             group By yyF.id, yyT.id
-            limit 5
+            limit 2
         ");
 
         return $this->success('success', 200, $model);
