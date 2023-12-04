@@ -80,7 +80,7 @@ class OrderDetailsController extends Controller
                     $offer->order_id = $order->id;
                     $offer->seats = $data['seats_count'];
                     $offer->order_detail_id = $order_detail->id;
-                    $offer->create_type = Constants::ORDER;
+                    $offer->create_type = Constants::ORDER_DETAIL;
                     $offer->status = Constants::NEW;
                     $offer->save();
             
