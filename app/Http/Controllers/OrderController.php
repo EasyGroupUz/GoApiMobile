@@ -35,14 +35,14 @@ class OrderController extends Controller
             return $this->error($validator->errors()->first(), 400);
         }
 
+        
+        $newOrderDetail = $this->createOrderDetail($request->all());
+        
+        $language = $request->header('language');
         if ($request->from_id == $request->to_id) {
             $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
             return $this->error($error_message, 200);
         }
-
-        $newOrderDetail = $this->createOrderDetail($request->all());
-
-        $language = $request->header('language');
 
         $date=Carbon::parse($request->start_date)->format('Y-m-d');
         $tomorrow=Carbon::parse($date)->addDays(1)->format('Y-m-d');
