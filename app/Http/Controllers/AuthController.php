@@ -262,9 +262,9 @@ class AuthController extends Controller
                         $new_user->personal_account = 1000000;
                     }
                     $personal_info = new PersonalInfo();
-                    $personal_info->phone_number = (int)$fields['phone_number'];
-                    $personal_info->save();
-                    $new_user->personal_info_id = $personal_info->id;
+                    // $personal_info->phone_number = (int)$fields['phone_number'];
+                    // $personal_info->save();
+                    // $new_user->personal_info_id = $personal_info->id;
                     $personal_info->phone_number = (int)$fields['phone_number'];
                     $personal_info->save();
                     $new_user->personal_info_id = $personal_info->id;
