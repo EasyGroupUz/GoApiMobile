@@ -68,7 +68,7 @@ class OrderDetailsController extends Controller
         ]);
 
         if (isset($data['make_offer']) && $data['make_offer'] == 1) {
-            $orders = Order::where('from_id', $data['from_id'])->where('to_id', $data['to_id'])->get();
+            $orders = Order::where('from_id', $data['from_id'])->where('to_id', $data['to_id'])->where('start_date', '>', date('Y-m-d H:i:s'))->where('status_id', Constants::ORDERED)->get();
             // return $orders;
 
             $id = auth()->id();
