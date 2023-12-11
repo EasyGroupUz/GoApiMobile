@@ -84,6 +84,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/get-user', [UserController::class, 'getUser']);
         Route::get('/get-id', [UserController::class, 'getId']);
         Route::post('/set-language', [UserController::class, 'setLanguage']);
+        Route::post('/set-firebase-token', [UserController::class, 'setFirebaseToken']);
     });
 
     Route::group(['prefix' => 'offer'], function () {

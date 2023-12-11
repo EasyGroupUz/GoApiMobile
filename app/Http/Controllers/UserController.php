@@ -307,7 +307,8 @@ class UserController extends Controller
         }
     }
 
-    public function setLanguage(Request $request){
+    public function setLanguage(Request $request)
+    {
         $user = Auth::user();
         if(!isset($request->language)){
             return $this->error('Send language', 400);
@@ -316,8 +317,31 @@ class UserController extends Controller
         $user->save();
         return $this->success('Success', 201);
     }
+
+    public function setFirebaseToken(Request $request)
+    {
+        $user = Auth::user();
+        $language = $request->header('language');
+
+        if (!isset($request->device_id)) {
+            return $this->error(translate_api('device_id not found', $language), 200);
+        }
+        
+        $deviceId = json_decode($user->device_id);
+        if (in_array($request->device_id, $deviceId)) {
+            return $this->error(translate_api('This device_id was previously registered', $language), 200);
+        }
+
+        $deviceId[] = $request->device_id;
+
+        $user->device_id = $deviceId;
+        $user->save();
+        
+        return $this->success('Success', 201);
+    }
     
-    public function getId() {
+    public function getId() 
+    {
         $model = Auth::user();
 
         if(!$model)
