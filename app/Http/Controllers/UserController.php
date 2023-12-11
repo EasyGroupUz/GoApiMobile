@@ -327,7 +327,7 @@ class UserController extends Controller
             return $this->error(translate_api('device_id not found', $language), 200);
         }
         
-        $deviceId = json_decode($user->device_id);
+        $deviceId = $user->device_id ? json_decode($user->device_id) : [];
         if (in_array($request->device_id, $deviceId)) {
             return $this->error(translate_api('This device_id was previously registered', $language), 200);
         }
