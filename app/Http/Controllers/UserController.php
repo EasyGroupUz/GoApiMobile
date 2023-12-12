@@ -8,6 +8,13 @@ use App\Models\UserVerify;
 use App\Models\PersonalInfo;
 use App\Models\User;
 use App\Models\Driver;
+use App\Models\Order;
+use App\Models\Offer;
+use App\Models\Cars;
+use App\Models\BalanceHistory;
+use App\Models\Chat;
+use App\Models\CommentScore;
+use App\Models\Complain;
 use Image;
 
 class UserController extends Controller
@@ -262,31 +269,98 @@ class UserController extends Controller
      *     }
      * )
      */
-    public function delete(Request $request){
+    public function delete(Request $request)
+    {
         date_default_timezone_set("Asia/Tashkent");
+    
         $model = Auth::user();
-        if(isset($model->personalInfo)){
-//            if(isset($personal_info->avatar) && $personal_info->avatar != ''){
-//                $avatar = storage_path('app/public/avatar/'.$personal_info->avatar??'no');
-//                if(file_exists($avatar)){
-//                    unlink($avatar);
-//                }
-//            }
+        if (isset($model->personalInfo)) {
             $model->personalInfo->deleted_at = date("Y-m-d H:i:s");
             $model->personalInfo->save();
         }
+
         $driver = Driver::where('user_id', $model->id)->first();
-        if(isset($driver->id)){
+        if (isset($driver->id)) {
+            $driver_id = $driver->id;
             $driver->deleted_at = date("Y-m-d H:i:s");
             $driver->save();
         }
+
         $user_verify = UserVerify::where('user_id', $model->id)->first();
-        if(isset($user_verify->id)){
+        if (isset($user_verify->id)) {
             $user_verify->deleted_at = date("Y-m-d H:i:s");
             $user_verify->save();
         }
+
+        // New logics
+        if ($model->id) {
+            $orders = Order::where('driver_id', $model->id)->get();
+            $arrOrderIds = [];
+            if (isset($orders) && count($orders) > 0) {
+                foreach ($orders as $order) {
+                    $arrOrderIds[] = $order->id;
+                    $order->deleted_at = date("Y-m-d H:i:s");
+                    $order->save();
+                }
+            }
+
+
+            $balanceHistories = BalanceHistory::where('user_id', $model->id)->get();
+            if (isset($balanceHistories) && count($balanceHistories) > 0) {
+                foreach ($balanceHistories as $balanceHistory) {
+                    $balanceHistory->deleted_at = date("Y-m-d H:i:s");
+                    $balanceHistory->save();
+                }
+            }
+        }
+
+        if (!empty($arrOrderIds)) {
+            $offers = Offer::whereIn('order_id', $arrOrderIds)->get();
+            if (isset($offers) && count($offers) > 0) {
+                foreach ($offers as $offer) {
+                    $offer->deleted_at = date("Y-m-d H:i:s");
+                    $offer->save();
+                }
+            }
+
+            $chats = Chat::whereIn('order_id', $arrOrderIds)->get();
+            if (isset($chats) && count($chats) > 0) {
+                foreach ($chats as $chat) {
+                    $chat->deleted_at = date("Y-m-d H:i:s");
+                    $chat->save();
+                }
+            }
+            
+            $complains = Complain::whereIn('order_id', $arrOrderIds)->get();
+            if (isset($complains) && count($complains) > 0) {
+                foreach ($complains as $complain) {
+                    $complain->deleted_at = date("Y-m-d H:i:s");
+                    $complain->save();
+                }
+            }
+        }
+
+        if ($driver_id) {
+            $cars = Cars::where('driver_id', $driver_id)->get();
+            if (isset($cars) && count($cars) > 0) {
+                foreach ($cars as $car) {
+                    $car->deleted_at = date("Y-m-d H:i:s");
+                    $car->save();
+                }
+            }
+            
+            $commentScores = CommentScore::whereIn('order_id', $arrOrderIds)->orWhere('driver_id', $driver_id)->get();
+            if (isset($commentScores) && count($commentScores) > 0) {
+                foreach ($commentScores as $commentScore) {
+                    $commentScore->deleted_at = date("Y-m-d H:i:s");
+                    $commentScore->save();
+                }
+            }
+        }
+
         $model->deleted_at = date("Y-m-d H:i:s");
         $model->save();
+
         return $this->success('Success', 201);
     }
     
@@ -337,7 +411,7 @@ class UserController extends Controller
         $user->device_id = $deviceId;
         $user->save();
         
-        return $this->success('Success', 201);
+        return $this->success(translate_api('Success', $language), 200);
     }
     
     public function getId() 
