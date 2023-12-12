@@ -9,6 +9,7 @@ use App\Models\PersonalInfo;
 use App\Models\User;
 use App\Models\Driver;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Offer;
 use App\Models\Cars;
 use App\Models\BalanceHistory;
@@ -304,6 +305,16 @@ class UserController extends Controller
                 }
             }
 
+            $orderDetails = OrderDetail::where('client_id', $model->id)->get();
+            $arrOrderDetailIds = [];
+            if (isset($orderDetails) && count($orderDetails) > 0) {
+                foreach ($orderDetails as $orderDetail) {
+                    $arrOrderDetailIds[] = $orderDetail->id;
+                    $orderDetail->deleted_at = date("Y-m-d H:i:s");
+                    $orderDetail->save();
+                }
+            }
+
 
             $balanceHistories = BalanceHistory::where('user_id', $model->id)->get();
             if (isset($balanceHistories) && count($balanceHistories) > 0) {
@@ -314,8 +325,8 @@ class UserController extends Controller
             }
         }
 
-        if (!empty($arrOrderIds)) {
-            $offers = Offer::whereIn('order_id', $arrOrderIds)->get();
+        if (!empty($arrOrderIds) || !empty($arrOrderDetailIds)) {
+            $offers = Offer::whereIn('order_id', $arrOrderIds)->orWhereIn('order_detail_id', $arrOrderDetailIds)->get();
             if (isset($offers) && count($offers) > 0) {
                 foreach ($offers as $offer) {
                     $offer->deleted_at = date("Y-m-d H:i:s");
@@ -323,7 +334,7 @@ class UserController extends Controller
                 }
             }
 
-            $chats = Chat::whereIn('order_id', $arrOrderIds)->get();
+            $chats = Chat::whereIn('order_id', $arrOrderIds)->orWhereIn('order_detail_id', $arrOrderDetailIds)->get();
             if (isset($chats) && count($chats) > 0) {
                 foreach ($chats as $chat) {
                     $chat->deleted_at = date("Y-m-d H:i:s");
