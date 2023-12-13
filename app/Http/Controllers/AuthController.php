@@ -284,7 +284,7 @@ class AuthController extends Controller
                     return $this->success($message, 201, ['token'=>$token]);
                 }
             }else{
-                $message = "Failed your token didn't match";
+                $message = "The SMS code was entered incorrectly. Check and dial again";
                 return $this->error(translate_api($message, $language), 400);
             }
         }
@@ -396,11 +396,11 @@ class AuthController extends Controller
                     return $this->success($message, 201, ['token'=>$token, 'is_registred'=>$is_registred]);
                 }
             }else{
-                $message = "Failed your token didn't match";
+                $message = "The SMS code was entered incorrectly. Check and dial again";
                 return $this->error(translate_api($message, $language), 400);
             }
         }else{
-            $message = "Failed your token didn't match";
+            $message = "The SMS code was entered incorrectly. Check and dial again";
             return $this->error(translate_api($message, $language), 400);
         }
     }
