@@ -1320,7 +1320,7 @@ class OrderController extends Controller
         $language = $request->header('language');
         
         // $model = Order::where('start_date', '<', date('Y-m-d H:i:s'))->orderBy('start_date', 'asc')->get();
-        $model = Order::orderBy('start_date', 'desc')->get();
+        $model = Order::orderBy('start_date', 'desc')->limit(50)->get();
 
         $arr = [];
         if (isset($model) && count($model) > 0) {
