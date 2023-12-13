@@ -136,17 +136,26 @@ class OrderController extends Controller
             $car = DB::table('yy_cars as dt1')
                 ->join('yy_car_lists as dt2', 'dt2.id', '=', 'dt1.car_list_id')
                 ->where('dt1.id',$order->car_id)
-                ->select(DB::raw('DATE(dt1.production_date) as production_date'),'dt2.name','dt1.color_list_id as color_id')
+                ->select('dt1.id', DB::raw('DATE(dt1.production_date) as production_date'), 'dt2.name', 'dt1.color_list_id as color_id', 'images')
                 ->first();
 
             $color = '';
             if ($car)
                 $color = table_translate($car,'color',$language);
 
+            $carImages = [];
+            if (isset($car->images)) {
+                $imagesArrs = json_decode(json_decode($car->images));
+                foreach ($imagesArrs as $imagesArr) {
+                    $carImages[] = asset('storage/cars/' . $imagesArr);
+                }
+            }
+
             $car_information = [
                 'name' => $car->name ?? '',
                 'color' => $color,
-                'production_date' => date('Y', strtotime($car->production_date)) ?? ''
+                'production_date' => date('Y', strtotime($car->production_date)) ?? '',
+                'images' => $carImages,
             ];
 
             $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
