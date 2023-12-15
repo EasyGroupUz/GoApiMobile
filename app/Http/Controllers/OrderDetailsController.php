@@ -866,7 +866,6 @@ class OrderDetailsController extends Controller
             ->limit($limit)
             ->get()
             ->toArray();
-        // dd($orderDetails);
 
         $message = translate_api('success', $language);
         return $this->success($message, 200, $orderDetails);
