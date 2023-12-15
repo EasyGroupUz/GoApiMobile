@@ -801,4 +801,43 @@ class OrderDetailsController extends Controller
 
         return $this->success($message, 200, $list);
     }
+
+    public function orderListArchive(Request $request)
+    {
+        $language = $request->header('language');
+
+        if (!$language)
+            $language = 'ru';
+
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+
+        $limit = 15;
+        $orderDetails = DB::table('yy_order_details as yod')
+            ->join('yy_users as yu', 'yu.id', '=', 'yod.client_id')
+            ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
+            ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
+            ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
+
+            // ->where('yod.end_date', '<=', date('Y-m-d H:i:s'))
+            ->whereNotNull('yod.deleted_at')
+            ->select('yod.id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get()
+            ->toArray();
+
+        // $data = [];
+        // if (isset($orderDetails) && count($orderDetails) > 0) {
+        //     foreach ($orderDetails as $orderDetail) {
+                
+        //     }
+        // }
+        // dd($orderDetails);
+
+        $message = translate_api('success', $language);
+        return $this->success($message, 200, $orderDetails);
+    }
 }
