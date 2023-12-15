@@ -8,6 +8,7 @@ use App\Models\DirectionHistory;
 use Illuminate\Support\Facades\DB;
 use App\Models\City;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Constants;
 use App\Console\Commands\WebsocketRun;
 
@@ -35,6 +36,20 @@ class Kernel extends ConsoleKernel
                     if ($arrived_date < date('Y-m-d H:i:s')) {
                         $order->status_id = Constants::COMPLETED;
                         $order->save();
+                    }
+                }
+            }
+
+            $orderDetails = OrderDetail::where('start_date', '<', date('Y-m-d H:i:s', strtotime('-2 hours')))->whereNull('deleted_at')->get();
+
+            if (!empty($orderDetails)) {
+                foreach ($orderDetails as $orderDetail) {
+                    $od_distance = $this->getDistanceAndKm((($orderDetail->from) ? $orderDetail->from->lng : ''), (($orderDetail->from) ? $orderDetail->from->lat : ''), (($orderDetail->to) ? $orderDetail->to->lng : ''), (($orderDetail->to) ? $orderDetail->to->lat : ''));
+
+                    $od_arrived_date = date('Y-m-d H:i:s', strtotime($orderDetail->start_date. ' +' . $od_distance['time']));
+                    if ($od_arrived_date < date('Y-m-d H:i:s')) {
+                        $orderDetail->end_date = $od_arrived_date;
+                        $orderDetail->save();
                     }
                 }
             }
