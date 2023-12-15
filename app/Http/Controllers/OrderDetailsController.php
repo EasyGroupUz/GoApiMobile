@@ -821,7 +821,7 @@ class OrderDetailsController extends Controller
             ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
             ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
 
-            // ->where('yod.end_date', '<=', date('Y-m-d H:i:s'))
+            ->where('yod.end_date', '<=', date('Y-m-d H:i:s'))
             ->whereNotNull('yod.deleted_at')
             ->select('yod.id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
             ->offset(($page - 1) * $limit)
