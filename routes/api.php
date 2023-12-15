@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/list', [OrderDetailsController::class, 'list']);
         Route::get('/filter-order-details', [OrderDetailsController::class, 'filterOrderDetails']);
         Route::get('/order-list-archive', [OrderDetailsController::class, 'orderListArchive']);
+        Route::get('/order-list-active', [OrderDetailsController::class, 'orderListActive']);
         // Route::get('/show', [OrderController::class, 'orderShow']);
     });
 
