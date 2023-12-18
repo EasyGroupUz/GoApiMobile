@@ -35,7 +35,6 @@ class OrderController extends Controller
             return $this->error($validator->errors()->first(), 400);
         }
 
-        
         $newOrderDetail = $this->createOrderDetail($request->all());
         
         $language = $request->header('language');
@@ -64,7 +63,7 @@ class OrderController extends Controller
                 $arrFromIds[] = $cityFrom->id;
             }
         }
-        $arrFromIds[] = $request->from_id;
+        $arrFromIds[] = (int)$request->from_id;
 
         $citiesTo = City::where('parent_id', $request->to_id)->get();
         $arrToIds = array();
@@ -73,7 +72,7 @@ class OrderController extends Controller
                 $arrToIds[] = $cityTo->id;
             }
         }
-        $arrToIds[] = $request->to_id;
+        $arrToIds[] = (int)$request->to_id;
 
         $orders = Order::where('status_id', Constants::ORDERED)
             ->whereIn('from_id', $arrFromIds)
@@ -86,45 +85,51 @@ class OrderController extends Controller
         
         $isEmpty = false;
         if (!($orders && count($orders) > 0)) {
-            $a = DB::table('yy_orders')
-                ->select('id')
-                ->whereIn('from_id', $arrFromIds)
-                ->whereIn('to_id', $arrToIds)
-                ->where('status_id', Constants::ORDERED)
-                ->where('start_date', '<=', $date)
-                ->where('start_date', '>=', date('Y-m-d H:i:s'))
-                ->where('driver_id', '!=', auth()->id())
-                ->limit(5);
+            $filterStartDate = date('Y-m-d 00:00:00', strtotime('-10 days', strtotime($date)));
+            if ($filterStartDate < date('Y-m-d H:i:s'))
+                $filterStartDate = date('Y-m-d H:i:s');
 
-            $orderIds = DB::table('yy_orders')
-                ->select('id')
+            $filterEndDate = date('Y-m-d 23:59:59', strtotime('+10 days', strtotime($date)));
+            $orders = Order::where('status_id', Constants::ORDERED)
                 ->whereIn('from_id', $arrFromIds)
                 ->whereIn('to_id', $arrToIds)
-                ->where('status_id', Constants::ORDERED)
-                ->where('start_date', '>=', $date)
                 ->where('driver_id', '!=', auth()->id())
-                ->limit(5)
-                ->unionAll($a)
+                ->whereBetween('start_date', [$filterStartDate, $filterEndDate])
+                // ->orderBy('start_date', 'asc')
                 ->get();
 
-            $arrIds = [];
-            if ($orderIds && count($orderIds) > 0) {
-                foreach ($orderIds as $orderId) {
-                    $arrIds[] = $orderId->id;
-                }
+            // $a = DB::table('yy_orders')
+            //     ->select('id')
+            //     ->whereIn('from_id', $arrFromIds)
+            //     ->whereIn('to_id', $arrToIds)
+            //     ->where('status_id', Constants::ORDERED)
+            //     ->where('start_date', '<=', $date)
+            //     ->where('start_date', '>=', date('Y-m-d H:i:s'))
+            //     ->where('driver_id', '!=', auth()->id())
+            //     ->limit(5);
 
-                $orders = Order::whereIn('id', $arrIds)->get();
+            // $orderIds = DB::table('yy_orders')
+            //     ->select('id')
+            //     ->whereIn('from_id', $arrFromIds)
+            //     ->whereIn('to_id', $arrToIds)
+            //     ->where('status_id', Constants::ORDERED)
+            //     ->where('start_date', '>=', $date)
+            //     ->where('driver_id', '!=', auth()->id())
+            //     ->limit(5)
+            //     ->unionAll($a)
+            //     ->get();
+
+            if ($orders && count($orders) > 0)
                 $isEmpty = true;
-            } else {
+            else
                 $isEmpty = false;
-            }
 
         }
         
         $order_count = count($orders);
-        $total_trips = Order::where('driver_id',auth()->id())
-            ->where('status_id', Constants::COMPLETED)
-            ->count();
+        // $total_trips = Order::where('driver_id',auth()->id())
+        //     ->where('status_id', Constants::COMPLETED)
+        //     ->count();
 
         foreach ($orders as $order) {
             $user = User::where('id', $order->driver_id)->first();
