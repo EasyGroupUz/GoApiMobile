@@ -548,6 +548,7 @@ class UserController extends Controller
         $this->handleImageUpload($request, $newDriver, 'license_image_selfie', 'certificate');
 
         $car->reg_certificate_number = $request->reg_certificate_number;
+        $car->type = Constants::ACCEPTED_CAR;
         // $car->reg_certificate_image = $request->reg_certificate_image;
         // $car->reg_certificate_image_back = $request->reg_certificate_image_back;
         $car->save();
