@@ -528,6 +528,11 @@ class UserController extends Controller
         if (isset($modelDriver))
             return $this->error(translate_api('The user_id you submitted has already been verified', $language), 400);
 
+        $car = Cars::where('id', $request->car_id)->where('driver_id', $user->id)->first();
+
+        if (!isset($car))
+            return $this->error(translate_api('No information was found matching the car_id you submitted', $language), 400);
+
         $newDriver = new Driver();
         $newDriver->user_id = $user->id;
         $newDriver->license_number = $request->license_number;
@@ -541,11 +546,6 @@ class UserController extends Controller
         $this->handleImageUpload($request, $newDriver, 'license_image', 'certificate');
         $this->handleImageUpload($request, $newDriver, 'license_image_back', 'certificate');
         $this->handleImageUpload($request, $newDriver, 'license_image_selfie', 'certificate');
-
-        $car = Cars::where('id', $request->car_id)->where('driver_id', $user->id)->first();
-
-        if (!isset($car))
-            return $this->error(translate_api('No information was found matching the car_id you submitted', $language), 400);
 
         $car->reg_certificate_number = $request->reg_certificate_number;
         // $car->reg_certificate_image = $request->reg_certificate_image;
