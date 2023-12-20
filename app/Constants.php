@@ -50,4 +50,14 @@ class Constants {
    // order_details type
       const CREATED_ORDER_DETAIL = 1;
       const SEARCHED_ORDER_DETAIL = 2;
+
+   // users doc_status
+      const NOT_ACCEPTED_USER = 0;
+      const WAITING_ACCEPTING_USER = 1;
+      const ACCEPTED_USER = 2;
+      const ACCEPTED_USER_FIRST = 3;
+
+   // cars type (0 - not accepter, 1 - accepted)
+      const NOT_ACCEPTED_CAR = 0;
+      const ACCEPTED_CAR = 1;
 }
