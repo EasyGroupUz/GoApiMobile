@@ -43,13 +43,18 @@ class Users extends Model
         'password' => 'hashed',
     ];
 
-    public function personalInfo(){
+    public function personalInfo()
+    {
         return $this->hasOne(PersonalInfo::class, 'id', 'personal_info_id');
     }
-    public function role(){
+    
+    public function role()
+    {
         return $this->hasOne(Role::class, 'id', 'role_id');
     }
-    public function company(){
+    
+    public function company()
+    {
         return $this->hasOne(Company::class, 'id', 'company_id');
     }
 }

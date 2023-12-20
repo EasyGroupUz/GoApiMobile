@@ -16,7 +16,9 @@ use App\Models\BalanceHistory;
 use App\Models\Chat;
 use App\Models\CommentScore;
 use App\Models\Complain;
+use App\Constants;
 use Image;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -176,7 +178,8 @@ class UserController extends Controller
      *     }
      * )
      */
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         $language = $request->header('language');
         $model = Auth::user();
         if(isset($model->personalInfo->id)){
@@ -433,5 +436,148 @@ class UserController extends Controller
             return $this->error('A token error occurred', 400);
 
         return $this->success('success', 200, ['id' => $model->id]);
+    }
+
+    public function isDriverAccept(Request $request)
+    {
+        $language = $request->header('language');
+        
+        $model = Auth::user();
+
+        $arr = [];
+        $doc_status = Constants::NOT_ACCEPTED_USER;
+        if ($model->doc_status == Constants::WAITING_ACCEPTING_USER) {
+            $doc_status = Constants::WAITING_ACCEPTING_USER;
+        } else if ($model->doc_status == Constants::ACCEPTED_USER || $model->doc_status == Constants::ACCEPTED_USER_FIRST) {
+            $doc_status = Constants::ACCEPTED_USER;
+
+            $avatar = '';
+            if (isset($model->personalInfo->avatar)) {
+                $avatar = storage_path('app/public/avatar/' . $model->personalInfo->avatar);
+            }
+
+            $usersCar = Cars::where('driver_id', $model->id)->where('type', Constants::ACCEPTED_CAR)->first();
+            // return $usersCar;
+
+            $carName = '';
+            $carNumber = '';
+            $reg_certificate = '';
+            if (isset($usersCar)) {
+                $reg_certificate = $usersCar->reg_certificate_number;
+                $carNumber = $usersCar->reg_certificate;
+                if (isset($usersCar->carList) && isset($usersCar->carList->type)) {
+                    $carName = $usersCar->carList->type->name . ' ' . $usersCar->carList->name;
+                }
+            }
+
+            if ($model->personalInfo) {
+                $arr = [
+                    "last_name" => $model->personalInfo->last_name,
+                    "first_name" => $model->personalInfo->first_name,
+                    "middle_name" => $model->personalInfo->middle_name,
+                    "fill_name" => $model->personalInfo->last_name . ' ' . $model->personalInfo->first_name . ' ' . $model->personalInfo->middle_name,
+                    "avatar" => $avatar,
+                    "phone_number" => $model->personalInfo->phone_number,
+                    "license_number" => ($model->driver) ? $model->driver->license_number : '',
+                    "license_expired_date" => ($model->driver) ? $model->driver->license_expired_date : '',
+                    "car_name" => $carName,
+                    "car_number" => $carNumber,
+                    "reg_certificate" => $reg_certificate
+                ];
+            }
+        }
+
+        $is_first = $model->doc_status;
+        if ($model->doc_status == Constants::ACCEPTED_USER_FIRST) {
+            $model->doc_status = Constants::ACCEPTED_USER;
+            $model->save();
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => translate_api('success', $language),
+            'doc_status' => $doc_status,
+            'is_first' => (($is_first == Constants::ACCEPTED_USER_FIRST) ? true : false),
+            'data' => $arr ?? NULL,
+        ], 200, [], JSON_INVALID_UTF8_SUBSTITUTE);
+    }
+
+    public function driverAccept(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'car_id' => 'required|integer',
+            'license_number' => 'required|string',
+            'license_expired_date' => 'required|date',
+            // 'license_image' => 'required|string',
+            // 'license_image_back' => 'required|string',
+            // 'license_image_selfie' => 'required|string',
+        
+            'reg_certificate_number' => 'required|string',
+            // 'reg_certificate_image' => 'required|string',
+            // 'reg_certificate_image_back' => 'required|string',
+        ]);
+
+        if ($validator->fails())
+            return $this->error($validator->errors()->first(), 400);
+
+        $user = Auth::user();
+        $language = $request->header('language');
+
+        $modelDriver = Driver::where('user_id', $user->id)->first();
+
+        if (isset($modelDriver))
+            return $this->error(translate_api('The user_id you submitted has already been verified', $language), 400);
+
+        $newDriver = new Driver();
+        $newDriver->user_id = $user->id;
+        $newDriver->license_number = $request->license_number;
+        $newDriver->license_expired_date = $request->license_expired_date;
+        // $newDriver->license_image = $request->license_image;
+        // $newDriver->license_image_back = $request->license_image_back;
+        // $newDriver->license_image_selfie = $request->license_image_selfie;
+        $newDriver->from_admin = 0;
+        $newDriver->save();
+
+        $this->handleImageUpload($request, $newDriver, 'license_image', 'certificate');
+        $this->handleImageUpload($request, $newDriver, 'license_image_back', 'certificate');
+        $this->handleImageUpload($request, $newDriver, 'license_image_selfie', 'certificate');
+
+        $car = Cars::where('id', $request->car_id)->where('driver_id', $user->id)->first();
+
+        if (!isset($car))
+            return $this->error(translate_api('No information was found matching the car_id you submitted', $language), 400);
+
+        $car->reg_certificate_number = $request->reg_certificate_number;
+        // $car->reg_certificate_image = $request->reg_certificate_image;
+        // $car->reg_certificate_image_back = $request->reg_certificate_image_back;
+        $car->save();
+
+        $this->handleImageUpload($request, $car, 'reg_certificate_image', 'cars');
+        $this->handleImageUpload($request, $car, 'reg_certificate_image_back', 'cars');
+
+        $user->doc_status = Constants::ACCEPTED_USER_FIRST;
+        $user->save();
+
+        return $this->success(translate_api('success', $language), 200);
+    }
+
+    private function handleImageUpload($request, $model, $imageName, $folderName)
+    {
+        $letters = range('a', 'z');
+        if ($request->hasFile($imageName)) {
+            $randomArray = [];
+            for ($i = 0; $i < 5; $i++) {
+                $randomArray[] = $letters[rand(0, 25)];
+            }
+            $randomString = implode("", $randomArray);
+
+            $image = $request->file($imageName);
+            $imageNameGen = $randomString . '' . now()->format('Y-m-dh-i-s') . '.' . $image->extension();
+            $image->storeAs('public/' . $folderName . '/', $imageNameGen);
+
+            $model->{$imageName} = $imageNameGen;
+            $model->from_admin = 0;
+            $model->save();
+        }
     }
 }

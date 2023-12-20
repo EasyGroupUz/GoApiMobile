@@ -87,6 +87,9 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::get('/get-id', [UserController::class, 'getId']);
         Route::post('/set-language', [UserController::class, 'setLanguage']);
         Route::post('/set-firebase-token', [UserController::class, 'setFirebaseToken']);
+        
+        Route::get('/is-driver-accept', [UserController::class, 'isDriverAccept']);
+        Route::post('/driver-accept', [UserController::class, 'driverAccept']);
     });
 
     Route::group(['prefix' => 'offer'], function () {

@@ -51,11 +51,13 @@ class User extends Authenticatable
         return $this->hasMany(CommentScore::class, 'driver_id', 'id')->where('type', 1);
     }
     
-    public function userVerify(){
+    public function userVerify()
+    {
         return $this->hasOne(UserVerify::class, 'user_id', 'id');
     }
 
-    public function driver(){
+    public function driver()
+    {
         return $this->hasOne(Driver::class, 'user_id', 'id');
     }
 }

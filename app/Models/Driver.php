@@ -22,10 +22,11 @@ class Driver extends Model
         'license_number',
         'license_expired_date',
         'license_image',
+        'license_image_back',
+        'license_image_selfie',
         'personal_account',
         'balance',
         'doc_status',  //1 Not accepted, 2 Accept, 3 Expectations, 4 Canceled
-        'license_image_back',
         'from_admin',
     ];
 
