@@ -557,6 +557,7 @@ class UserController extends Controller
         $this->handleImageUpload($request, $car, 'reg_certificate_image_back', 'cars');
 
         $user->doc_status = Constants::ACCEPTED_USER_FIRST;
+        $user->type = 1;
         $user->save();
 
         return $this->success(translate_api('success', $language), 200);
