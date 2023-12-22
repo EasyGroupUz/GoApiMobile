@@ -414,7 +414,7 @@ class CommentScoreController extends Controller
                     'img'=>$img_,
                     'full_name'=>$full_name,
 //                    'doc_status'=>$doc_status??null,
-                    'rating'=>4.5,
+                    'rating' => $user->rating,
                     'comment_count'=> 0
                 ];
             }else{

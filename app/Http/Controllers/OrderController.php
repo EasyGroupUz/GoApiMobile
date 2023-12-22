@@ -475,9 +475,19 @@ class OrderController extends Controller
                 $orderDetail = OrderDetail::where('from_id', $order->from_id)
                     ->where('to_id', $order->to_id)
                     ->where('client_id', auth()->id())
+                    ->where('order_id', $order->id)
                     ->whereRaw('TO_CHAR(start_date, ?) = ?', ['YYYY-MM-DD', $start_date_formatted])
                     ->latest()
                     ->first();
+
+                if (!isset($orderDetail)) {
+                    $orderDetail = OrderDetail::where('from_id', $order->from_id)
+                        ->where('to_id', $order->to_id)
+                        ->where('client_id', auth()->id())
+                        ->whereRaw('TO_CHAR(start_date, ?) = ?', ['YYYY-MM-DD', $start_date_formatted])
+                        ->latest()
+                        ->first();
+                }
 
                 if ($orderDetail) {
                     $orderDetailId = $orderDetail->id;
@@ -498,7 +508,7 @@ class OrderController extends Controller
                         $offer_status = Constants::NEW_OFFER;
                     } elseif ($offer->status == Constants::ACCEPT) {
                         $offer_status = Constants::ACCEPT_OFFER;
-                    } else{
+                    } else {
                         $offer_status = Constants::NOT_OFFER;
                     }
                 }
