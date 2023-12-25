@@ -12,6 +12,10 @@ class Constants {
       const PARTIALLY = 0;
       const FULL_PLEACE = 1;
 
+   // Order price_type
+      const CASH = 0;
+      const CARD = 1;
+
    // Order    type_ids
       const ORDERED = 3;
       const ON_THE_WAY = 4;

@@ -493,13 +493,19 @@ class UserController extends Controller
             $model->save();
         }
 
-        return response()->json([
-            'status' => true,
-            'message' => translate_api('success', $language),
+        return $this->success(translate_api('success', $language), 200, [
             'doc_status' => $doc_status,
             'is_first' => (($is_first == Constants::ACCEPTED_USER_FIRST) ? true : false),
-            'data' => $arr ?? NULL,
-        ], 200, [], JSON_INVALID_UTF8_SUBSTITUTE);
+            'driver_info' => $arr ?? NULL,
+        ]);
+
+        // return response()->json([
+        //     'status' => true,
+        //     'message' => translate_api('success', $language),
+        //     'doc_status' => $doc_status,
+        //     'is_first' => (($is_first == Constants::ACCEPTED_USER_FIRST) ? true : false),
+        //     'data' => $arr ?? NULL,
+        // ], 200, [], JSON_INVALID_UTF8_SUBSTITUTE);
     }
 
     public function driverAccept(Request $request)
