@@ -13,6 +13,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Query\JoinClause;
 
 class OrderDetailsController extends Controller
 {
@@ -53,7 +54,7 @@ class OrderDetailsController extends Controller
         $data = $request->all();
 
         if ($data['from_id'] == $data['to_id']) {
-            $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
+            $error_message = translate_api('We currently only offer intercity travel', $language);
             return $this->error($error_message, 200);
         }
 
@@ -457,7 +458,10 @@ class OrderDetailsController extends Controller
 
         $offers = DB::table('yy_order_details as od')
             ->join('yy_offers as of', 'od.id', '=', 'of.order_detail_id')
-            ->leftJoin('yy_orders as or', 'or.id', '=', 'of.order_id')
+            // ->leftJoin('yy_orders as or', 'or.id', '=', 'of.order_id')
+            ->join('yy_orders as or', function (JoinClause $join) {
+                $join->on('or.id', '=', 'of.order_id')->where('od.type', '!=', Constants::CREATED_ORDER_DETAIL);
+            })
             ->leftJoin('yy_cities as from', 'from.id', '=', 'or.from_id')
             ->leftJoin('yy_cities as to', 'to.id', '=', 'or.to_id')
             ->leftJoin('yy_order_details as orod', 'orod.order_id', '=', 'or.id')
@@ -472,7 +476,7 @@ class OrderDetailsController extends Controller
             ->leftJoin('yy_class_lists as class', 'class.id', '=', 'car.class_list_id')
             ->leftJoin('yy_statuses as status', 'status.id', '=', 'or.status_id')
             ->where('od.client_id', auth()->id())
-            ->where('od.type', Constants::SEARCHED_ORDER_DETAIL)
+            // ->where('od.type', Constants::SEARCHED_ORDER_DETAIL)
             ->where('of.create_type', Constants::ORDER_DETAIL)
             // ->whereNotNull('od.end_date')
             ->select('or.id', 'od.id as order_detail_id', 'od.end_date', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name', 'us.id as driver_id', 'dr.id as dr_id', 'dr.doc_status as driver_doc_status')
@@ -856,11 +860,25 @@ class OrderDetailsController extends Controller
             ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
             ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
             ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
+            // ->leftJoin('yy_orders as yor', 'yor.id', '=', 'yod.order_id')
+            ->leftJoin(DB::raw('
+                (
+                    SELECT
+                        yof.order_detail_id, COUNT(yof.id) AS offer_count
+                    FROM yy_offers AS yof WHERE yof.deleted_at IS NULL
+                    GROUP BY yof.order_detail_id
+                ) 
+                yodf'), 
+                function($join)
+                {
+                   $join->on('yod.id', '=', 'yodf.order_detail_id');
+                }
+            )
 
             ->where('yod.client_id', auth()->id())
             ->whereNull(['yod.end_date', 'yod.deleted_at'])
             // ->whereNull('yod.deleted_at')
-            ->select('yod.id', 'yod.client_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date')
+            ->select('yod.id', 'yod.client_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count'), 'yod.order_id as order_id')
             ->orderBy('yod.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
