@@ -281,47 +281,21 @@ class OrderDetailsController extends Controller
     /* ========================= OrderCode edit end ========================= */
 
 
-    public function delete(Request $request)
-    {
-        if (!isset($request->id))
-            return $this->error('id parameter is missing', 400);
-
-        $id = $request->id;
-
-        $orderDetail = OrderDetail::find($id);
-        if (!isset($orderDetail))
-            return $this->error('id parameter is not correct. OrderDetail not found', 400);
-
-        $orderDetail->delete();
-
-        return $this->success('success', 200);
-    }
-
-    /* ========================= OrderCode delete start ========================= */
     // public function delete(Request $request)
     // {
-    //     // Check if 'id' parameter is provided
-    //     if (!$request->has('id')) {
+    //     if (!isset($request->id))
     //         return $this->error('id parameter is missing', 400);
-    //     }
 
-    //     $id = $request->input('id');
-        
-    //     // Find the OrderDetail by its ID
+    //     $id = $request->id;
+
     //     $orderDetail = OrderDetail::find($id);
-        
-    //     // Check if the OrderDetail exists
-    //     if (!$orderDetail) {
-    //         return $this->error('OrderDetail not found for the given id', 400);
-    //     }
+    //     if (!isset($orderDetail))
+    //         return $this->error('id parameter is not correct. OrderDetail not found', 400);
 
-    //     // Delete the OrderDetail
     //     $orderDetail->delete();
 
-    //     // Return a success response
-    //     return $this->success('Success', 200);
+    //     return $this->success('success', 200);
     // }
-    /* ========================= OrderCode delete end ========================= */
 
 
     public function searchClients(Request $request)
@@ -838,6 +812,12 @@ class OrderDetailsController extends Controller
             ->get()
             ->toArray();
 
+        if (isset($orderDetails) && count($orderDetails) > 0) {
+            foreach ($orderDetails as $orderDetail) {
+                $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
+            }
+        }
+
         $message = translate_api('success', $language);
         return $this->success($message, 200, $orderDetails);
     }
@@ -884,6 +864,12 @@ class OrderDetailsController extends Controller
             ->limit($limit)
             ->get()
             ->toArray();
+
+        if (isset($orderDetails) && count($orderDetails) > 0) {
+            foreach ($orderDetails as $orderDetail) {
+                $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
+            }
+        }
 
         $message = translate_api('success', $language);
         return $this->success($message, 200, $orderDetails);

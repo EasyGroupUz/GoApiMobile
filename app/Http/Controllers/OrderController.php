@@ -1993,4 +1993,111 @@ class OrderController extends Controller
         }
     }
 
+    public function orderListActive(Request $request)
+    {
+        $language = $request->header('language');
+
+        if (!$language)
+            $language = 'ru';
+
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+
+        $limit = 15;
+        $orders = DB::table('yy_orders as yo')
+            ->join('yy_users as yu', 'yu.id', '=', 'yo.driver_id')
+            ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
+            ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yo.from_id')
+            ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yo.to_id')
+            // ->leftJoin('yy_orders as yor', 'yor.id', '=', 'yo.order_id')
+            ->leftJoin(DB::raw('
+                (
+                    SELECT
+                        yof.order_id, COUNT(yof.id) AS offer_count
+                    FROM yy_offers AS yof WHERE yof.deleted_at IS NULL
+                    GROUP BY yof.order_id
+                ) 
+                yodf'), 
+                function($join)
+                {
+                   $join->on('yo.id', '=', 'yodf.order_id');
+                }
+            )
+
+            ->where('yo.driver_id', auth()->id())
+            ->whereNull(['yo.deleted_at'])
+            ->whereIn('status_id', [Constants::ORDERED, Constants::ON_THE_WAY])
+            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yo.seats', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
+            ->orderBy('yo.start_date', 'desc')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get()
+            ->toArray();
+
+        if (isset($orders) && count($orders) > 0) {
+            foreach ($orders as $order) {
+                $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
+            }
+        }
+
+        $message = translate_api('success', $language);
+        return $this->success($message, 200, $orders);
+    }
+
+    public function orderListArchive(Request $request)
+    {
+        $language = $request->header('language');
+
+        if (!$language)
+            $language = 'ru';
+
+        if ($request->page)
+            $page = $request->page;
+        else
+            return $this->error('page parameter is missing', 400);
+
+        $limit = 15;
+        $variable1 = date('Y-m-d H:i:s');
+        $orders = DB::table('yy_orders as yo')
+            ->join('yy_users as yu', 'yu.id', '=', 'yo.driver_id')
+            ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
+            ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yo.from_id')
+            ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yo.to_id')
+            // ->leftJoin('yy_orders as yor', 'yor.id', '=', 'yo.order_id')
+            ->leftJoin(DB::raw('
+                (
+                    SELECT
+                        yof.order_id, COUNT(yof.id) AS offer_count
+                    FROM yy_offers AS yof WHERE yof.deleted_at IS NULL
+                    GROUP BY yof.order_id
+                ) 
+                yodf'), 
+                function($join)
+                {
+                   $join->on('yo.id', '=', 'yodf.order_id');
+                }
+            )
+
+            ->where('yo.driver_id', auth()->id())
+            ->whereNull(['yo.deleted_at'])
+            ->whereIn('status_id', [Constants::COMPLETED, Constants::CANCEL_ORDER])
+            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yo.seats', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
+            ->orderBy('yo.start_date', 'desc')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get()
+            ->toArray();
+
+        if (isset($orders) && count($orders) > 0) {
+            foreach ($orders as $order) {
+                $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
+            }
+        }
+
+        $message = translate_api('success', $language);
+        return $this->success($message, 200, $orders);
+    }
+
 }
