@@ -39,7 +39,7 @@ class OrderController extends Controller
         
         $language = $request->header('language');
         if ($request->from_id == $request->to_id) {
-            $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
+            $error_message = translate_api('We currently only offer intercity travel', $language);
             return $this->error($error_message, 200);
         }
 
@@ -803,7 +803,7 @@ class OrderController extends Controller
         $data = $request->all();
 
         if ($data['from_id'] == $data['to_id']) {
-            $error_message = translate_api('from_id and to_id attributes cannot be the same', $language);
+            $error_message = translate_api('We currently only offer intercity travel', $language);
             return $this->error($error_message, 200);
         }
 

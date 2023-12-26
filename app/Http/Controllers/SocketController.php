@@ -516,37 +516,39 @@ class SocketController extends Controller implements MessageComponentInterface
         $n = 0;
         foreach ($chats as $key => $chat) {
             $order = Order::where('id',$chat->order_id)->first();
-            $from_to_name=table_translate($order,'city',$language);
-            
-            if ($chat->user_to_id==auth()->id()) {
-                $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_from_id)->first()->personal_info_id)->first();
-            } else {
-                $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_to_id)->first()->personal_info_id)->first();
-            }
-
-            if (isset($personalInfo->avatar)) {
-                $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
-                if (file_exists($avatar)) {
-                    $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+            if (isset($order)) {
+                $from_to_name=table_translate($order,'city',$language);
+                
+                if ($chat->user_to_id==auth()->id()) {
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_from_id)->first()->personal_info_id)->first();
                 } else {
-                    $personalInfo->avatar=null;
+                    $personalInfo=PersonalInfo::where('id',User::where('id',$chat->user_to_id)->first()->personal_info_id)->first();
                 }
-            }
 
-            if (DB::table('yy_send_notifications')->where('entity_type','chat')->where('entity_id',$chat->id)->exists()) {
-                $data[$n] = [
-                    'id'=>$chat->id,
-                    'order_id'=>$chat->order_id,
-                    'firebase_id'=>strval($chat->firebase_id) ?? null,
-                    'start_date'=>$order->start_date,
-                    'from_name'=>$from_to_name['from_name'],
-                    'to_name'=>$from_to_name['to_name'],
-                    'user_from_id'=>$chat->user_from_id,
-                    'user_to_id'=>$chat->user_to_id,
-                    'name'=>$personalInfo->first_name,
-                    'image'=>$personalInfo->avatar,
-                ];
-                $n++;
+                if (isset($personalInfo->avatar)) {
+                    $avatar = storage_path('app/public/avatar/'.$personalInfo->avatar);
+                    if (file_exists($avatar)) {
+                        $personalInfo->avatar = asset('storage/avatar/'.$personalInfo->avatar);
+                    } else {
+                        $personalInfo->avatar=null;
+                    }
+                }
+
+                if (DB::table('yy_send_notifications')->where('entity_type','chat')->where('entity_id',$chat->id)->exists()) {
+                    $data[$n] = [
+                        'id'=>$chat->id,
+                        'order_id'=>$chat->order_id,
+                        'firebase_id'=>strval($chat->firebase_id) ?? null,
+                        'start_date'=>$order->start_date,
+                        'from_name'=>$from_to_name['from_name'],
+                        'to_name'=>$from_to_name['to_name'],
+                        'user_from_id'=>$chat->user_from_id,
+                        'user_to_id'=>$chat->user_to_id,
+                        'name'=>$personalInfo->first_name,
+                        'image'=>$personalInfo->avatar,
+                    ];
+                    $n++;
+                }
             }
         }
 
