@@ -51,10 +51,10 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
         Route::post('/store', [OrderDetailsController::class, 'store']);
         Route::post('/edit', [OrderDetailsController::class, 'edit']);
         // Route::post('/delete', [OrderDetailsController::class, 'delete']); // remove
-        Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']);
+        // Route::get('/find-by-order-search', [OrderDetailsController::class, 'searchClients']); // remove
         Route::get('/search-history', [OrderDetailsController::class, 'searchHistory']);
         Route::get('/history', [OrderDetailsController::class, 'history']);
-        Route::get('/list', [OrderDetailsController::class, 'list']);
+        // Route::get('/list', [OrderDetailsController::class, 'list']); // remove
         Route::get('/filter-order-details', [OrderDetailsController::class, 'filterOrderDetails']);
         Route::get('/order-list-archive', [OrderDetailsController::class, 'orderListArchive']);
         Route::get('/order-list-active', [OrderDetailsController::class, 'orderListActive']);
@@ -111,14 +111,14 @@ Route::group(['middleware' => ['auth:sanctum', 'is_auth']], function () {
 
     Route::group(['prefix' => 'order'], function () {
         Route::get('/history', [OrderController::class, 'history']);
-        Route::get('/list', [OrderController::class, 'list']);
+        // Route::get('/list', [OrderController::class, 'list']); // remove
         Route::get('/index', [OrderController::class, 'index']);
         Route::get('/show', [OrderController::class, 'show']);
         Route::post('/create', [OrderController::class, 'create']);
         Route::post('/edit', [OrderController::class, 'edit']);
-        Route::post('/delete', [OrderController::class, 'delete']);
+        // Route::post('/delete', [OrderController::class, 'delete']); // remove
         Route::post('/cancel', [OrderController::class, 'cancel']);
-        Route::get('/expired', [OrderController::class, 'expired']);
+        // Route::get('/expired', [OrderController::class, 'expired']); // remove
         Route::post('/find-by-order-search', [OrderController::class, 'searchTaxi']);
         Route::post('/booking', [OrderController::class, 'booking']);
         Route::post('/booking-cancel', [OrderController::class, 'bookingCancel']);

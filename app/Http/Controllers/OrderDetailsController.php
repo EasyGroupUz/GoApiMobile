@@ -298,87 +298,89 @@ class OrderDetailsController extends Controller
     // }
 
 
-    public function searchClients(Request $request)
-    {
-        // $request = $request->validate([
-        //     'from_id'=>'required',
-        //     'to_id'=>'required',
-        //     'date'=>'required'
-        // ]);
+    // =================== removed ===================
+    // public function searchClients(Request $request)
+    // {
+    //     // $request = $request->validate([
+    //     //     'from_id'=>'required',
+    //     //     'to_id'=>'required',
+    //     //     'date'=>'required'
+    //     // ]);
 
 
-        $came_date=Carbon::parse($request->start_date)->format('Y-m-d');
-        $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
+    //     $came_date=Carbon::parse($request->start_date)->format('Y-m-d');
+    //     $tomorrow=Carbon::parse($came_date)->addDays(1)->format('Y-m-d');
 
-        $list=[]; 
-        // $order_details = DB::table('yy_order_details')
-            // ->where('order_id', null)
-            // ->where('from_id', $request->from_id)
-            // ->where('to_id', $request->to_id)
-            // ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-            // ->where('start_date','>=',$came_date)
-            // ->where('start_date','<',$tomorrow)
-            // ->get();
+    //     $list=[]; 
+    //     // $order_details = DB::table('yy_order_details')
+    //         // ->where('order_id', null)
+    //         // ->where('from_id', $request->from_id)
+    //         // ->where('to_id', $request->to_id)
+    //         // ->select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+    //         // ->where('start_date','>=',$came_date)
+    //         // ->where('start_date','<',$tomorrow)
+    //         // ->get();
 
-        $order_details = OrderDetail::
-            // select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
-            where('order_id', null)
-            ->where('from_id', $request->from_id)
-            ->where('to_id', $request->to_id)
-            ->where('start_date', '>=', $came_date)
-            ->where('start_date', '<', $tomorrow)
-            ->where('client_id', '!=', auth()->id())
-            ->get();
+    //     $order_details = OrderDetail::
+    //         // select(DB::raw('DATE(start_date) as start_date'),'client_id','seats_count')
+    //         where('order_id', null)
+    //         ->where('from_id', $request->from_id)
+    //         ->where('to_id', $request->to_id)
+    //         ->where('start_date', '>=', $came_date)
+    //         ->where('start_date', '<', $tomorrow)
+    //         ->where('client_id', '!=', auth()->id())
+    //         ->get();
             
-        $total_trips = DB::table('yy_order_details as dt1')
-            ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
-            ->where('dt1.client_id', auth()->id())
-            ->where('dt2.status_id', Constants::COMPLETED)
-            ->count();
+    //     $total_trips = DB::table('yy_order_details as dt1')
+    //         ->leftJoin('yy_orders as dt2', 'dt2.id', '=', 'dt1.order_id')
+    //         ->where('dt1.client_id', auth()->id())
+    //         ->where('dt2.status_id', Constants::COMPLETED)
+    //         ->count();
 
-        foreach ($order_details as $order_detail) {
-            $odFrom = $order_detail->from;
-            $odTo = $order_detail->to;
-            $personalInfo = PersonalInfo::where('id',User::where('id', $order_detail->client_id)->first()->personal_info_id)->first();
+    //     foreach ($order_details as $order_detail) {
+    //         $odFrom = $order_detail->from;
+    //         $odTo = $order_detail->to;
+    //         $personalInfo = PersonalInfo::where('id',User::where('id', $order_detail->client_id)->first()->personal_info_id)->first();
 
-            // $distance = $this->getDistanceAndKm((($odFrom) ? $odFrom->lng : ''), (($odFrom) ? $odFrom->lat : ''), (($odTo) ? $odTo->lng : ''), (($odTo) ? $odTo->lat : ''));
-            $distance = ['km' => '0', 'time' => '0', 'distance_value' => 0];
+    //         // $distance = $this->getDistanceAndKm((($odFrom) ? $odFrom->lng : ''), (($odFrom) ? $odFrom->lat : ''), (($odTo) ? $odTo->lng : ''), (($odTo) ? $odTo->lat : ''));
+    //         $distance = ['km' => '0', 'time' => '0', 'distance_value' => 0];
 
-            $data = [
-                'id' => $order_detail->id ,
-                'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
-                'isYour' => ($order_detail->client_id == auth()->id()) ? true : false,
-                'avatar' => $personalInfo->avatar,
-                'rating' => 4,
-                'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
-                'total_trips' => $total_trips,
-                'count_pleace' => $order_detail->seats_count,
+    //         $data = [
+    //             'id' => $order_detail->id ,
+    //             'start_date' => date('d.m.Y H:i', strtotime($order_detail->start_date)),
+    //             'isYour' => ($order_detail->client_id == auth()->id()) ? true : false,
+    //             'avatar' => $personalInfo->avatar,
+    //             'rating' => 4,
+    //             'name' => $personalInfo->first_name .' '. $personalInfo->last_name .' '. $personalInfo->middle_name,
+    //             'total_trips' => $total_trips,
+    //             'count_pleace' => $order_detail->seats_count,
 
-                'from' => ($odFrom) ? $odFrom->name : '',
-                'from_lng' => ($odFrom) ? $odFrom->lng : '',
-                'from_lat' => ($odFrom) ? $odFrom->lat : '',
-                'to' => ($odTo) ? $odTo->name : '',
-                'to_lng' => ($odTo) ? $odTo->lng : '',
-                'to_lat' => ($odTo) ? $odTo->lat : '',
+    //             'from' => ($odFrom) ? $odFrom->name : '',
+    //             'from_lng' => ($odFrom) ? $odFrom->lng : '',
+    //             'from_lat' => ($odFrom) ? $odFrom->lat : '',
+    //             'to' => ($odTo) ? $odTo->name : '',
+    //             'to_lng' => ($odTo) ? $odTo->lng : '',
+    //             'to_lat' => ($odTo) ? $odTo->lat : '',
 
-                'distance_km' => $distance['km'],
-                'distance' => $distance['time'],
-                'arrived_date' => date('d.m.Y H:i', strtotime($order_detail->start_date. ' +' . $distance['time'])),
-            ];
+    //             'distance_km' => $distance['km'],
+    //             'distance' => $distance['time'],
+    //             'arrived_date' => date('d.m.Y H:i', strtotime($order_detail->start_date. ' +' . $distance['time'])),
+    //         ];
             
-            array_push($list,$data);
-        }       
+    //         array_push($list,$data);
+    //     }       
 
-        return $this->success('success', 200, $list);
+    //     return $this->success('success', 200, $list);
 
-        // return response()->json([
-        //     'data' => $list,
-        //     'status' => true,
-        //     'message' => 'success',
+    //     // return response()->json([
+    //     //     'data' => $list,
+    //     //     'status' => true,
+    //     //     'message' => 'success',
 
-        // ], 200);
+    //     // ], 200);
 
-    }
+    // }
+    // =================== removed ===================
 
     public function searchHistory()
     {
@@ -452,6 +454,10 @@ class OrderDetailsController extends Controller
             ->where('od.client_id', auth()->id())
             // ->where('od.type', Constants::SEARCHED_ORDER_DETAIL)
             ->where('of.create_type', Constants::ORDER_DETAIL)
+            ->orWhere(function($query) {
+                $query->where('od.type', Constants::CREATED_ORDER_DETAIL)
+                    ->where('of.status', '!=', Constants::NEW);
+            })
             // ->whereNotNull('od.end_date')
             ->select('or.id', 'od.id as order_detail_id', 'od.end_date', 'or.start_date', 'or.price', 'of.status as offer_status', 'or.seats as seats_count', 'or.booking_place as booking_count', 'usC.id as client_id', 'piC.last_name as c_last_name', 'piC.first_name as c_first_name', 'piC.middle_name as c_middle_name', 'piC.phone_number as c_phone_number', 'piC.avatar as c_avatar', 'usC.rating as c_rating', 'pi.last_name', 'pi.first_name', 'pi.middle_name', 'pi.phone_number', 'pi.avatar as dImg', 'us.rating', 'car.id as car_id', 'cl.name as car_name', 'col.name as color_name', 'col.code as color_code', 'car.production_date', 'class.name as class_name', 'car.reg_certificate', 'car.reg_certificate_image', 'car.images as car_images', 'or.options', 'from.name as from', 'from.lng as from_lng', 'from.lat as from_lat', 'to.name as to', 'to.lng as to_lng', 'to.lat as to_lat', 'status.name as status_name', 'us.id as driver_id', 'dr.id as dr_id', 'dr.doc_status as driver_doc_status')
             ->orderBy('od.id', 'desc')
@@ -463,22 +469,25 @@ class OrderDetailsController extends Controller
         return $offers;
     }
 
-    public function list(Request $request)
-    {
-        if ($request->page)
-            $page = $request->page;
-        else
-            return $this->error('page parameter is missing', 400);
 
-        $offers = $this->getClientOffersList($page);
+    // =================== removed ===================
+    // public function list(Request $request)
+    // {
+    //     if ($request->page)
+    //         $page = $request->page;
+    //     else
+    //         return $this->error('page parameter is missing', 400);
 
-        if (!$offers)
-            return $this->success('success', 200, []);
+    //     $offers = $this->getClientOffersList($page);
+
+    //     if (!$offers)
+    //         return $this->success('success', 200, []);
         
-        $data = $this->makeDataToArray($offers);
+    //     $data = $this->makeDataToArray($offers);
             
-        return $this->success('success', 201, $data);
-    }
+    //     return $this->success('success', 201, $data);
+    // }
+    // =================== removed ===================
 
     private function getClientOffersList($page)
     {
@@ -812,6 +821,89 @@ class OrderDetailsController extends Controller
             ->get()
             ->toArray();
 
+        $cancelOffers = DB::table('yy_order_details as yod')
+            ->join('yy_offers as yof', 'yof.order_detail_id', '=', 'yod.id')
+            ->join('yy_users as yu', 'yu.id', '=', 'yod.client_id')
+            ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
+
+            ->join('yy_orders as yor', 'yor.id', '=', 'yof.order_id')
+            ->join('yy_users as yud', 'yud.id', '=', 'yor.driver_id')
+            ->join('yy_personal_infos as ypid', 'ypid.id', '=', 'yud.personal_info_id')
+            ->leftJoin('yy_cars AS car', 'car.id', '=', 'yor.car_id')
+            ->leftJoin('yy_car_lists AS cl', 'cl.id', '=', 'car.car_list_id')
+            ->leftJoin('yy_color_lists AS col', 'col.id', '=', 'car.color_list_id')
+            ->leftJoin('yy_class_lists AS class', 'class.id', '=', 'car.class_list_id')
+            
+            ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
+            ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
+            ->select('yod.id', 'yod.seats_count', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', 'yu.id as client_id', 'ypi.last_name as client_last_name', 'ypi.first_name as client_first_name', 'ypi.middle_name as client_middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as client_full_name"), 'ypi.avatar as client_avatar', 'ypi.birth_date as client_birth_date', 'ypi.phone_number as client_phone_number', 'yu.rating as client_rating', 'yF.id as from_id', 'yF.name as from', 'yF.lng as from_lng', 'yF.lat as from_lat', 'yT.id as to_id', 'yT.name as to', 'yT.lng as to_lng', 'yT.lat as to_lat', 'yof.id as offer_id', 'yof.price as offer_price', 'yof.create_type as offer_create_type', 'yof.cancel_date as offer_cancel_date', 'yof.seats as offer_seats', 'yor.id as order_id', 'yor.price as order_price', 'yor.title as order_title', 'yor.start_date as order_start_date', 'yor.options as order_options', 'yor.seats as order_seats', 'yor.booking_place as order_booking_place', 'ypid.id as driver_id', 'ypid.last_name as driver_last_name', 'ypid.first_name as driver_first_name', 'ypid.middle_name as driver_middle_name', DB::raw("CONCAT(ypid.last_name, ' ', ypid.first_name, ' ', ypid.middle_name) as driver_full_name"), 'ypid.avatar as driver_avatar', 'ypid.birth_date as driver_birth_date', 'ypid.phone_number as driver_phone_number', 'yud.rating as driver_rating', 'cl.name as car_name', 'col.name as color_name', 'class.name as class_name')
+
+            ->where('yod.client_id', auth()->id())
+            ->where('yof.status', Constants::ACCEPT)
+            ->where('yof.cancel_type', Constants::ORDER)
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get()
+            ->toArray();
+
+        $arrOff = [];
+        $off = 0;
+        if (isset($cancelOffers) && count($cancelOffers) > 0) {
+            foreach ($cancelOffers as $cancelOffer) {
+                $arrOff[$off]['id'] = $cancelOffer->id;
+                $arrOff[$off]['seats_count'] = $cancelOffer->seats_count;
+                $arrOff[$off]['comment'] = $cancelOffer->comment;
+                $arrOff[$off]['price'] = $cancelOffer->price;
+                $arrOff[$off]['start_date'] = date('d.m.Y H:I', strtotime($cancelOffer->start_date));
+                $arrOff[$off]['end_date'] = $cancelOffer->end_date ? date('d.m.Y H:I', strtotime($cancelOffer->end_date)) : null;
+                $arrOff[$off]['from_id'] = $cancelOffer->from_id;
+                $arrOff[$off]['from'] = $cancelOffer->from;
+                $arrOff[$off]['from_lng'] = $cancelOffer->from_lng;
+                $arrOff[$off]['from_lat'] = $cancelOffer->from_lat;
+                $arrOff[$off]['to_id'] = $cancelOffer->to_id;
+                $arrOff[$off]['to'] = $cancelOffer->to;
+                $arrOff[$off]['to_lng'] = $cancelOffer->to_lng;
+                $arrOff[$off]['to_lat'] = $cancelOffer->to_lat;
+                $arrOff[$off]['client']['id'] = $cancelOffer->client_id;
+                $arrOff[$off]['client']['last_name'] = $cancelOffer->client_last_name;
+                $arrOff[$off]['client']['first_name'] = $cancelOffer->client_first_name;
+                $arrOff[$off]['client']['middle_name'] = $cancelOffer->client_middle_name;
+                $arrOff[$off]['client']['full_name'] = $cancelOffer->client_full_name;
+                $arrOff[$off]['client']['avatar'] = ($cancelOffer->client_avatar) ? asset('storage/avatar/' . $cancelOffer->client_avatar) : '';
+                $arrOff[$off]['client']['birth_date'] = $cancelOffer->client_birth_date;
+                $arrOff[$off]['client']['phone_number'] = $cancelOffer->client_phone_number;
+                $arrOff[$off]['client']['rating'] = $cancelOffer->client_rating;
+                $arrOff[$off]['offer']['id'] = $cancelOffer->offer_id;
+                $arrOff[$off]['offer']['price'] = $cancelOffer->offer_price;
+                $arrOff[$off]['offer']['create_type'] = $cancelOffer->offer_create_type;
+                $arrOff[$off]['offer']['cancel_date'] = $cancelOffer->offer_cancel_date ? date('d.m.Y H:I', strtotime($cancelOffer->offer_cancel_date)) : null;
+                $arrOff[$off]['offer']['seats'] = $cancelOffer->offer_seats;
+                $arrOff[$off]['order']['id'] = $cancelOffer->order_id;
+                $arrOff[$off]['order']['price'] = $cancelOffer->order_price;
+                $arrOff[$off]['order']['title'] = $cancelOffer->order_title;
+                $arrOff[$off]['order']['start_date'] = $cancelOffer->order_start_date ? date('d.m.Y H:I', strtotime($cancelOffer->order_start_date)) : null;
+                $arrOff[$off]['order']['options'] = json_decode($cancelOffer->order_options);
+                $arrOff[$off]['order']['seats'] = $cancelOffer->order_seats;
+                $arrOff[$off]['order']['booking_place'] = $cancelOffer->order_booking_place;
+                $arrOff[$off]['driver']['id'] = $cancelOffer->driver_id;
+                $arrOff[$off]['driver']['last_name'] = $cancelOffer->driver_last_name;
+                $arrOff[$off]['driver']['first_name'] = $cancelOffer->driver_first_name;
+                $arrOff[$off]['driver']['middle_name'] = $cancelOffer->driver_middle_name;
+                $arrOff[$off]['driver']['full_name'] = $cancelOffer->driver_full_name;
+                $arrOff[$off]['driver']['avatar'] = ($cancelOffer->driver_avatar) ? asset('storage/avatar/' . $cancelOffer->driver_avatar) : '';
+                $arrOff[$off]['driver']['birth_date'] = $cancelOffer->driver_birth_date;
+                $arrOff[$off]['driver']['phone_number'] = $cancelOffer->driver_phone_number;
+                $arrOff[$off]['driver']['rating'] = $cancelOffer->driver_rating;
+                $arrOff[$off]['car']['name'] = $cancelOffer->car_name;
+                $arrOff[$off]['car']['color'] = $cancelOffer->color_name;
+                $arrOff[$off]['car']['class'] = $cancelOffer->class_name;
+
+                $off++;
+            }
+        }
+
+        // return $arrOff;
+
         if (isset($orderDetails) && count($orderDetails) > 0) {
             foreach ($orderDetails as $orderDetail) {
                 $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
@@ -819,7 +911,7 @@ class OrderDetailsController extends Controller
         }
 
         $message = translate_api('success', $language);
-        return $this->success($message, 200, $orderDetails);
+        return $this->success($message, 200, ['list' => $orderDetails, 'offers' => $arrOff]);
     }
 
     public function orderListActive(Request $request)
@@ -834,44 +926,242 @@ class OrderDetailsController extends Controller
         else
             return $this->error('page parameter is missing', 400);
 
+        $orderDetails = $this->getActiveList($page);
+        // return $orderDetails;
+        
+        $data = $this->makeDataToArrayActive($orderDetails);
+            
+        return $this->success('success', 201, $data);
+    }
+
+    private function getActiveList($page)
+    {
         $limit = 15;
-        $orderDetails = DB::table('yy_order_details as yod')
-            ->join('yy_users as yu', 'yu.id', '=', 'yod.client_id')
-            ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
-            ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
-            ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
-            // ->leftJoin('yy_orders as yor', 'yor.id', '=', 'yod.order_id')
-            ->leftJoin(DB::raw('
-                (
-                    SELECT
-                        yof.order_detail_id, COUNT(yof.id) AS offer_count
-                    FROM yy_offers AS yof WHERE yof.deleted_at IS NULL
-                    GROUP BY yof.order_detail_id
-                ) 
-                yodf'), 
-                function($join)
-                {
-                   $join->on('yod.id', '=', 'yodf.order_detail_id');
+
+        $model = DB::select("
+            SELECT
+                T.order_id AS id,
+                T.id AS order_detail_id,
+                T.end_date,
+                T.order_start_date AS start_date,
+                T.start_date AS order_detail_start_date,
+                T.order_price AS price,
+                T.order_seats as seats_count,
+                T.seats_count as od_seats_count,
+                T.booking_place as booking_count,
+                usC.id as client_id,
+                piC.last_name as c_last_name,
+                piC.first_name as c_first_name,
+                piC.middle_name as c_middle_name,
+                piC.phone_number as c_phone_number,
+                piC.avatar as c_avatar,
+                usC.rating as c_rating,
+                pi.last_name,
+                pi.first_name,
+                pi.middle_name,
+                pi.phone_number,
+                pi.avatar as dImg,
+                us.rating,
+                car.id as car_id,
+                cl.name as car_name,
+                col.name as color_name,
+                col.code as color_code,
+                car.production_date,
+                class.name as class_name,
+                car.reg_certificate,
+                car.reg_certificate_image,
+                car.images as car_images,
+                T.options,
+                fom.name as from,
+                fom.lng as from_lng,
+                fom.lat as from_lat,
+                too.name as to,
+                too.lng as to_lng,
+                too.lat as to_lat,
+                us.id as driver_id,
+                dr.id as dr_id,
+                dr.doc_status as driver_doc_status,
+                T.data_type as data_type
+            FROM (
+                SELECT
+                    yod.id, yod.client_id, yod.seats_count, yod.from_id, yod.to_id, yod.price, yod.start_date, yod.type, yod.end_date,
+                    yof.price AS offer_price, yof.status, yof.create_type, yof.seats, 0 AS data_type,
+                    yo.id as order_id, yo.price AS order_price, yo.title, yo.start_date AS order_start_date, yo.seats AS order_seats, yo.car_id, 
+                    yo.driver_id, yo.booking_place, yo.options::VARCHAR
+                FROM yy_order_details AS yod
+                INNER JOIN yy_offers AS yof ON yof.order_detail_id = yod.id AND yof.create_type = 0 AND yod.type = 2 AND yof.status IN (6, 7)
+                INNER JOIN yy_orders AS yo ON yo.id = yof.order_id
+                WHERE yod.deleted_at IS NULL AND yof.deleted_at IS NULL AND yod.client_id = " . auth()->id() . " AND yof.cancel_date IS NULL
+                
+                UNION 
+                
+                SELECT
+                    yod2.id, yod2.client_id, yod2.seats_count, yod2.from_id, yod2.to_id, yod2.price, yod2.start_date, yod2.type, yod2.end_date,
+                    yof2.price AS offer_price, yof2.status, yof2.create_type, yof2.seats, 0 AS data_type,
+                    yo2.id as order_id, yo2.price AS order_price, yo2.title, yo2.start_date AS order_start_date, yo2.seats AS order_seats, 
+                    yo2.car_id, yo2.driver_id, yo2.booking_place, yo2.options::VARCHAR
+                FROM yy_order_details AS yod2
+                INNER JOIN yy_offers AS yof2 ON yof2.order_detail_id = yod2.id AND yof2.create_type = 0 AND yod2.type = 1 AND yof2.status = 7
+                INNER JOIN yy_orders AS yo2 ON yo2.id = yof2.order_id
+                WHERE yod2.deleted_at IS NULL AND yof2.deleted_at IS NULL AND yod2.client_id = " . auth()->id() . " AND yof2.cancel_date IS NULL
+                
+                UNION 
+                
+                SELECT
+                    yod3.id, yod3.client_id, yod3.seats_count, yod3.from_id, yod3.to_id, yod3.price, yod3.start_date, yod3.type, yod3.end_date,
+                    yof3.price AS offer_price, yof3.status, yof3.create_type, yof3.seats, 1 AS data_type,
+                    yo3.id as order_id, yo3.price AS order_price, yo3.title, yo3.start_date AS order_start_date, yo3.seats AS order_seats, 
+                    yo3.car_id, yo3.driver_id, yo3.booking_place, yo3.options::VARCHAR
+                FROM yy_order_details AS yod3
+                INNER JOIN yy_offers AS yof3 ON yof3.order_detail_id = yod3.id AND yof3.create_type = 1 AND yod3.type = 1 AND yof3.status = 7
+                LEFT JOIN yy_orders AS yo3 ON yo3.id = yof3.order_id
+                WHERE yod3.deleted_at IS NULL AND yof3.deleted_at IS NULL AND yod3.client_id = " . auth()->id() . " AND yof3.cancel_date IS NULL
+                
+                UNION
+                
+                SELECT
+                    yod4.id, yod4.client_id, yod4.seats_count, yod4.from_id, yod4.to_id, yod4.price, yod4.start_date, yod4.type, yod4.end_date,
+                    NULL AS offer_price, NULL AS status, NULL AS create_type, NULL AS seats, 2 AS data_type,
+                    NULL AS order_id, NULL AS order_price, NULL AS title, NULL AS order_start_date, NULL AS order_seats, 
+                    NULL AS car_id, NULL AS driver_id, NULL AS booking_place, NULL AS options
+                FROM yy_order_details AS yod4
+                WHERE yod4.deleted_at IS NULL AND yod4.order_id IS NULL AND yod4.client_id = " . auth()->id() . " AND yod4.type = 1
+            ) AS T
+            LEFT JOIN yy_cities as fom ON fom.id = T.from_id
+            LEFT JOIN yy_cities as too ON too.id = T.to_id
+            LEFT JOIN yy_users as usC ON usC.id = T.client_id
+            LEFT JOIN yy_personal_infos as piC ON piC.id = usC.personal_info_id
+            LEFT JOIN yy_users as us ON us.id = T.driver_id
+
+            LEFT JOIN yy_drivers AS dr ON dr.user_id = us.id
+            LEFT JOIN yy_personal_infos AS pi ON pi.id = us.personal_info_id
+            LEFT JOIN yy_cars AS car ON car.id = T.car_id
+            LEFT JOIN yy_car_lists AS cl ON cl.id = car.car_list_id
+            LEFT JOIN yy_color_lists AS col ON col.id = car.color_list_id
+            LEFT JOIN yy_class_lists AS class ON class.id = car.class_list_id
+            -- LEFT JOIN yy_statuses AS status ON status.id = or.status_id
+
+            ORDER BY T.order_id, T.id, T.data_type
+        ");
+
+        return $model;
+    }
+
+    private function makeDataToArrayActive($datas)
+    {
+        $arr = [];
+        $arr2 = [];
+        $n = -1;
+        $c = -1;
+        $l = 0;
+        $inArray = [];
+        $clientIdArr = [];
+        $orderDetailIds = [];
+        
+        if (empty($datas))
+            return [];
+
+        foreach ($datas as $data) {
+            $enter = true;
+            if (!in_array($data->order_detail_id, $orderDetailIds, true)) {
+                $orderDetailIds[] = $data->order_detail_id;
+                $enter = true;
+            } else {
+                if ($data->data_type != 0)
+                    $enter = false;
+            }
+
+            if ($data->data_type != 2) {
+                if ($enter == true) {
+                    if (!in_array($data->client_id, $clientIdArr, true)) {
+                        $clientIdArr[] = $data->client_id;
+                        $c++;
+                    }
+
+                    if (!in_array($data->id, $inArray, true)) {
+                        $inArray[] = $data->id;
+                        $n++;
+                    }
+
+                    $arrImgs = [];
+                    if ($data->car_images != null) {
+                        $imgs = json_decode(json_decode($data->car_images));
+
+                        foreach ($imgs as $img) {
+                            $arrImgs[] = asset('storage/cars/' . $img);
+                        }
+                    }
+
+                    // dd($data);
+                    $arr[$n]['id'] = $data->id;
+                    $arr[$n]['order_detail_id'] = $data->order_detail_id;
+                    $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->start_date));
+                    // $arr[$n]['end_date'] = $data->end_date;
+                    $arr[$n]['price'] = (double)$data->price;
+                    // $arr[$n]['data'] = $data->data_status;
+                    $arr[$n]['seats_count'] = $data->seats_count;
+                    $arr[$n]['booking_count'] = $data->booking_count ?? 0;
+                    $arr[$n]['is_full'] = ($data->seats_count == $data->booking_count) ? true : false;
+                    $arr[$n]['clients_list'][$c]['full_name'] = $data->c_last_name . ' ' . $data->c_first_name . ' ' . $data->c_middle_name;
+                    $arr[$n]['clients_list'][$c]['phone_number'] = '+' . $data->c_phone_number;
+                    $arr[$n]['clients_list'][$c]['img'] = ($data->c_avatar) ? asset('storage/avatar/' . $data->c_avatar) : '';
+                    $arr[$n]['clients_list'][$c]['rating'] = $data->c_rating;
+                    $arr[$n]['driver'] = [
+                        'id' => $data->driver_id,
+                        'full_name' => $data->last_name . ' ' . $data->first_name . ' ' . $data->middle_name,
+                        'phone_number' => '+' . $data->phone_number,
+                        'img' => ($data->dimg) ? asset('storage/avatar/' . $data->dimg) : '',
+                        'rating' => $data->rating,
+                        'doc_status' => (int)$data->driver_doc_status
+                    ];
+                    $arr[$n]['car'] = [
+                        'id' => $data->car_id,
+                        'name' => $data->car_name,
+                        'color' => [
+                            'name' => $data->color_name,
+                            'code' => $data->color_code
+                        ],
+                        'production_date' => date('Y', strtotime($data->production_date)),
+                        'class' => $data->class_name,
+                        'reg_certificate' => $data->reg_certificate,
+                        'reg_certificate_img' => ($data->reg_certificate_image) ? asset('storage/cars/' . $data->reg_certificate_image) : '',
+                        'images' => $arrImgs,
+                    ];
+                    $arr[$n]['options'] = json_decode($data->options);
+                    $arr[$n]['from'] = $data->from;
+                    $arr[$n]['from_lng'] = $data->from_lng;
+                    $arr[$n]['from_lat'] = $data->from_lat;
+                    $arr[$n]['to'] = $data->to;
+                    $arr[$n]['to_lng'] = $data->to_lng;
+                    $arr[$n]['to_lat'] = $data->to_lat;
+
+                    $distance = $this->getDistanceAndKm($data->from_lng, $data->from_lat, $data->to_lng, $data->to_lat);
+
+                    $arr[$n]['distance_km'] = $distance['km'];
+                    $arr[$n]['distance'] = $distance['time'];
+                    $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($data->start_date. ' +' . $distance['time']));
+                    
+                    $arr[$n]['data_type'] = $data->data_type;
                 }
-            )
+            } else {
+                // $arr[$n]['id'] = $data->id;
+                $arr[$n]['id'] = $data->order_detail_id;
+                $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->order_detail_start_date));
+                $arr[$n]['price'] = (double)$data->price;
+                $arr[$n]['from'] = $data->from;
+                $arr[$n]['from_lng'] = $data->from_lng;
+                $arr[$n]['from_lat'] = $data->from_lat;
+                $arr[$n]['to'] = $data->to;
+                $arr[$n]['to_lng'] = $data->to_lng;
+                $arr[$n]['to_lat'] = $data->to_lat;
+                $arr[$n]['seats_count'] = $data->od_seats_count;
+                $arr[$n]['booking_count'] = $data->booking_count ?? 0;
+                $arr[$n]['data_type'] = $data->data_type;
 
-            ->where('yod.client_id', auth()->id())
-            ->whereNull(['yod.end_date', 'yod.deleted_at'])
-            // ->whereNull('yod.deleted_at')
-            ->select('yod.id', 'yod.client_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count'), 'yod.order_id as order_id')
-            ->orderBy('yod.start_date', 'desc')
-            ->offset(($page - 1) * $limit)
-            ->limit($limit)
-            ->get()
-            ->toArray();
-
-        if (isset($orderDetails) && count($orderDetails) > 0) {
-            foreach ($orderDetails as $orderDetail) {
-                $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
+                $n++;
             }
         }
-
-        $message = translate_api('success', $language);
-        return $this->success($message, 200, $orderDetails);
+        // array_push($arr, $arr2);
+        return $arr;
     }
 }
