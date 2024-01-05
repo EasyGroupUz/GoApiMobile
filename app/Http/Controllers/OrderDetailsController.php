@@ -1144,6 +1144,9 @@ class OrderDetailsController extends Controller
                     $arr[$n]['data_type'] = $data->data_type;
                 }
             } else {
+                if ($n < 0)
+                    $n = 0;
+                
                 // $arr[$n]['id'] = $data->id;
                 $arr[$n]['id'] = $data->order_detail_id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->order_detail_start_date));
