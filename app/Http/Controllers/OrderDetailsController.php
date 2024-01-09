@@ -808,13 +808,24 @@ class OrderDetailsController extends Controller
             ->join('yy_personal_infos as ypi', 'ypi.id', '=', 'yu.personal_info_id')
             ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
             ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
+            
+            ->leftJoin(
+                DB::raw('(
+                    SELECT yoff.order_detail_id, COUNT(yoff.id) AS count_offers FROM yy_offers AS yoff 
+                    WHERE yoff.deleted_at IS NULL
+                    GROUP BY yoff.order_detail_id
+                ) AS ss'), 
+                function(JoinClause $join) {
+                    $join->on('yod.id', '=', 'ss.order_detail_id');
+                }
+            )
 
             ->where('yod.client_id', auth()->id())
             ->where(function($query) use ($variable1) {
                 $query->where('yod.end_date', '<=', $variable1)
                     ->orWhereNotNull('yod.deleted_at');
             })
-            ->select('yod.id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
+            ->select('yod.id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
             ->orderBy('yod.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -920,6 +931,7 @@ class OrderDetailsController extends Controller
             foreach ($orderDetails as $orderDetail) {
                 $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
                 $orderDetail->price = (int)$orderDetail->price;
+                $orderDetail->offer_count = (isset($orderDetail->offer_count)) ? $orderDetail->offer_count : 0;
             }
         }
 
