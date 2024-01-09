@@ -911,7 +911,7 @@ class OrderDetailsController extends Controller
         }
 
         $message = translate_api('success', $language);
-        return $this->success($message, 200, ['list' => $orderDetails, 'offers' => $arrOff]);
+        return $this->success($message, 200, array_merge($orderDetails, $arrOff));
     }
 
     public function orderListActive(Request $request)
