@@ -836,7 +836,19 @@ class OrderDetailsController extends Controller
             
             ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
             ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
-            ->select('yod.id', 'yod.seats_count', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', 'yu.id as client_id', 'ypi.last_name as client_last_name', 'ypi.first_name as client_first_name', 'ypi.middle_name as client_middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as client_full_name"), 'ypi.avatar as client_avatar', 'ypi.birth_date as client_birth_date', 'ypi.phone_number as client_phone_number', 'yu.rating as client_rating', 'yF.id as from_id', 'yF.name as from', 'yF.lng as from_lng', 'yF.lat as from_lat', 'yT.id as to_id', 'yT.name as to', 'yT.lng as to_lng', 'yT.lat as to_lat', 'yof.id as offer_id', 'yof.price as offer_price', 'yof.create_type as offer_create_type', 'yof.cancel_date as offer_cancel_date', 'yof.seats as offer_seats', 'yor.id as order_id', 'yor.price as order_price', 'yor.title as order_title', 'yor.start_date as order_start_date', 'yor.options as order_options', 'yor.seats as order_seats', 'yor.booking_place as order_booking_place', 'ypid.id as driver_id', 'ypid.last_name as driver_last_name', 'ypid.first_name as driver_first_name', 'ypid.middle_name as driver_middle_name', DB::raw("CONCAT(ypid.last_name, ' ', ypid.first_name, ' ', ypid.middle_name) as driver_full_name"), 'ypid.avatar as driver_avatar', 'ypid.birth_date as driver_birth_date', 'ypid.phone_number as driver_phone_number', 'yud.rating as driver_rating', 'cl.name as car_name', 'col.name as color_name', 'class.name as class_name')
+            ->leftJoin(
+                DB::raw('(
+                    SELECT yoff.order_detail_id, COUNT(yoff.id) AS count_offers FROM yy_offers AS yoff 
+                    WHERE yoff.deleted_at IS NULL
+                    GROUP BY yoff.order_detail_id
+                ) AS ss'), 
+                function(JoinClause $join) {
+                    $join->on('yod.id', '=', 'ss.order_detail_id');
+                }
+            )
+            ->select('yod.id', 'yor.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), DB::raw("'driver_canceled' as w_type"))
+
+            // ->select('yod.id', 'yod.seats_count', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', 'yu.id as client_id', 'ypi.last_name as client_last_name', 'ypi.first_name as client_first_name', 'ypi.middle_name as client_middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as client_full_name"), 'ypi.avatar as client_avatar', 'ypi.birth_date as client_birth_date', 'ypi.phone_number as client_phone_number', 'yu.rating as client_rating', 'yF.id as from_id', 'yF.name as from', 'yF.lng as from_lng', 'yF.lat as from_lat', 'yT.id as to_id', 'yT.name as to', 'yT.lng as to_lng', 'yT.lat as to_lat', 'yof.id as offer_id', 'yof.price as offer_price', 'yof.create_type as offer_create_type', 'yof.cancel_date as offer_cancel_date', 'yof.seats as offer_seats', 'yor.id as order_id', 'yor.price as order_price', 'yor.title as order_title', 'yor.start_date as order_start_date', 'yor.options as order_options', 'yor.seats as order_seats', 'yor.booking_place as order_booking_place', 'ypid.id as driver_id', 'ypid.last_name as driver_last_name', 'ypid.first_name as driver_first_name', 'ypid.middle_name as driver_middle_name', DB::raw("CONCAT(ypid.last_name, ' ', ypid.first_name, ' ', ypid.middle_name) as driver_full_name"), 'ypid.avatar as driver_avatar', 'ypid.birth_date as driver_birth_date', 'ypid.phone_number as driver_phone_number', 'yud.rating as driver_rating', 'cl.name as car_name', 'col.name as color_name', 'class.name as class_name')
 
             ->where('yod.client_id', auth()->id())
             ->where('yof.status', Constants::ACCEPT)
@@ -846,61 +858,62 @@ class OrderDetailsController extends Controller
             ->get()
             ->toArray();
 
-        $arrOff = [];
-        $off = 0;
-        if (isset($cancelOffers) && count($cancelOffers) > 0) {
-            foreach ($cancelOffers as $cancelOffer) {
-                $arrOff[$off]['id'] = $cancelOffer->id;
-                $arrOff[$off]['seats_count'] = $cancelOffer->seats_count;
-                $arrOff[$off]['comment'] = $cancelOffer->comment;
-                $arrOff[$off]['price'] = (int)$cancelOffer->price;
-                $arrOff[$off]['start_date'] = date('d.m.Y H:I', strtotime($cancelOffer->start_date));
-                $arrOff[$off]['end_date'] = $cancelOffer->end_date ? date('d.m.Y H:I', strtotime($cancelOffer->end_date)) : null;
-                $arrOff[$off]['from_id'] = $cancelOffer->from_id;
-                $arrOff[$off]['from'] = $cancelOffer->from;
-                $arrOff[$off]['from_lng'] = $cancelOffer->from_lng;
-                $arrOff[$off]['from_lat'] = $cancelOffer->from_lat;
-                $arrOff[$off]['to_id'] = $cancelOffer->to_id;
-                $arrOff[$off]['to'] = $cancelOffer->to;
-                $arrOff[$off]['to_lng'] = $cancelOffer->to_lng;
-                $arrOff[$off]['to_lat'] = $cancelOffer->to_lat;
-                $arrOff[$off]['client']['id'] = $cancelOffer->client_id;
-                $arrOff[$off]['client']['last_name'] = $cancelOffer->client_last_name;
-                $arrOff[$off]['client']['first_name'] = $cancelOffer->client_first_name;
-                $arrOff[$off]['client']['middle_name'] = $cancelOffer->client_middle_name;
-                $arrOff[$off]['client']['full_name'] = $cancelOffer->client_full_name;
-                $arrOff[$off]['client']['avatar'] = ($cancelOffer->client_avatar) ? asset('storage/avatar/' . $cancelOffer->client_avatar) : '';
-                $arrOff[$off]['client']['birth_date'] = $cancelOffer->client_birth_date;
-                $arrOff[$off]['client']['phone_number'] = $cancelOffer->client_phone_number;
-                $arrOff[$off]['client']['rating'] = $cancelOffer->client_rating;
-                $arrOff[$off]['offer']['id'] = $cancelOffer->offer_id;
-                $arrOff[$off]['offer']['price'] = (int)$cancelOffer->offer_price;
-                $arrOff[$off]['offer']['create_type'] = $cancelOffer->offer_create_type;
-                $arrOff[$off]['offer']['cancel_date'] = $cancelOffer->offer_cancel_date ? date('d.m.Y H:I', strtotime($cancelOffer->offer_cancel_date)) : null;
-                $arrOff[$off]['offer']['seats'] = $cancelOffer->offer_seats;
-                $arrOff[$off]['order']['id'] = $cancelOffer->order_id;
-                $arrOff[$off]['order']['price'] = (int)$cancelOffer->order_price;
-                $arrOff[$off]['order']['title'] = $cancelOffer->order_title;
-                $arrOff[$off]['order']['start_date'] = $cancelOffer->order_start_date ? date('d.m.Y H:I', strtotime($cancelOffer->order_start_date)) : null;
-                $arrOff[$off]['order']['options'] = json_decode($cancelOffer->order_options);
-                $arrOff[$off]['order']['seats'] = $cancelOffer->order_seats;
-                $arrOff[$off]['order']['booking_place'] = $cancelOffer->order_booking_place;
-                $arrOff[$off]['driver']['id'] = $cancelOffer->driver_id;
-                $arrOff[$off]['driver']['last_name'] = $cancelOffer->driver_last_name;
-                $arrOff[$off]['driver']['first_name'] = $cancelOffer->driver_first_name;
-                $arrOff[$off]['driver']['middle_name'] = $cancelOffer->driver_middle_name;
-                $arrOff[$off]['driver']['full_name'] = $cancelOffer->driver_full_name;
-                $arrOff[$off]['driver']['avatar'] = ($cancelOffer->driver_avatar) ? asset('storage/avatar/' . $cancelOffer->driver_avatar) : '';
-                $arrOff[$off]['driver']['birth_date'] = $cancelOffer->driver_birth_date;
-                $arrOff[$off]['driver']['phone_number'] = $cancelOffer->driver_phone_number;
-                $arrOff[$off]['driver']['rating'] = $cancelOffer->driver_rating;
-                $arrOff[$off]['car']['name'] = $cancelOffer->car_name;
-                $arrOff[$off]['car']['color'] = $cancelOffer->color_name;
-                $arrOff[$off]['car']['class'] = $cancelOffer->class_name;
+        // $arrOff = [];
+        // $off = 0;
+        // if (isset($cancelOffers) && count($cancelOffers) > 0) {
+        //     foreach ($cancelOffers as $cancelOffer) {
+        //         $arrOff[$off]['id'] = $cancelOffer->id;
+        //         $arrOff[$off]['seats_count'] = $cancelOffer->seats_count;
+        //         $arrOff[$off]['comment'] = $cancelOffer->comment;
+        //         $arrOff[$off]['price'] = (int)$cancelOffer->price;
+        //         $arrOff[$off]['start_date'] = date('d.m.Y H:I', strtotime($cancelOffer->start_date));
+        //         $arrOff[$off]['end_date'] = $cancelOffer->end_date ? date('d.m.Y H:I', strtotime($cancelOffer->end_date)) : null;
+        //         $arrOff[$off]['from_id'] = $cancelOffer->from_id;
+        //         $arrOff[$off]['from'] = $cancelOffer->from;
+        //         $arrOff[$off]['from_lng'] = $cancelOffer->from_lng;
+        //         $arrOff[$off]['from_lat'] = $cancelOffer->from_lat;
+        //         $arrOff[$off]['to_id'] = $cancelOffer->to_id;
+        //         $arrOff[$off]['to'] = $cancelOffer->to;
+        //         $arrOff[$off]['to_lng'] = $cancelOffer->to_lng;
+        //         $arrOff[$off]['to_lat'] = $cancelOffer->to_lat;
+        //         $arrOff[$off]['type'] = 2;
+        //         $arrOff[$off]['client']['id'] = $cancelOffer->client_id;
+        //         $arrOff[$off]['client']['last_name'] = $cancelOffer->client_last_name;
+        //         $arrOff[$off]['client']['first_name'] = $cancelOffer->client_first_name;
+        //         $arrOff[$off]['client']['middle_name'] = $cancelOffer->client_middle_name;
+        //         $arrOff[$off]['client']['full_name'] = $cancelOffer->client_full_name;
+        //         $arrOff[$off]['client']['avatar'] = ($cancelOffer->client_avatar) ? asset('storage/avatar/' . $cancelOffer->client_avatar) : '';
+        //         $arrOff[$off]['client']['birth_date'] = $cancelOffer->client_birth_date;
+        //         $arrOff[$off]['client']['phone_number'] = $cancelOffer->client_phone_number;
+        //         $arrOff[$off]['client']['rating'] = $cancelOffer->client_rating;
+        //         $arrOff[$off]['offer']['id'] = $cancelOffer->offer_id;
+        //         $arrOff[$off]['offer']['price'] = (int)$cancelOffer->offer_price;
+        //         $arrOff[$off]['offer']['create_type'] = $cancelOffer->offer_create_type;
+        //         $arrOff[$off]['offer']['cancel_date'] = $cancelOffer->offer_cancel_date ? date('d.m.Y H:I', strtotime($cancelOffer->offer_cancel_date)) : null;
+        //         $arrOff[$off]['offer']['seats'] = $cancelOffer->offer_seats;
+        //         $arrOff[$off]['order']['id'] = $cancelOffer->order_id;
+        //         $arrOff[$off]['order']['price'] = (int)$cancelOffer->order_price;
+        //         $arrOff[$off]['order']['title'] = $cancelOffer->order_title;
+        //         $arrOff[$off]['order']['start_date'] = $cancelOffer->order_start_date ? date('d.m.Y H:I', strtotime($cancelOffer->order_start_date)) : null;
+        //         $arrOff[$off]['order']['options'] = json_decode($cancelOffer->order_options);
+        //         $arrOff[$off]['order']['seats'] = $cancelOffer->order_seats;
+        //         $arrOff[$off]['order']['booking_place'] = $cancelOffer->order_booking_place;
+        //         $arrOff[$off]['driver']['id'] = $cancelOffer->driver_id;
+        //         $arrOff[$off]['driver']['last_name'] = $cancelOffer->driver_last_name;
+        //         $arrOff[$off]['driver']['first_name'] = $cancelOffer->driver_first_name;
+        //         $arrOff[$off]['driver']['middle_name'] = $cancelOffer->driver_middle_name;
+        //         $arrOff[$off]['driver']['full_name'] = $cancelOffer->driver_full_name;
+        //         $arrOff[$off]['driver']['avatar'] = ($cancelOffer->driver_avatar) ? asset('storage/avatar/' . $cancelOffer->driver_avatar) : '';
+        //         $arrOff[$off]['driver']['birth_date'] = $cancelOffer->driver_birth_date;
+        //         $arrOff[$off]['driver']['phone_number'] = $cancelOffer->driver_phone_number;
+        //         $arrOff[$off]['driver']['rating'] = $cancelOffer->driver_rating;
+        //         $arrOff[$off]['car']['name'] = $cancelOffer->car_name;
+        //         $arrOff[$off]['car']['color'] = $cancelOffer->color_name;
+        //         $arrOff[$off]['car']['class'] = $cancelOffer->class_name;
 
-                $off++;
-            }
-        }
+        //         $off++;
+        //     }
+        // }
 
 
         if (isset($orderDetails) && count($orderDetails) > 0) {
@@ -909,10 +922,17 @@ class OrderDetailsController extends Controller
                 $orderDetail->price = (int)$orderDetail->price;
             }
         }
+
+        if (isset($cancelOffers) && count($cancelOffers) > 0) {
+            foreach ($cancelOffers as $cancelOffer) {
+                $cancelOffer->start_date = date('d.m.Y H:i', strtotime($cancelOffer->start_date));
+                $cancelOffer->price = (int)$cancelOffer->price;
+            }
+        }
         // return $orderDetails;
 
         $message = translate_api('success', $language);
-        return $this->success($message, 200, array_merge($orderDetails, $arrOff));
+        return $this->success($message, 200, array_merge($orderDetails, $cancelOffers));
     }
 
     public function orderListActive(Request $request)
