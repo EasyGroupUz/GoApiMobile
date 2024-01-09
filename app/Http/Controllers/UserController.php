@@ -496,7 +496,7 @@ class UserController extends Controller
         return $this->success(translate_api('success', $language), 200, [
             'doc_status' => $doc_status,
             'is_first' => (($is_first == Constants::ACCEPTED_USER_FIRST) ? true : false),
-            'driver_info' => $arr ?? NULL,
+            'driver_info' => (isset($arr) && !empty($arr)) ? $arr : NULL,
         ]);
 
         // return response()->json([
