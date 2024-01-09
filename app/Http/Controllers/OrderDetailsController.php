@@ -853,7 +853,7 @@ class OrderDetailsController extends Controller
                 $arrOff[$off]['id'] = $cancelOffer->id;
                 $arrOff[$off]['seats_count'] = $cancelOffer->seats_count;
                 $arrOff[$off]['comment'] = $cancelOffer->comment;
-                $arrOff[$off]['price'] = $cancelOffer->price;
+                $arrOff[$off]['price'] = (int)$cancelOffer->price;
                 $arrOff[$off]['start_date'] = date('d.m.Y H:I', strtotime($cancelOffer->start_date));
                 $arrOff[$off]['end_date'] = $cancelOffer->end_date ? date('d.m.Y H:I', strtotime($cancelOffer->end_date)) : null;
                 $arrOff[$off]['from_id'] = $cancelOffer->from_id;
@@ -874,12 +874,12 @@ class OrderDetailsController extends Controller
                 $arrOff[$off]['client']['phone_number'] = $cancelOffer->client_phone_number;
                 $arrOff[$off]['client']['rating'] = $cancelOffer->client_rating;
                 $arrOff[$off]['offer']['id'] = $cancelOffer->offer_id;
-                $arrOff[$off]['offer']['price'] = $cancelOffer->offer_price;
+                $arrOff[$off]['offer']['price'] = (int)$cancelOffer->offer_price;
                 $arrOff[$off]['offer']['create_type'] = $cancelOffer->offer_create_type;
                 $arrOff[$off]['offer']['cancel_date'] = $cancelOffer->offer_cancel_date ? date('d.m.Y H:I', strtotime($cancelOffer->offer_cancel_date)) : null;
                 $arrOff[$off]['offer']['seats'] = $cancelOffer->offer_seats;
                 $arrOff[$off]['order']['id'] = $cancelOffer->order_id;
-                $arrOff[$off]['order']['price'] = $cancelOffer->order_price;
+                $arrOff[$off]['order']['price'] = (int)$cancelOffer->order_price;
                 $arrOff[$off]['order']['title'] = $cancelOffer->order_title;
                 $arrOff[$off]['order']['start_date'] = $cancelOffer->order_start_date ? date('d.m.Y H:I', strtotime($cancelOffer->order_start_date)) : null;
                 $arrOff[$off]['order']['options'] = json_decode($cancelOffer->order_options);
@@ -902,13 +902,14 @@ class OrderDetailsController extends Controller
             }
         }
 
-        // return $arrOff;
 
         if (isset($orderDetails) && count($orderDetails) > 0) {
             foreach ($orderDetails as $orderDetail) {
                 $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
+                $orderDetail->price = (int)$orderDetail->price;
             }
         }
+        // return $orderDetails;
 
         $message = translate_api('success', $language);
         return $this->success($message, 200, array_merge($orderDetails, $arrOff));
