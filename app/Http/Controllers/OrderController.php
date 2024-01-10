@@ -2055,7 +2055,7 @@ class OrderController extends Controller
             ->where('yo.driver_id', auth()->id())
             ->whereNull(['yo.deleted_at'])
             ->whereIn('status_id', [Constants::ORDERED, Constants::ON_THE_WAY])
-            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code', 'color.color', 'yo.seats AS seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
+            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yo.seats AS seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
             ->orderBy('yo.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -2106,11 +2106,32 @@ class OrderController extends Controller
                    $join->on('yo.id', '=', 'yodf.order_id');
                 }
             )
+            ->leftJoin(DB::raw("
+                (
+                    SELECT
+                        yc.id, yc.driver_id, yct.name AS type_name, ycar.name AS car_name, ycl.code, 
+                        CASE 
+                            WHEN ycrt.name IS NULL 
+                            THEN ycl.name
+                            ELSE ycrt.name
+                        END AS color
+                    FROM yy_cars AS yc
+                    INNER JOIN yy_car_lists AS ycar ON ycar.id = yc.car_list_id
+                    INNER JOIN yy_car_types AS yct ON ycar.car_type_id = yct.id
+                    INNER JOIN yy_color_lists AS ycl ON yc.color_list_id = ycl.id
+                    LEFT JOIN yy_color_translations AS ycrt ON ycl.id = ycrt.color_list_id AND ycrt.lang = 'ru'
+                ) 
+                color"), 
+                function($join)
+                {
+                   $join->on('yo.car_id', '=', 'color.id');
+                }
+            )
 
             ->where('yo.driver_id', auth()->id())
             ->whereNull(['yo.deleted_at'])
             ->whereIn('status_id', [Constants::COMPLETED, Constants::CANCEL_ORDER])
-            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yo.seats', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
+            ->select('yo.id', 'yo.driver_id', 'yo.status_id', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yo.seats AS seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yo.title', 'yo.price', 'yo.start_date', DB::raw('COALESCE(yodf.offer_count, 0) as offer_count')) // , 'yo.order_detail_id as order_detail_id' ,  , DB::raw("CASE WHEN yo.status_id = " . Constants::ORDERED . " THEN 'New' ELSE 'archive' END AS status")
             ->orderBy('yo.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -2120,6 +2141,7 @@ class OrderController extends Controller
         if (isset($orders) && count($orders) > 0) {
             foreach ($orders as $order) {
                 $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
+                $order->avatar = ($order->avatar) ? asset('storage/avatar/' . $order->avatar) : NULL;
             }
         }
 
