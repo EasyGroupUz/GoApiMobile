@@ -2066,6 +2066,7 @@ class OrderController extends Controller
             foreach ($orders as $order) {
                 $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
                 $order->avatar = ($order->avatar) ? asset('storage/avatar/' . $order->avatar) : NULL;
+                $order->price = (double)$order->price;
             }
         }
 
@@ -2142,6 +2143,7 @@ class OrderController extends Controller
             foreach ($orders as $order) {
                 $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
                 $order->avatar = ($order->avatar) ? asset('storage/avatar/' . $order->avatar) : NULL;
+                $order->price = (double)$order->price;
             }
         }
 

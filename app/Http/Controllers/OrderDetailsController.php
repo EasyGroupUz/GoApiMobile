@@ -825,7 +825,7 @@ class OrderDetailsController extends Controller
                 $query->where('yod.end_date', '<=', $variable1)
                     ->orWhereNotNull('yod.deleted_at');
             })
-            ->select('yod.id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
+            ->select('yod.id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
             ->orderBy('yod.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -840,10 +840,31 @@ class OrderDetailsController extends Controller
             ->join('yy_orders as yor', 'yor.id', '=', 'yof.order_id')
             ->join('yy_users as yud', 'yud.id', '=', 'yor.driver_id')
             ->join('yy_personal_infos as ypid', 'ypid.id', '=', 'yud.personal_info_id')
-            ->leftJoin('yy_cars AS car', 'car.id', '=', 'yor.car_id')
-            ->leftJoin('yy_car_lists AS cl', 'cl.id', '=', 'car.car_list_id')
-            ->leftJoin('yy_color_lists AS col', 'col.id', '=', 'car.color_list_id')
-            ->leftJoin('yy_class_lists AS class', 'class.id', '=', 'car.class_list_id')
+            ->leftJoin(DB::raw("
+                (
+                    SELECT
+                        yc.id, yc.driver_id, yct.name AS type_name, ycar.name AS car_name, ycl.code, 
+                        CASE 
+                            WHEN ycrt.name IS NULL 
+                            THEN ycl.name
+                            ELSE ycrt.name
+                        END AS color
+                    FROM yy_cars AS yc
+                    INNER JOIN yy_car_lists AS ycar ON ycar.id = yc.car_list_id
+                    INNER JOIN yy_car_types AS yct ON ycar.car_type_id = yct.id
+                    INNER JOIN yy_color_lists AS ycl ON yc.color_list_id = ycl.id
+                    LEFT JOIN yy_color_translations AS ycrt ON ycl.id = ycrt.color_list_id AND ycrt.lang = 'ru'
+                ) 
+                color"), 
+                function($join)
+                {
+                   $join->on('yor.car_id', '=', 'color.id');
+                }
+            )
+            // ->leftJoin('yy_cars AS car', 'car.id', '=', 'yor.car_id')
+            // ->leftJoin('yy_car_lists AS cl', 'cl.id', '=', 'car.car_list_id')
+            // ->leftJoin('yy_color_lists AS col', 'col.id', '=', 'car.color_list_id')
+            // ->leftJoin('yy_class_lists AS class', 'class.id', '=', 'car.class_list_id')
             
             ->leftJoin('yy_cities as yF', 'yF.id', '=', 'yod.from_id')
             ->leftJoin('yy_cities as yT', 'yT.id', '=', 'yod.to_id')
@@ -857,7 +878,8 @@ class OrderDetailsController extends Controller
                     $join->on('yod.id', '=', 'ss.order_detail_id');
                 }
             )
-            ->select('yod.id', 'yor.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), DB::raw("'driver_canceled' as w_type"))
+
+            ->select('yod.id', 'yor.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), DB::raw("'driver_canceled' as w_type"))
 
             // ->select('yod.id', 'yod.seats_count', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', 'yu.id as client_id', 'ypi.last_name as client_last_name', 'ypi.first_name as client_first_name', 'ypi.middle_name as client_middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as client_full_name"), 'ypi.avatar as client_avatar', 'ypi.birth_date as client_birth_date', 'ypi.phone_number as client_phone_number', 'yu.rating as client_rating', 'yF.id as from_id', 'yF.name as from', 'yF.lng as from_lng', 'yF.lat as from_lat', 'yT.id as to_id', 'yT.name as to', 'yT.lng as to_lng', 'yT.lat as to_lat', 'yof.id as offer_id', 'yof.price as offer_price', 'yof.create_type as offer_create_type', 'yof.cancel_date as offer_cancel_date', 'yof.seats as offer_seats', 'yor.id as order_id', 'yor.price as order_price', 'yor.title as order_title', 'yor.start_date as order_start_date', 'yor.options as order_options', 'yor.seats as order_seats', 'yor.booking_place as order_booking_place', 'ypid.id as driver_id', 'ypid.last_name as driver_last_name', 'ypid.first_name as driver_first_name', 'ypid.middle_name as driver_middle_name', DB::raw("CONCAT(ypid.last_name, ' ', ypid.first_name, ' ', ypid.middle_name) as driver_full_name"), 'ypid.avatar as driver_avatar', 'ypid.birth_date as driver_birth_date', 'ypid.phone_number as driver_phone_number', 'yud.rating as driver_rating', 'cl.name as car_name', 'col.name as color_name', 'class.name as class_name')
 
@@ -932,6 +954,7 @@ class OrderDetailsController extends Controller
                 $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
                 $orderDetail->price = (int)$orderDetail->price;
                 $orderDetail->offer_count = (isset($orderDetail->offer_count)) ? $orderDetail->offer_count : 0;
+                $orderDetail->avatar = ($orderDetail->avatar) ? asset('storage/avatar/' . $orderDetail->avatar) : NULL;
             }
         }
 
@@ -939,6 +962,7 @@ class OrderDetailsController extends Controller
             foreach ($cancelOffers as $cancelOffer) {
                 $cancelOffer->start_date = date('d.m.Y H:i', strtotime($cancelOffer->start_date));
                 $cancelOffer->price = (int)$cancelOffer->price;
+                $cancelOffer->avatar = ($cancelOffer->avatar) ? asset('storage/avatar/' . $cancelOffer->avatar) : NULL;
             }
         }
         // return $orderDetails;
@@ -1180,18 +1204,70 @@ class OrderDetailsController extends Controller
                 if ($n < 0)
                     $n = 0;
                 
+                // // $arr[$n]['id'] = $data->id;
+                // $arr[$n]['id'] = $data->order_detail_id;
+                // $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->order_detail_start_date));
+                // $arr[$n]['price'] = (double)$data->price;
+                // $arr[$n]['from'] = $data->from;
+                // $arr[$n]['from_lng'] = $data->from_lng;
+                // $arr[$n]['from_lat'] = $data->from_lat;
+                // $arr[$n]['to'] = $data->to;
+                // $arr[$n]['to_lng'] = $data->to_lng;
+                // $arr[$n]['to_lat'] = $data->to_lat;
+                // $arr[$n]['seats_count'] = $data->od_seats_count;
+                // $arr[$n]['booking_count'] = $data->booking_count ?? 0;
+                // $arr[$n]['data_type'] = $data->data_type;
+
+
                 // $arr[$n]['id'] = $data->id;
-                $arr[$n]['id'] = $data->order_detail_id;
+                $arr[$n]['id'] = $data->id;
+                $arr[$n]['order_detail_id'] = $data->order_detail_id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->order_detail_start_date));
+                // $arr[$n]['end_date'] = $data->end_date;
                 $arr[$n]['price'] = (double)$data->price;
+                // $arr[$n]['data'] = $data->data_status;
+                $arr[$n]['seats_count'] = $data->od_seats_count;
+                $arr[$n]['booking_count'] = $data->booking_count ?? 0;
+                // $arr[$n]['is_full'] = ($data->seats_count == $data->booking_count) ? true : false;
+                // $arr[$n]['clients_list'][$c]['full_name'] = $data->c_last_name . ' ' . $data->c_first_name . ' ' . $data->c_middle_name;
+                // $arr[$n]['clients_list'][$c]['phone_number'] = '+' . $data->c_phone_number;
+                // $arr[$n]['clients_list'][$c]['img'] = ($data->c_avatar) ? asset('storage/avatar/' . $data->c_avatar) : '';
+                // $arr[$n]['clients_list'][$c]['rating'] = $data->c_rating;
+                $arr[$n]['driver'] = [
+                    'id' => $data->driver_id,
+                    'full_name' => $data->last_name . ' ' . $data->first_name . ' ' . $data->middle_name,
+                    'phone_number' => '+' . $data->phone_number,
+                    'img' => ($data->dimg) ? asset('storage/avatar/' . $data->dimg) : '',
+                    'rating' => $data->rating,
+                    'doc_status' => (int)$data->driver_doc_status
+                ];
+                $arr[$n]['car'] = [
+                    'id' => $data->car_id,
+                    'name' => $data->car_name,
+                    'color' => [
+                        'name' => $data->color_name,
+                        'code' => $data->color_code
+                    ],
+                    'production_date' => date('Y', strtotime($data->production_date)),
+                    'class' => $data->class_name,
+                    'reg_certificate' => $data->reg_certificate,
+                    'reg_certificate_img' => ($data->reg_certificate_image) ? asset('storage/cars/' . $data->reg_certificate_image) : '',
+                    'images' => $arrImgs,
+                ];
+                $arr[$n]['options'] = json_decode($data->options);
                 $arr[$n]['from'] = $data->from;
                 $arr[$n]['from_lng'] = $data->from_lng;
                 $arr[$n]['from_lat'] = $data->from_lat;
                 $arr[$n]['to'] = $data->to;
                 $arr[$n]['to_lng'] = $data->to_lng;
                 $arr[$n]['to_lat'] = $data->to_lat;
-                $arr[$n]['seats_count'] = $data->od_seats_count;
-                $arr[$n]['booking_count'] = $data->booking_count ?? 0;
+
+                $distance = $this->getDistanceAndKm($data->from_lng, $data->from_lat, $data->to_lng, $data->to_lat);
+
+                $arr[$n]['distance_km'] = $distance['km'];
+                $arr[$n]['distance'] = $distance['time'];
+                $arr[$n]['arrived_date'] = date('d.m.Y H:i', strtotime($data->start_date. ' +' . $distance['time']));
+                
                 $arr[$n]['data_type'] = $data->data_type;
 
                 $n++;
