@@ -859,7 +859,8 @@ class OrderDetailsController extends Controller
 
                 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color',
                 
-                'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"), DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type"))
+                'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 0 ELSE 1 END as type"))
+            // DB::raw("CASE WHEN yod.deleted_at IS NOT NULL THEN 'canceled' ELSE 'ended' END as w_type")
             ->orderBy('yod.start_date', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -918,11 +919,13 @@ class OrderDetailsController extends Controller
                 }
             )
 
-            ->select('yod.id', 'or.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), DB::raw("'driver_canceled' as w_type"),
+            ->select('yod.id', 'or.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), 
 
                 'ypi2.last_name as driver_last_name', 'ypi2.first_name as driver_first_name', 'ypi2.middle_name as driver_middle_name', DB::raw("CONCAT(ypi2.last_name, ' ', ypi2.first_name, ' ', ypi2.middle_name) as driver_full_name"), 'ypi2.avatar as driver_avatar', 'yu2.rating as driver_rating', 
                 // 'or.seats as order_seats', 'yF2.id as order_from_id', 'yF2.name as order_from', 'yT2.id as order_to_id', 'yT2.name as order_to'
             )
+
+            // DB::raw("'driver_canceled' as w_type"),
 
             // ->select('yod.id', 'yod.seats_count', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', 'yu.id as client_id', 'ypi.last_name as client_last_name', 'ypi.first_name as client_first_name', 'ypi.middle_name as client_middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as client_full_name"), 'ypi.avatar as client_avatar', 'ypi.birth_date as client_birth_date', 'ypi.phone_number as client_phone_number', 'yu.rating as client_rating', 'yF.id as from_id', 'yF.name as from', 'yF.lng as from_lng', 'yF.lat as from_lat', 'yT.id as to_id', 'yT.name as to', 'yT.lng as to_lng', 'yT.lat as to_lat', 'yof.id as offer_id', 'yof.price as offer_price', 'yof.create_type as offer_create_type', 'yof.cancel_date as offer_cancel_date', 'yof.seats as offer_seats', 'yor.id as order_id', 'yor.price as order_price', 'yor.title as order_title', 'yor.start_date as order_start_date', 'yor.options as order_options', 'yor.seats as order_seats', 'yor.booking_place as order_booking_place', 'ypid.id as driver_id', 'ypid.last_name as driver_last_name', 'ypid.first_name as driver_first_name', 'ypid.middle_name as driver_middle_name', DB::raw("CONCAT(ypid.last_name, ' ', ypid.first_name, ' ', ypid.middle_name) as driver_full_name"), 'ypid.avatar as driver_avatar', 'ypid.birth_date as driver_birth_date', 'ypid.phone_number as driver_phone_number', 'yud.rating as driver_rating', 'cl.name as car_name', 'col.name as color_name', 'class.name as class_name')
 
@@ -1025,7 +1028,7 @@ class OrderDetailsController extends Controller
                 us.id as driver_id,
                 dr.id as dr_id,
                 dr.doc_status as driver_doc_status,
-                T.data_type as data_type
+                T.data_type as type
             FROM (
                 SELECT
                     yod.id, yod.client_id, yod.seats_count, yod.from_id, yod.to_id, yod.price, yod.start_date, yod.type, yod.end_date,
