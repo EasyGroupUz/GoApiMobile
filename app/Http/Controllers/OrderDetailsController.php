@@ -945,7 +945,7 @@ class OrderDetailsController extends Controller
                 $orderDetail->start_date = date('d.m.Y H:i', strtotime($orderDetail->start_date));
                 $orderDetail->price = (int)$orderDetail->price;
                 $orderDetail->offer_count = (isset($orderDetail->offer_count)) ? $orderDetail->offer_count : 0;
-                $orderDetail->avatar = ($orderDetail->avatar) ? asset('storage/avatar/' . $orderDetail->avatar) : NULL;
+                // $orderDetail->avatar = ($orderDetail->avatar) ? asset('storage/avatar/' . $orderDetail->avatar) : NULL;
                 $orderDetail->driver_avatar = ($orderDetail->driver_avatar) ? asset('storage/avatar/' . $orderDetail->driver_avatar) : NULL;
             }
         }
@@ -954,7 +954,7 @@ class OrderDetailsController extends Controller
             foreach ($cancelOffers as $cancelOffer) {
                 $cancelOffer->start_date = date('d.m.Y H:i', strtotime($cancelOffer->start_date));
                 $cancelOffer->price = (int)$cancelOffer->price;
-                $cancelOffer->avatar = ($cancelOffer->avatar) ? asset('storage/avatar/' . $cancelOffer->avatar) : NULL;
+                // $cancelOffer->avatar = ($cancelOffer->avatar) ? asset('storage/avatar/' . $cancelOffer->avatar) : NULL;
                 $cancelOffer->driver_avatar = ($cancelOffer->driver_avatar) ? asset('storage/avatar/' . $cancelOffer->driver_avatar) : NULL;
             }
         }
