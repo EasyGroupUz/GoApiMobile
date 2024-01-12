@@ -852,7 +852,9 @@ class OrderDetailsController extends Controller
                 $query->where('yod.end_date', '<=', $variable1)
                     ->orWhereNotNull('yod.deleted_at');
             })
-            ->select('yod.id', 'or.id as order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 
+            ->select('yod.id', 'or.id as order_id', 'ss.count_offers AS offer_count', 
+                // 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 
+                'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 
                 
                 'ypi2.last_name as driver_last_name', 'ypi2.first_name as driver_first_name', 'ypi2.middle_name as driver_middle_name', DB::raw("CONCAT(ypi2.last_name, ' ', ypi2.first_name, ' ', ypi2.middle_name) as driver_full_name"), 'ypi2.avatar as driver_avatar', 'yu2.rating as driver_rating', 
                 // 'or.seats as order_seats', 'yF2.id as order_from_id', 'yF2.name as order_from', 'yT2.id as order_to_id', 'yT2.name as order_to', 
@@ -919,7 +921,9 @@ class OrderDetailsController extends Controller
                 }
             )
 
-            ->select('yod.id', 'or.id AS order_id', 'ss.count_offers AS offer_count', 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), 
+            ->select('yod.id', 'or.id AS order_id', 'ss.count_offers AS offer_count', 
+                // 'ypi.last_name', 'ypi.first_name', 'ypi.middle_name', DB::raw("CONCAT(ypi.last_name, ' ', ypi.first_name, ' ', ypi.middle_name) as full_name"), 'ypi.avatar', 'yu.rating', 
+                'color.type_name', 'color.car_name', 'color.code AS color_code', 'color.color', 'yod.seats_count', 'yF.id as from_id', 'yF.name as from', 'yT.id as to_id', 'yT.name as to', 'yod.comment', 'yod.price', 'yod.start_date', 'yod.end_date', DB::raw("2 as type"), 
 
                 'ypi2.last_name as driver_last_name', 'ypi2.first_name as driver_first_name', 'ypi2.middle_name as driver_middle_name', DB::raw("CONCAT(ypi2.last_name, ' ', ypi2.first_name, ' ', ypi2.middle_name) as driver_full_name"), 'ypi2.avatar as driver_avatar', 'yu2.rating as driver_rating', 
                 // 'or.seats as order_seats', 'yF2.id as order_from_id', 'yF2.name as order_from', 'yT2.id as order_to_id', 'yT2.name as order_to'
@@ -1088,7 +1092,9 @@ class OrderDetailsController extends Controller
             -- LEFT JOIN yy_statuses AS status ON status.id = or.status_id
 
             ORDER BY T.order_id, T.id, T.data_type
-        ");
+            offset " . ($page - 1) * $limit . "
+            limit " . $limit
+        );
 
         return $model;
     }
