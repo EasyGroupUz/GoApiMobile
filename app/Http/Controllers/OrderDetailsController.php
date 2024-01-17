@@ -1223,8 +1223,8 @@ class OrderDetailsController extends Controller
                 }
                     
                 // $arr[$n]['id'] = $data->id;
-                $arr[$n]['id'] = $data->id;
-                $arr[$n]['order_detail_id'] = $data->order_detail_id;
+                $arr[$n]['id'] = $data->order_detail_id;
+                $arr[$n]['order_id'] = $data->id;
                 $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->order_detail_start_date));
                 // $arr[$n]['end_date'] = $data->end_date;
                 $arr[$n]['price'] = (double)$data->price;
