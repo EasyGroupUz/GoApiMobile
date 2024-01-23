@@ -1041,7 +1041,7 @@ class OrderDetailsController extends Controller
                 FROM yy_order_details AS yod
                 INNER JOIN yy_offers AS yof ON yof.order_detail_id = yod.id AND yof.create_type = 0 AND yod.type = 2 AND yof.status IN (6, 7)
                 INNER JOIN yy_orders AS yo ON yo.id = yof.order_id
-                WHERE yod.deleted_at IS NULL AND yof.deleted_at IS NULL AND yod.client_id = " . auth()->id() . " AND yof.cancel_date IS NULL
+                WHERE yod.deleted_at IS NULL AND yod.end_date IS NULL AND yof.deleted_at IS NULL AND yod.client_id = " . auth()->id() . " AND yof.cancel_date IS NULL
                 
                 UNION 
                 
@@ -1053,7 +1053,7 @@ class OrderDetailsController extends Controller
                 FROM yy_order_details AS yod2
                 INNER JOIN yy_offers AS yof2 ON yof2.order_detail_id = yod2.id AND yof2.create_type = 0 AND yod2.type = 1 AND yof2.status = 7
                 INNER JOIN yy_orders AS yo2 ON yo2.id = yof2.order_id
-                WHERE yod2.deleted_at IS NULL AND yof2.deleted_at IS NULL AND yod2.client_id = " . auth()->id() . " AND yof2.cancel_date IS NULL
+                WHERE yod2.deleted_at IS NULL AND yod2.end_date IS NULL AND yof2.deleted_at IS NULL AND yod2.client_id = " . auth()->id() . " AND yof2.cancel_date IS NULL
                 
                 UNION 
                 
