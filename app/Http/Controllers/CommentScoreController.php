@@ -184,7 +184,7 @@ class CommentScoreController extends Controller
                             case 1:
                                 $ratings_list_1[] = [
                                     "id" => $com->id,
-                                    "rating" => (int)$com->score??0,
+                                    "rating" => (double)$com->score??0,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -192,7 +192,7 @@ class CommentScoreController extends Controller
                             case 2:
                                 $ratings_list_2[] = [
                                     "id" => $com->id,
-                                    "rating" => (int)$com->score??0,
+                                    "rating" => (double)$com->score??0,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -200,7 +200,7 @@ class CommentScoreController extends Controller
                             case 3:
                                 $ratings_list_3[] = [
                                     "id" => $com->id,
-                                    "rating" => (int)$com->score??0,
+                                    "rating" => (double)$com->score??0,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -208,7 +208,7 @@ class CommentScoreController extends Controller
                             case 4:
                                 $ratings_list_4[] = [
                                     "id" => $com->id,
-                                    "rating" => (int)$com->score??0,
+                                    "rating" => (double)$com->score??0,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -216,7 +216,7 @@ class CommentScoreController extends Controller
                             case 5:
                                 $ratings_list_5[] = [
                                     "id" => $com->id,
-                                    "rating" => (int)$com->score??0,
+                                    "rating" => (double)$com->score??0,
                                     "percent" => 100*count($comm)/count($getComments).' %',
                                     "comment_count" => count($comm)
                                 ];
@@ -334,7 +334,7 @@ class CommentScoreController extends Controller
                     $comments_list[] = [
                         "user"=>'deleted',
                         "date" => $date[0]??null,
-                        "rating" => (int)$getComment->score??0,
+                        "rating" => (double)$getComment->score??0,
                         "comment" => $getComment->text??null,
                         "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
@@ -344,7 +344,7 @@ class CommentScoreController extends Controller
                         "img" => $user_img,
                         "full_name" => $user_full_name,
                         "date" => $date[0]??null,
-                        "rating" => (int)$getComment->score??0,
+                        "rating" => (double)$getComment->score??0,
                         "comment" => $getComment->text??null,
                         "created_at" => date_format($getComment->created_at, 'Y-m-d H:i:s')
                     ];
@@ -414,7 +414,7 @@ class CommentScoreController extends Controller
                     'img'=>$img_,
                     'full_name'=>$full_name,
 //                    'doc_status'=>$doc_status??null,
-                    'rating' => (int)$user->rating,
+                    'rating' => (double)$user->rating,
                     'comment_count'=> 0
                 ];
             }else{
