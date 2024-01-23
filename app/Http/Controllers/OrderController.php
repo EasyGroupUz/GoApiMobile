@@ -98,6 +98,16 @@ class OrderController extends Controller
                 // ->orderBy('start_date', 'asc')
                 ->get();
 
+            if (!($orders && count($orders) > 0)) {
+                $orders = Order::where('status_id', Constants::ORDERED)
+                    ->whereIn('from_id', $arrFromIds)
+                    ->whereIn('to_id', $arrToIds)
+                    ->where('driver_id', '!=', auth()->id())
+                    ->orderBy('start_date', 'asc')
+                    ->limit(10)
+                    ->get();
+            }
+
             // $a = DB::table('yy_orders')
             //     ->select('id')
             //     ->whereIn('from_id', $arrFromIds)
