@@ -556,6 +556,9 @@ class SocketController extends Controller implements MessageComponentInterface
             $data = json_decode("{}");
         }
 
+        $col = array_column( $data, "start_date" );
+        array_multisort( $col, SORT_DESC, $data );
+
         return response()->json([
             'data' => $data,
             'status' => true,
@@ -635,7 +638,7 @@ class SocketController extends Controller implements MessageComponentInterface
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'firebase_id' => 'required|integer',
+            'firebase_id' => 'required',
             'message' => 'nullable'
         ]);
 

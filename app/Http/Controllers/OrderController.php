@@ -103,6 +103,7 @@ class OrderController extends Controller
                     ->whereIn('from_id', $arrFromIds)
                     ->whereIn('to_id', $arrToIds)
                     ->where('driver_id', '!=', auth()->id())
+                    ->where('start_date', '>', date('Y-m-d H:i:s'))
                     ->orderBy('start_date', 'asc')
                     ->limit(10)
                     ->get();
