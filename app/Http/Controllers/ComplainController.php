@@ -8,6 +8,7 @@ use App\Models\OrderDetail;
 use App\Models\ComplainReason;
 use App\Models\Order;
 use App\Http\Requests\ComplainRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ComplainController extends Controller
 {
@@ -60,13 +61,14 @@ class ComplainController extends Controller
                 $reason[] = $complainReason->text;
             }
         }
-        if(isset($request->order_detail_id)){
-            $order_detail = OrderDetail::withTrashed()->find($request->order_detail_id);
-            $complain->order_detail_id = $request->order_detail_id;
-            if(!isset($order_detail)){
-                return $this->error(translate_api("Order detail not found", $language), 400);
-            }
-        }
+        $complain->order_detail_id = Auth::user()->id;
+        // if(isset($request->order_detail_id)){
+        //     $order_detail = OrderDetail::withTrashed()->find($request->order_detail_id);
+        //     $complain->order_detail_id = $request->order_detail_id;
+        //     if(!isset($order_detail)){
+        //         return $this->error(translate_api("Order detail not found", $language), 400);
+        //     }
+        // }
         if(isset($request->order_id)) {
             $order = Order::withTrashed()->find($request->order_id);
             $complain->order_id = $request->order_id;
