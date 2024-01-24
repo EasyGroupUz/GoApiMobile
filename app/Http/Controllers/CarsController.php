@@ -25,9 +25,10 @@ class CarsController extends Controller
         $cars = DB::table('yy_users as dt1')
             ->leftJoin('yy_cars as dt2', 'dt2.driver_id', '=', 'dt1.id')
             ->leftJoin('yy_car_lists as dt3', 'dt3.id', '=', 'dt2.car_list_id')
+            ->leftJoin('yy_car_types as dt5', 'dt5.id', '=', 'dt3.car_type_id')
             ->leftJoin('yy_color_lists as dt4', 'dt4.id', '=', 'dt2.color_list_id')
             ->where('dt1.id', auth()->id())->where('dt2.deleted_at', NULL)
-            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.from_admin', 'dt2.updated_at', 'dt2.deleted_at')
+            ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate','dt2.production_date', 'dt5.id as model_id', 'dt5.name as model_name', 'dt3.id as car_id', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.from_admin', 'dt2.updated_at', 'dt2.deleted_at')
             ->get()->toArray();
 
         foreach ($cars as $car){
@@ -66,7 +67,11 @@ class CarsController extends Controller
                 'reg_certificate'=>$car->reg_certificate??null,
 //                'reg_certificate_image'=>$reg_certificate_img,
                 'production_date'=>$car->production_date??null,
+                'car_id'=>$car->car_id??null,
                 'car_name'=>$car->car_name??null,
+                'model_id'=>$car->model_id??null,
+                'model_name'=>$car->model_name??null,
+                'color_id'=>$car->color_id??'',
                 'color'=>$color_table->color_translation_name??$car->color_name,
                 'color_code'=>$color_table->color_code??$car->color_code,
                 'created_at'=>$car->created_at,
