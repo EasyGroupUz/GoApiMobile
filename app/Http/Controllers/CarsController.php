@@ -29,7 +29,7 @@ class CarsController extends Controller
             ->where('dt1.id', auth()->id())->where('dt2.deleted_at', NULL)
             ->select('dt2.id', 'dt2.images', 'dt2.reg_certificate','dt2.production_date', 'dt3.name as car_name', 'dt4.name as color_name', 'dt4.name as color_code', 'dt4.id as color_id', 'dt2.created_at', 'dt2.from_admin', 'dt2.updated_at', 'dt2.deleted_at')
             ->get()->toArray();
-        //                'dt2.reg_certificate_image',
+
         foreach ($cars as $car){
             if(is_null($car->id)){
                 return $this->success('Success', 200, []);
