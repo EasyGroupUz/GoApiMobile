@@ -398,14 +398,30 @@ class OrderDetailsController extends Controller
 
         $model = DB::select("
             SELECT 
-                max(yyo.id) as id, max(yyF.name) as from, yyF.id as from_id, max(yyF.lng) as from_lng, max(yyF.lat) as from_lat, max(yyT.name) as TO, 
-                yyT.id as to_id, max(yyT.lng) as to_lng, max(yyT.lat) as to_lat 
-            FROM yy_order_details as yyo
-            left join yy_cities as yyF on yyF.id = yyo.from_id
-            left join yy_cities as yyT on yyT.id = yyo.to_id
-            where yyo.client_id = " . auth()->id() . " and yyo.type = " . Constants::SEARCHED_ORDER_DETAIL . "
-            group By yyF.id, yyT.id
-            limit 2
+                MAX(yyo.id) AS id, max(yyF.name) AS from, yyF.id AS from_id, max(yyF.lng) AS from_lng, max(yyF.lat) AS from_lat, max(yyT.name) AS to, 
+                yyT.id AS to_id, max(yyT.lng) AS to_lng, max(yyT.lat) AS to_lat 
+            FROM
+                (
+                    SELECT 
+                        *
+                    FROM yy_order_details
+                    WHERE client_id = " . auth()->id() . " AND type = " . Constants::SEARCHED_ORDER_DETAIL . "
+                    ORDER BY start_date
+                ) AS yyo
+            LEFT JOIN yy_cities AS yyF ON yyF.id = yyo.from_id
+            LEFT JOIN yy_cities AS yyT ON yyT.id = yyo.to_id
+            GROUP BY yyF.id, yyT.id
+            LIMIT 2
+
+            -- SELECT 
+            --     max(yyo.id) as id, max(yyF.name) as from, yyF.id as from_id, max(yyF.lng) as from_lng, max(yyF.lat) as from_lat, max(yyT.name) as TO, 
+            --     yyT.id as to_id, max(yyT.lng) as to_lng, max(yyT.lat) as to_lat 
+            -- FROM yy_order_details as yyo
+            -- left join yy_cities as yyF on yyF.id = yyo.from_id
+            -- left join yy_cities as yyT on yyT.id = yyo.to_id
+            -- where yyo.client_id = " . auth()->id() . " and yyo.type = " . Constants::SEARCHED_ORDER_DETAIL . "
+            -- group By yyF.id, yyT.id
+            -- limit 2
         ");
 
         return $this->success('success', 200, $model);
