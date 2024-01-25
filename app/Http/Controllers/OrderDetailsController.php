@@ -843,7 +843,7 @@ class OrderDetailsController extends Controller
                     INNER JOIN yy_car_lists AS ycar ON ycar.id = yc.car_list_id
                     INNER JOIN yy_car_types AS yct ON ycar.car_type_id = yct.id
                     INNER JOIN yy_color_lists AS ycl ON yc.color_list_id = ycl.id
-                    LEFT JOIN yy_color_translations AS ycrt ON ycl.id = ycrt.color_list_id AND ycrt.lang = 'ru'
+                    LEFT JOIN yy_color_translations AS ycrt ON ycl.id = ycrt.color_list_id AND ycrt.lang = '" . $language . "'
                 ) 
                 color"), 
                 function($join)
@@ -963,6 +963,11 @@ class OrderDetailsController extends Controller
                 $orderDetail->offer_count = (isset($orderDetail->offer_count)) ? $orderDetail->offer_count : 0;
                 // $orderDetail->avatar = ($orderDetail->avatar) ? asset('storage/avatar/' . $orderDetail->avatar) : NULL;
                 $orderDetail->driver_avatar = ($orderDetail->driver_avatar) ? asset('storage/avatar/' . $orderDetail->driver_avatar) : NULL;
+
+                $city_translate = table_translate($orderDetail, 'city', $language);
+
+                $orderDetail->from = $city_translate['from_name'];
+                $orderDetail->to = $city_translate['to_name'];
             }
         }
 
@@ -995,7 +1000,7 @@ class OrderDetailsController extends Controller
         $orderDetails = $this->getActiveList($page);
         // return $orderDetails;
         
-        $data = $this->makeDataToArrayActive($orderDetails);
+        $data = $this->makeDataToArrayActive($orderDetails, $language);
             
         return $this->success('success', 201, $data);
     }
@@ -1038,9 +1043,11 @@ class OrderDetailsController extends Controller
                 car.reg_certificate_image,
                 car.images as car_images,
                 T.options,
+                fom.id as from_id,
                 fom.name as from,
                 fom.lng as from_lng,
                 fom.lat as from_lat,
+                too.id as to_id,
                 too.name as to,
                 too.lng as to_lng,
                 too.lat as to_lat,
@@ -1115,7 +1122,7 @@ class OrderDetailsController extends Controller
         return $model;
     }
 
-    private function makeDataToArrayActive($datas)
+    private function makeDataToArrayActive($datas, $language = 'ru')
     {
         $arr = [];
         $arr2 = [];
@@ -1160,7 +1167,9 @@ class OrderDetailsController extends Controller
                         }
                     }
 
-                    // dd($data);
+                    
+                    $city_translate = table_translate($data, 'city', $language);
+
                     $arr[$n]['id'] = $data->order_detail_id;
                     $arr[$n]['order_id'] = $data->id;
                     $arr[$n]['start_date'] = date('d.m.Y H:i', strtotime($data->start_date));
@@ -1196,10 +1205,11 @@ class OrderDetailsController extends Controller
                         'images' => $arrImgs,
                     ];
                     $arr[$n]['options'] = json_decode($data->options);
-                    $arr[$n]['from'] = $data->from;
+                    
+                    $arr[$n]['from'] = $city_translate['from_name'];
                     $arr[$n]['from_lng'] = $data->from_lng;
                     $arr[$n]['from_lat'] = $data->from_lat;
-                    $arr[$n]['to'] = $data->to;
+                    $arr[$n]['to'] = $city_translate['to_name'];
                     $arr[$n]['to_lng'] = $data->to_lng;
                     $arr[$n]['to_lat'] = $data->to_lat;
 

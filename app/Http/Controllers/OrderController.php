@@ -2078,6 +2078,11 @@ class OrderController extends Controller
                 $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
                 $order->avatar = ($order->avatar) ? asset('storage/avatar/' . $order->avatar) : NULL;
                 $order->price = (double)$order->price;
+
+                $city_translate = table_translate($order, 'city', $language);
+
+                $order->from = $city_translate['from_name'] ?? '';
+                $order->to = $city_translate['to_name'] ?? '';
             }
         }
 
@@ -2155,6 +2160,11 @@ class OrderController extends Controller
                 $order->start_date = date('d.m.Y H:i', strtotime($order->start_date));
                 $order->avatar = ($order->avatar) ? asset('storage/avatar/' . $order->avatar) : NULL;
                 $order->price = (double)$order->price;
+
+                $city_translate = table_translate($order, 'city', $language);
+
+                $order->from = $city_translate['from_name'] ?? '';
+                $order->to = $city_translate['to_name'] ?? '';
             }
         }
 
