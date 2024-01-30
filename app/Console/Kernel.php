@@ -32,7 +32,12 @@ class Kernel extends ConsoleKernel
                 foreach ($orders as $order) {
                     $distance = $this->getDistanceAndKm((($order->from) ? $order->from->lng : ''), (($order->from) ? $order->from->lat : ''), (($order->to) ? $order->to->lng : ''), (($order->to) ? $order->to->lat : ''));
 
-                    $arrived_date = date('Y-m-d H:i:s', strtotime($order->start_date. ' +' . $distance['time']));
+                    if ($distance['time'] == 0 || $distance['time'] == '0') {
+                        $arrived_date = date('Y-m-d H:i:s', strtotime('+10 hours', strtotime($order->start_date)));
+                    } else {
+                        $arrived_date = date('Y-m-d H:i:s', strtotime($order->start_date. ' +' . $distance['time']));
+                    }
+
                     if ($arrived_date < date('Y-m-d H:i:s')) {
                         $order->status_id = Constants::COMPLETED;
                         $order->save();
