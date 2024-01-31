@@ -505,7 +505,7 @@ class SocketController extends Controller implements MessageComponentInterface
     public function chatList(Request $request)
     {
         $language = $request->header('language');
-        $chats= DB::table('yy_chats')
+        $chats = DB::table('yy_chats')
             ->distinct('order_id')
             ->orderBy('order_id')
             ->where('user_to_id', auth()->id())
@@ -554,10 +554,10 @@ class SocketController extends Controller implements MessageComponentInterface
 
         if (empty($data)) {
             $data = json_decode("{}");
+        } else {
+            $col = array_column( $data, "start_date" );
+            array_multisort( $col, SORT_DESC, $data );
         }
-
-        $col = array_column( $data, "start_date" );
-        array_multisort( $col, SORT_DESC, $data );
 
         return response()->json([
             'data' => $data,
