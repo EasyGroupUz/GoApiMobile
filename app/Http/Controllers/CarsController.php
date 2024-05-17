@@ -349,14 +349,16 @@ class CarsController extends Controller
         $images = $request->file('images');
 
         if(isset($images)){
-            $model_images = json_decode($cars->images);
-            foreach ($model_images as $model_image){
-                if(!isset($model_image)){
-                    $model_image = 'noimage';
-                }
-                $sms_image = storage_path('app/public/cars/'.$model_image);
-                if(file_exists($sms_image)){
-                    unlink($sms_image);
+            if ($cars->images) {
+                $model_images = json_decode($cars->images);
+                foreach ($model_images as $model_image){
+                    if(!isset($model_image)){
+                        $model_image = 'noimage';
+                    }
+                    $sms_image = storage_path('app/public/cars/'.$model_image);
+                    if(file_exists($sms_image)){
+                        unlink($sms_image);
+                    }
                 }
             }
             foreach ($images as $image){
